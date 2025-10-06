@@ -1,3 +1,10 @@
+import { ApiProperty } from "@nestjs/swagger";
+
 export class CommonResponseDto {
-  public message: string
+  @ApiProperty({
+    description: 'Response message',
+    example: 'Operation successful',
+    type: String,
+  })
+  public message!: string
 }
