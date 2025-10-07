@@ -29,7 +29,7 @@ export class User extends BaseEntity {
   @Column({ nullable: true })
   public biography?: string
 
-  @Column({ type: 'enum', enum: Language, default: Language.ENGLISH_US })
+  @Column({ type: "enum", enum: Language, default: Language.ENGLISH_US })
   public language!: Language
 
   @Column({ name: "profile_picture_path", nullable: true })
@@ -56,9 +56,9 @@ export class User extends BaseEntity {
   @Column({ name: "youtube_url", nullable: true })
   public youtubeUrl?: string
 
-  @Column({ type: 'enum', enum: UserStatus, default: UserStatus.ACTIVE })
+  @Column({ type: "enum", enum: UserStatus, default: UserStatus.ACTIVE })
   public status!: UserStatus
 
-  @Column({ type: 'enum', enum: UserRole, array: true, default: [UserRole.STUDENT] })
+  @Column({ type: "enum", enum: UserRole, array: true, default: [UserRole.STUDENT] })
   public roles!: UserRole[]
 }

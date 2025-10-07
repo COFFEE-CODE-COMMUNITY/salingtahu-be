@@ -4,6 +4,7 @@
     // File Layout
      "rootDir": "./src",
      "outDir": "./dist",
+     "typeRoots": ["./node_modules/@types", "./src/types"],
 
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
@@ -44,5 +45,10 @@
     "emitDecoratorMetadata": true,
     "esModuleInterop": true
   },
+  "ts-node": {
+    "transpileOnly": true,
+    "files": true
+  },
+  "include": ["src/**/*"],
   "exclude": ["jest.config.ts"]
 }

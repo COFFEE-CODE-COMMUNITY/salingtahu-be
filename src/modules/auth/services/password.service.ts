@@ -1,6 +1,6 @@
-import { Injectable } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
-import * as argon2 from "argon2";
+import { Injectable } from "@nestjs/common"
+import { ConfigService } from "@nestjs/config"
+import * as argon2 from "argon2"
 
 @Injectable()
 export class PasswordService {
@@ -29,10 +29,10 @@ export class PasswordService {
       memoryCost: this.config.get<number>("password.argon2.memoryCost", 8192),
       timeCost: this.config.get<number>("password.argon2.timeCost", 2),
       parallelism: this.config.get<number>("password.argon2.parallelism", 1),
-    });
+    })
   }
 
   public async compare(password: string, hashedPassword: string): Promise<boolean> {
-    return argon2.verify(hashedPassword, password);
+    return argon2.verify(hashedPassword, password)
   }
 }

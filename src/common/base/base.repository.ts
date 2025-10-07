@@ -1,4 +1,3 @@
-
 import { DataSource, Repository } from "typeorm"
 import { BaseEntity, EntityId } from "./base.entity"
 

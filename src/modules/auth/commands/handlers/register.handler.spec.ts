@@ -10,7 +10,7 @@ import { RegisterDto } from "../../dto/register.dto"
 import { User } from "../../../user/entities/user.entity"
 import { RegisterCommand } from "../register.command"
 
-describe('RegisterHandler', () => {
+describe("RegisterHandler", () => {
   let handler: RegisterHandler
   let mapper: MockProxy<Mapper>
   let passwordService: MockProxy<PasswordService>
@@ -22,17 +22,17 @@ describe('RegisterHandler', () => {
         RegisterHandler,
         {
           provide: getMapperToken(),
-          useValue: mock<Mapper>()
+          useValue: mock<Mapper>(),
         },
         {
           provide: PasswordService,
-          useValue: mock<PasswordService>()
+          useValue: mock<PasswordService>(),
         },
         {
           provide: UserRepository,
-          useValue: mock<UserRepository>()
-        }
-      ]
+          useValue: mock<UserRepository>(),
+        },
+      ],
     }).compile()
 
     handler = module.get<RegisterHandler>(RegisterHandler)
@@ -41,12 +41,12 @@ describe('RegisterHandler', () => {
     userRepository = module.get<MockProxy<UserRepository>>(UserRepository)
   })
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(handler).toBeDefined()
   })
 
-  describe('execute', () => {
-    it('should register a new user and return CommonResponseDto', async () => {
+  describe("execute", () => {
+    it("should register a new user and return CommonResponseDto", async () => {
       // Arrange
       const dto = new RegisterDto()
       dto.firstName = faker.person.firstName()
@@ -64,8 +64,7 @@ describe('RegisterHandler', () => {
 
       // @ts-expect-error
       mapper.map.calledWith(dto, RegisterDto, User).mockReturnValue(user)
-      passwordService.hash.calledWith(user.password).mockResolvedValue('hashedPassword')
-
+      passwordService.hash.calledWith(user.password).mockResolvedValue("hashedPassword")
 
       // Act
       const result = await handler.execute(registerCommand)
@@ -73,14 +72,16 @@ describe('RegisterHandler', () => {
       // Assert
       expect(mapper.map).toHaveBeenCalledWith(dto, RegisterDto, User)
       expect(passwordService.hash).toHaveBeenCalledWith(dto.password)
-      expect(userRepository.insert).toHaveBeenCalledWith(expect.objectContaining({
-        firstName: dto.firstName,
-        lastName: dto.lastName,
-        email: dto.email,
-        password: 'hashedPassword'
-      }))
+      expect(userRepository.insert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          firstName: dto.firstName,
+          lastName: dto.lastName,
+          email: dto.email,
+          password: "hashedPassword",
+        }),
+      )
       expect(result).toEqual({
-        message: "User successfully registered."
+        message: "User successfully registered.",
       })
     })
   })

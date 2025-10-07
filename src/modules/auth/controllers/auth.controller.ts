@@ -1,6 +1,15 @@
-import { Body, Controller, Post, HttpCode, HttpStatus, Headers, Get, Query, Res, } from "@nestjs/common"
+import { Body, Controller, Post, HttpCode, HttpStatus, Headers, Get, Query, Res } from "@nestjs/common"
 import { RegisterDto } from "../dto/register.dto"
-import { ApiOperation, ApiResponse, ApiTags, ApiBadRequestResponse, ApiCreatedResponse, ApiOkResponse, ApiUnauthorizedResponse, ApiQuery } from "@nestjs/swagger"
+import {
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+  ApiBadRequestResponse,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiUnauthorizedResponse,
+  ApiQuery,
+} from "@nestjs/swagger"
 import { CommonResponseDto } from "../../../common/dto/common-response.dto"
 import { RegisterBadRequestResponseDto } from "../dto/register-bad-request-response.dto"
 import { LoginDto } from "../dto/login.dto"
@@ -11,23 +20,23 @@ import { GoogleAuthResponseDto } from "../dto/google-auth-response.dto"
 import { CommandBus } from "@nestjs/cqrs"
 import { RegisterCommand } from "../commands/register.command"
 
-@ApiTags('Authentication')
+@ApiTags("Authentication")
 @Controller("auth")
 export class AuthController {
   public constructor(private readonly commandBus: CommandBus) {}
 
   @Post("register")
   @ApiOperation({
-    summary: 'Register a new user',
-    description: 'Creates a new user account with the provided username, email, and password',
+    summary: "Register a new user",
+    description: "Creates a new user account with the provided username, email, and password",
   })
   @ApiCreatedResponse({
-    description: 'User successfully registered',
-    type: CommonResponseDto
+    description: "User successfully registered",
+    type: CommonResponseDto,
   })
   @ApiBadRequestResponse({
-    description: 'Invalid input data',
-    type: RegisterBadRequestResponseDto
+    description: "Invalid input data",
+    type: RegisterBadRequestResponseDto,
   })
   public async register(@Body() body: RegisterDto): Promise<CommonResponseDto> {
     return this.commandBus.execute(new RegisterCommand(body))
@@ -35,25 +44,23 @@ export class AuthController {
 
   @Post("login")
   @ApiOperation({
-    summary: 'Login user',
-    description: 'Login user account with the provided email and password'
+    summary: "Login user",
+    description: "Login user account with the provided email and password",
   })
   @ApiOkResponse({
-    description: 'User successfully login',
-    type: CommonResponseDto
+    description: "User successfully login",
+    type: CommonResponseDto,
   })
   @ApiUnauthorizedResponse({
-    description: 'User unauthorized.',
-    type: CommonResponseDto
+    description: "User unauthorized.",
+    type: CommonResponseDto,
   })
-  public async login(@Body() body: LoginDto) {
-
-  }
+  public async login(@Body() body: LoginDto) {}
 
   @Get("refresh-token")
   @ApiOperation({
-    summary: 'Refresh token.',
-    description: 'This endpoint refreshes the access token using the refresh token.'
+    summary: "Refresh token.",
+    description: "This endpoint refreshes the access token using the refresh token.",
   })
   @ApiOkResponse({
     type: TokensDto,
@@ -64,12 +71,7 @@ export class AuthController {
     description: "The user is not authorized to perform this action.",
   })
   @HttpCode(HttpStatus.OK)
-  public async refreshToken(
-    @Body() body: GetRefreshTokenDto,
-    @Headers('User-Agent') userAgent: string,
-  ) {
-
-  }
+  public async refreshToken(@Body() body: GetRefreshTokenDto, @Headers("User-Agent") userAgent: string) {}
 
   @Post("/password-reset")
   @ApiOperation({
@@ -111,8 +113,8 @@ export class AuthController {
     description: "This endpoint returns the Google OAuth2 URL for authentication.",
   })
   @ApiQuery({
-    name: 'platform',
-    description: 'The platform for which to retrieve the Google OAuth2 URL.',
+    name: "platform",
+    description: "The platform for which to retrieve the Google OAuth2 URL.",
     required: true,
   })
   @ApiOkResponse({
@@ -120,7 +122,7 @@ export class AuthController {
     description: "The Google OAuth2 URL has been retrieved successfully.",
   })
   public async googleAuth(): Promise<GoogleAuthResponseDto> {
-    return new GoogleAuthResponseDto
+    return new GoogleAuthResponseDto()
   }
 
   @Get("/google/callback")
@@ -129,10 +131,9 @@ export class AuthController {
     description: "This endpoint handles the redirect from Google after the user has authenticated.",
   })
   public async googleAuthCallback(
-    @Query('code') code: string,
-    @Query('state') state: string,
-    @Headers('User-Agent') userAgent: string,
-    @Res() res: Response
-  ): Promise<void> {
-  }
+    @Query("code") code: string,
+    @Query("state") state: string,
+    @Headers("User-Agent") userAgent: string,
+    @Res() res: Response,
+  ): Promise<void> {}
 }

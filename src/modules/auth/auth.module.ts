@@ -4,6 +4,7 @@ import { RegisterHandler } from "./commands/handlers/register.handler"
 import { PasswordService } from "./services/password.service"
 import { AuthMapper } from "./mappers/auth.mapper"
 import { UserModule } from "../user/user.module"
+import { AccessTokenService } from "./services/access-token.service"
 
 @Module({
   imports: [UserModule],
@@ -16,7 +17,9 @@ import { UserModule } from "../user/user.module"
     AuthMapper,
 
     // Services
+    AccessTokenService,
     PasswordService,
-  ]
+  ],
+  exports: [AccessTokenService],
 })
 export class AuthModule {}
