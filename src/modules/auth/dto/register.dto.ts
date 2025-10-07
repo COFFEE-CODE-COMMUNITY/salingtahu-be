@@ -2,18 +2,31 @@ import { IsEmail, IsString, MinLength, IsNotEmpty, MaxLength } from 'class-valid
 import { ApiProperty } from "@nestjs/swagger"
 
 export class RegisterDto {
-  @MaxLength(20, { message: "Username must be at most 20 characters long" })
-  @MinLength(4, { message: "Username must be at least 4 characters long" })
-  @IsNotEmpty({ message: "Username should not be empty" })
-  @IsString({ message: "Username must be a string" })
+  @MaxLength(30, { message: "First name must be at most 30 characters long" })
+  @MinLength(2, { message: "First name must be at least 2 characters long" })
+  @IsNotEmpty({ message: "First name should not be empty" })
+  @IsString({ message: "First name must be a string" })
   @ApiProperty({
-    description: 'Username for the new account',
-    example: 'johndoe',
-    minLength: 4,
-    maxLength: 20,
+    description: 'First name of the user',
+    example: 'John',
+    minLength: 2,
+    maxLength: 30,
     type: String,
   })
-  public username!: string
+  public firstName!: string
+
+  @MaxLength(30, { message: "Last name must be at most 30 characters long" })
+  @MinLength(2, { message: "Last name must be at least 2 characters long" })
+  @IsNotEmpty({ message: "Last name should not be empty" })
+  @IsString({ message: "Last name must be a string" })
+  @ApiProperty({
+    description: 'Last name of the user',
+    example: 'Doe',
+    minLength: 2,
+    maxLength: 30,
+    type: String,
+  })
+  public lastName!: string
 
   @MaxLength(50, { message: "Email must be at most 50 characters long" })
   @IsEmail({}, { message: "Invalid email format" })

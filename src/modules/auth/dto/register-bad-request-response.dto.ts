@@ -1,20 +1,32 @@
 import { ApiProperty } from "@nestjs/swagger"
 import { BadRequestResponseDto } from "../../../common/dto/bad-request-response.dto"
 
-
 class RegisterBadRequestErrorMessages {
   @ApiProperty({
-    description: 'Validation errors for the username field',
+    description: 'Validation errors for the first name field',
     example: [
-      'Username must be at least 4 characters long',
-      'Username must be at most 20 characters long',
-      'Username should not be empty',
-      'Username must be a string',
+      'First name must be at most 30 characters long',
+      'First name must be at least 2 characters long',
+      'First name should not be empty',
+      'First name must be a string',
     ],
     type: [String],
     required: false,
   })
-  public username!: string[]
+  public firstName!: string[]
+
+  @ApiProperty({
+    description: 'Validation errors for the last name field',
+    example: [
+      'Last name must be at most 30 characters long',
+      'Last name must be at least 2 characters long',
+      'Last name should not be empty',
+      'Last name must be a string',
+    ],
+    type: [String],
+    required: false,
+  })
+  public lastName!: string[]
 
   @ApiProperty({
     description: 'Validation errors for the email field',
