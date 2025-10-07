@@ -1,6 +1,8 @@
 import { IsEmail, IsString, MinLength, IsNotEmpty, MaxLength } from "class-validator"
 import { ApiProperty } from "@nestjs/swagger"
 import { AutoMap } from "@automapper/classes"
+import { Unique } from "../../../common/validators/unique.decorator"
+import { User } from "../../user/entities/user.entity"
 
 export class RegisterDto {
   @MaxLength(30, { message: "First name must be at most 30 characters long" })
@@ -31,6 +33,7 @@ export class RegisterDto {
   @AutoMap()
   public lastName!: string
 
+  @Unique(User, "email", { message: "Email already in use" })
   @MaxLength(50, { message: "Email must be at most 50 characters long" })
   @IsEmail({}, { message: "Invalid email format" })
   @IsNotEmpty({ message: "Email should not be empty" })

@@ -13,9 +13,11 @@ import { classes } from "@automapper/classes"
 import { CqrsModule } from "@nestjs/cqrs"
 import { BullModule } from "@nestjs/bullmq"
 import { EmailService } from "./email/email.service"
-import { EmailConsumer } from "./email/email.consumer"
+import { EMAIL_QUEUE, EmailConsumer } from "./email/email.consumer"
 import _ from "lodash"
 import Redis from "ioredis"
+import { Resend } from "resend"
+import { User } from "../modules/user/entities/user.entity"
 
 @Global()
 @Module({
@@ -30,10 +32,13 @@ import Redis from "ioredis"
             host: config.getOrThrow<string>("REDIS_HOST"),
             port: parseInt(config.getOrThrow<string>("REDIS_PORT"), 10),
             db: 1,
-          }
+          },
         }
       },
       inject: [ConfigService],
+    }),
+    BullModule.registerQueue({
+      name: EMAIL_QUEUE,
     }),
     CqrsModule.forRoot(),
     NestConfigModule.forRoot({
@@ -65,6 +70,7 @@ import Redis from "ioredis"
           password: config.getOrThrow<string>("DATABASE_PASSWORD"),
           database: config.getOrThrow<string>("DATABASE_NAME"),
           synchronize: config.get<NodeEnv>("NODE_ENV", NodeEnv.DEVELOPMENT) == NodeEnv.DEVELOPMENT,
+          entities: [User],
         }
       },
       inject: [ConfigService],
@@ -86,6 +92,13 @@ import Redis from "ioredis"
           host: config.getOrThrow<string>("REDIS_HOST"),
           port: parseInt(config.getOrThrow<string>("REDIS_PORT"), 10),
         })
+      },
+      inject: [ConfigService],
+    },
+    {
+      provide: Resend,
+      useFactory(config: ConfigService) {
+        return new Resend(config.getOrThrow<string>("RESEND_API_KEY"))
       },
       inject: [ConfigService],
     },

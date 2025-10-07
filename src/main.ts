@@ -1,6 +1,6 @@
 import { HttpAdapterHost, NestFactory } from "@nestjs/core"
 import { AppModule } from "./app.module"
-import { BadRequestException, ValidationPipe, VersioningType } from "@nestjs/common"
+import { BadRequestException, INestApplication, ValidationPipe, VersioningType } from "@nestjs/common"
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger"
 import { Logger } from "./infrastructure/log/logger.abstract"
 import { ConfigService } from "@nestjs/config"
@@ -8,18 +8,35 @@ import { json } from "express"
 import { AllExceptionFilter } from "./common/filters/all-exception.filter"
 import cors from "cors"
 import cookieParser from "cookie-parser"
+import { useContainer } from "class-validator"
 
-class Main {
+export class Main {
+  private static readonly isMain = require.main === module
+
   public static async main(): Promise<void> {
-    const app = await NestFactory.create(AppModule, {
-      bodyParser: false,
-    })
+    if (this.isMain) {
+      const app = await this.initializeApp(
+        await NestFactory.create(AppModule, {
+          bodyParser: false,
+        }),
+      )
+      const configService = app.get(ConfigService)
+      const domain = configService.get<string>("app.domain")
+      const port = configService.get<number>("app.port", 3000)
+      const logger = await app.resolve<Logger>(Logger)
 
+      await app.listen(port, () => {
+        logger.info(`Server is running on ${domain}`)
+      })
+    }
+  }
+
+  public static async initializeApp<T>(app: INestApplication<T>): Promise<INestApplication<T>> {
     const logger = await app.resolve(Logger)
     const config = app.get(ConfigService)
     const httpAdapter = app.get(HttpAdapterHost)
-    const domain = config.get<string>("app.domain")
-    const port = config.get<number>("app.port", 3000)
+
+    useContainer(app.select(AppModule), { fallbackOnErrors: true })
 
     app.use(json({ limit: "10mb", type: "application/json" }))
     app.use(
@@ -43,7 +60,6 @@ class Main {
               formattedErrors[err.property] = Object.values(err.constraints)
             }
 
-            // Kalau nested DTO (misal children)
             if (err.children && err.children.length > 0) {
               for (const child of err.children) {
                 if (child.constraints) {
@@ -72,9 +88,7 @@ class Main {
 
     SwaggerModule.setup("api", app, document)
 
-    await app.listen(port, () => {
-      logger.info(`Server is running at http://${domain}:${port}/api`)
-    })
+    return app
   }
 }
 Main.main()

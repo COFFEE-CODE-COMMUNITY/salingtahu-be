@@ -1,0 +1,18 @@
+{
+  "moduleFileExtensions": [
+    "js",
+    "json",
+    "ts",
+    "tsx"
+  ],
+  "rootDir": ".",
+  "testEnvironment": "node",
+  "testRegex": ".e2e-spec.ts$",
+  "transform": {
+    "^.+\\.(t|j)sx?$": "ts-jest"
+  },
+  "testTimeout": 5000,
+  "transformIgnorePatterns": [
+    "node_modules/(?!(@faker-js|@so-ric|@dabh|color.*|simple-swizzle)/)"
+  ]
+}
