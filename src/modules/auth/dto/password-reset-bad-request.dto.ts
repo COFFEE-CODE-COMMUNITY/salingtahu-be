@@ -1,32 +1,19 @@
 import { ApiProperty } from "@nestjs/swagger"
+import { BadRequestResponseDto } from "../../../common/dto/bad-request-response.dto"
 
 class PasswordResetErrorMessage {
   @ApiProperty({
+    description: "List of validation error messages for the email field.",
     type: [String],
-    description: "List of validation error messages for the password field.",
-    example: ["Password is required.", "Password must be at least 8 characters."],
+    example: ["Email is required.", "Email must be a valid email address."],
   })
-  public password!: string[]
-
-  @ApiProperty({
-    type: [String],
-    description: "List of validation error messages for the confirmPassword field.",
-    example: ["Confirm password is required.", "Passwords do not match."],
-  })
-  public confirmPassword!: string[]
-
-  @ApiProperty({
-    type: [String],
-    description: "List of validation error messages for the logoutAll.",
-    example: ["Logout all sessions is not a boolean value."],
-  })
-  public logoutAll!: string[]
+  public email!: string[]
 }
 
-export class PasswordResetBadRequestResponseDto {
+export class PasswordResetBadRequestDto extends BadRequestResponseDto<PasswordResetErrorMessage> {
   @ApiProperty({
+    description: "Object containing detailed error messages for each field.",
     type: PasswordResetErrorMessage,
-    description: "Detailed error messages for each field.",
   })
   public errors!: PasswordResetErrorMessage
 }
