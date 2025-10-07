@@ -8,10 +8,14 @@ import { TokensDto } from "../dto/token.dto"
 import { GetRefreshTokenDto } from "../dto/get-refresh-token.dto"
 import { PasswordResetBadRequestDto } from "../dto/password-reset-bad-request.dto"
 import { GoogleAuthResponseDto } from "../dto/google-auth-response.dto"
+import { CommandBus } from "@nestjs/cqrs"
+import { RegisterCommand } from "../commands/register.command"
 
 @ApiTags('Authentication')
 @Controller("auth")
 export class AuthController {
+  public constructor(private readonly commandBus: CommandBus) {}
+
   @Post("register")
   @ApiOperation({
     summary: 'Register a new user',
@@ -25,8 +29,8 @@ export class AuthController {
     description: 'Invalid input data',
     type: RegisterBadRequestResponseDto
   })
-  public async register(@Body() body: RegisterDto) {
-
+  public async register(@Body() body: RegisterDto): Promise<CommonResponseDto> {
+    return this.commandBus.execute(new RegisterCommand(body))
   }
 
   @Post("login")

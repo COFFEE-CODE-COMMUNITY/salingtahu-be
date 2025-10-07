@@ -1,5 +1,6 @@
 import { IsEmail, IsString, MinLength, IsNotEmpty, MaxLength } from 'class-validator'
 import { ApiProperty } from "@nestjs/swagger"
+import { AutoMap } from '@automapper/classes'
 
 export class RegisterDto {
   @MaxLength(30, { message: "First name must be at most 30 characters long" })
@@ -13,6 +14,7 @@ export class RegisterDto {
     maxLength: 30,
     type: String,
   })
+  @AutoMap()
   public firstName!: string
 
   @MaxLength(30, { message: "Last name must be at most 30 characters long" })
@@ -26,6 +28,7 @@ export class RegisterDto {
     maxLength: 30,
     type: String,
   })
+  @AutoMap()
   public lastName!: string
 
   @MaxLength(50, { message: "Email must be at most 50 characters long" })
@@ -39,6 +42,7 @@ export class RegisterDto {
     maxLength: 50,
     type: String,
   })
+  @AutoMap()
   public email!: string
 
   @MaxLength(100, { message: "Password must be at most 100 characters long" })
@@ -52,5 +56,6 @@ export class RegisterDto {
     maxLength: 100,
     type: String,
   })
+  @AutoMap()
   public password!: string
 }

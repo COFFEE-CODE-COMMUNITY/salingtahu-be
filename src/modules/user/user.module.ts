@@ -6,5 +6,6 @@ import { UserRepository } from "./repositories/user.repository"
     // Repositories
     UserRepository
   ],
-  export: [UserRepository]
+  exports: [UserRepository]
 })
+export class UserModule {}
