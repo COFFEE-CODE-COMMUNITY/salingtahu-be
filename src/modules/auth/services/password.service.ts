@@ -4,7 +4,7 @@ import * as argon2 from "argon2"
 
 @Injectable()
 export class PasswordService {
-  public constructor(private config: ConfigService) {}
+  public constructor(private readonly config: ConfigService) {}
 
   public async hash(password: string): Promise<string> {
     const argon2Type = this.config.get<string>("password.argon2.type", "argon2id").toLowerCase()

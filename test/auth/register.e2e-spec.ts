@@ -1,25 +1,17 @@
 import { INestApplication } from '@nestjs/common'
 import { App } from 'supertest/types'
 import { createTestApp } from '../create-test-app'
-import { DataSource } from 'typeorm'
 import { faker } from '@faker-js/faker'
 import request from 'supertest'
 
 describe('POST /api/v1/auth/register', () => {
   let app: INestApplication<App>
-  let dataSource: DataSource
 
   beforeAll(async () => {
     app = await createTestApp()
-    dataSource = app.get(DataSource)
-
-    // Ensure database schema is created
-    await dataSource.synchronize()
   })
 
   afterAll(async () => {
-    await dataSource.query('TRUNCATE TABLE users CASCADE;')
-
     await app.close()
   })
 
@@ -31,7 +23,7 @@ describe('POST /api/v1/auth/register', () => {
         email: faker.internet.email(),
         password: faker.internet.password({ length: 8 }),
       })
-      
+
       expect(response.status).toBe(201)
       expect(response.body.message).toBe("User successfully registered.")
     })

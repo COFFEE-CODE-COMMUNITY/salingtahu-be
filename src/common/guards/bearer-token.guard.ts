@@ -1,4 +1,4 @@
-import { CanActivate, ExecutionContext, Inject, Injectable, UnauthorizedException } from "@nestjs/common"
+import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from "@nestjs/common"
 import { AccessTokenService } from "../../modules/auth/services/access-token.service"
 import { Request } from "express"
 import { plainToInstance } from "class-transformer"

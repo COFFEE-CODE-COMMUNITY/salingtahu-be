@@ -1,29 +1,40 @@
-import { Body, Controller, Post, HttpCode, HttpStatus, Headers, Get, Query, Res } from "@nestjs/common"
+import { Body, Controller, Post, HttpCode, HttpStatus, Get, Query, Res } from "@nestjs/common"
 import { RegisterDto } from "../dto/register.dto"
 import {
   ApiOperation,
-  ApiResponse,
   ApiTags,
   ApiBadRequestResponse,
   ApiCreatedResponse,
   ApiOkResponse,
   ApiUnauthorizedResponse,
   ApiQuery,
+  ApiUnprocessableEntityResponse,
 } from "@nestjs/swagger"
 import { CommonResponseDto } from "../../../common/dto/common-response.dto"
 import { RegisterBadRequestResponseDto } from "../dto/register-bad-request-response.dto"
 import { LoginDto } from "../dto/login.dto"
-import { TokensDto } from "../dto/token.dto"
+import { TokensDto } from "../dto/tokens.dto"
 import { GetRefreshTokenDto } from "../dto/get-refresh-token.dto"
 import { PasswordResetBadRequestDto } from "../dto/password-reset-bad-request.dto"
 import { GoogleAuthResponseDto } from "../dto/google-auth-response.dto"
 import { CommandBus } from "@nestjs/cqrs"
 import { RegisterCommand } from "../commands/register.command"
+import { LoginCommand } from "../commands/login.command"
+import { IpAddress } from "../../../common/http/ip-address.decorator"
+import { Response, CookieOptions } from "express"
+import { ConfigService } from "@nestjs/config"
+import { NodeEnv } from "../../../common/enums/node-env"
+import { REFRESH_TOKEN_COOKIE_NAME } from "../constants/cookie-name.constant"
+import ms, { StringValue } from "ms"
+import { RequiredHeader } from "../../../common/http/required-header.decorator"
 
 @ApiTags("Authentication")
 @Controller("auth")
 export class AuthController {
-  public constructor(private readonly commandBus: CommandBus) {}
+  public constructor(
+    private readonly config: ConfigService,
+    private readonly commandBus: CommandBus,
+  ) {}
 
   @Post("register")
   @ApiOperation({
@@ -51,11 +62,30 @@ export class AuthController {
     description: "User successfully login",
     type: CommonResponseDto,
   })
+  @ApiBadRequestResponse({
+    description: "Missing required header.",
+    type: CommonResponseDto,
+  })
   @ApiUnauthorizedResponse({
     description: "User unauthorized.",
     type: CommonResponseDto,
   })
-  public async login(@Body() body: LoginDto) {}
+  @ApiUnprocessableEntityResponse({
+    description: "User must login using OAuth2.",
+    type: CommonResponseDto,
+  })
+  @HttpCode(HttpStatus.OK)
+  public async login(
+    @Body() body: LoginDto,
+    @RequiredHeader("User-Agent") userAgent: string,
+    @IpAddress() ipAddress: string,
+    @Res() res: Response,
+  ): Promise<void> {
+    const tokens = await this.commandBus.execute(new LoginCommand(body, userAgent, ipAddress))
+
+    res.cookie(REFRESH_TOKEN_COOKIE_NAME, tokens.refreshToken, this.getSetCookieOptions())
+    res.status(HttpStatus.OK).json(tokens)
+  }
 
   @Get("refresh-token")
   @ApiOperation({
@@ -70,8 +100,12 @@ export class AuthController {
     type: CommonResponseDto,
     description: "The user is not authorized to perform this action.",
   })
-  @HttpCode(HttpStatus.OK)
-  public async refreshToken(@Body() body: GetRefreshTokenDto, @Headers("User-Agent") userAgent: string) {}
+  public async refreshToken(
+    @Body() _body: GetRefreshTokenDto,
+    @RequiredHeader("User-Agent") _userAgent: string,
+  ): Promise<TokensDto> {
+    return new TokensDto()
+  }
 
   @Post("/password-reset")
   @ApiOperation({
@@ -133,7 +167,19 @@ export class AuthController {
   public async googleAuthCallback(
     @Query("code") code: string,
     @Query("state") state: string,
-    @Headers("User-Agent") userAgent: string,
+    @RequiredHeader("User-Agent") userAgent: string,
     @Res() res: Response,
-  ): Promise<void> {}
+  ): Promise<void> {
+    //
+  }
+
+  private getSetCookieOptions(): CookieOptions {
+    return {
+      domain: this.config.get("client.web.domain", "localhost"),
+      httpOnly: true,
+      maxAge: ms(this.config.getOrThrow<StringValue>("refreshToken.expiresIn")),
+      sameSite: this.config.get("app.nodeEnv") === NodeEnv.PRODUCTION ? "none" : "strict",
+      secure: this.config.get("app.nodeEnv") === NodeEnv.PRODUCTION,
+    }
+  }
 }

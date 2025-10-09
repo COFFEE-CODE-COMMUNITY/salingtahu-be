@@ -11,7 +11,7 @@ export class AuthMapper extends AutomapperProfile {
   }
 
   public override get profile() {
-    return (mapper: Mapper) => {
+    return (mapper: Mapper): void => {
       createMap(mapper, RegisterDto, User)
     }
   }

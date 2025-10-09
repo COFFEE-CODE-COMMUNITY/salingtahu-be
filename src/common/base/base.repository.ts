@@ -1,14 +1,19 @@
-import { DataSource, Repository } from "typeorm"
+import { DataSource, EntityManager, Repository } from "typeorm"
 import { BaseEntity, EntityId } from "./base.entity"
+import { TransactionContextService } from "../../infrastructure/database/unit-of-work/transaction-context.service"
 
 export abstract class BaseRepository<E extends BaseEntity> {
   protected constructor(
     protected readonly dataSource: DataSource,
+    protected readonly transactionContextService: TransactionContextService<EntityManager>,
     protected entity: new () => E,
   ) {}
 
   protected getRepository(): Repository<E> {
-    return this.dataSource.getRepository<E>(this.entity)
+    const repositoryContext = this.transactionContextService.getContext()
+    return repositoryContext
+      ? repositoryContext.getRepository<E>(this.entity)
+      : this.dataSource.getRepository<E>(this.entity)
   }
 
   public count(): Promise<number> {

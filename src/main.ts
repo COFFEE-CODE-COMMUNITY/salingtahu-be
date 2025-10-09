@@ -1,6 +1,6 @@
 import { HttpAdapterHost, NestFactory } from "@nestjs/core"
 import { AppModule } from "./app.module"
-import { BadRequestException, INestApplication, ValidationPipe, VersioningType } from "@nestjs/common"
+import { BadRequestException, HttpException, INestApplication, ValidationPipe, VersioningType } from "@nestjs/common"
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger"
 import { Logger } from "./infrastructure/log/logger.abstract"
 import { ConfigService } from "@nestjs/config"
@@ -52,7 +52,7 @@ export class Main {
       new ValidationPipe({
         transform: true,
         whitelist: true,
-        exceptionFactory(errors) {
+        exceptionFactory(errors): HttpException {
           const formattedErrors: Record<string, string[]> = {}
 
           for (const err of errors) {
@@ -78,6 +78,7 @@ export class Main {
     )
     app.enableVersioning({ type: VersioningType.URI, defaultVersion: "1" })
     app.setGlobalPrefix("api")
+    app.enableShutdownHooks()
 
     const swaggerConfig = new DocumentBuilder()
       .setTitle("SalingTahu API")

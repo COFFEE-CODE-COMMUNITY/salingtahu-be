@@ -1,9 +1,11 @@
-import { Column, Entity } from "typeorm"
+import { Column, Entity, OneToMany } from "typeorm"
 import { BaseEntity } from "../../../common/base/base.entity"
 import { Language } from "../../../common/enums/language"
 import { AutoMap } from "@automapper/classes"
 import { UserStatus } from "../enums/user-status.enum"
 import { UserRole } from "../enums/user-role.enum"
+import { RefreshToken } from "../../auth/entities/refresh-token.entity"
+import { OAuth2User } from "../../auth/entities/oauth2-user.entity"
 
 @Entity({ name: "users" })
 export class User extends BaseEntity {
@@ -59,6 +61,19 @@ export class User extends BaseEntity {
   @Column({ type: "enum", enum: UserStatus, default: UserStatus.ACTIVE })
   public status!: UserStatus
 
+  @Column({ name: "last_logged_in_at", nullable: true })
+  public lastLoggedInAt?: Date
+
   @Column({ type: "enum", enum: UserRole, array: true, default: [UserRole.STUDENT] })
   public roles!: UserRole[]
+
+  @OneToMany(() => RefreshToken, refreshToken => refreshToken.user)
+  public refreshTokens!: RefreshToken[]
+
+  @OneToMany(() => OAuth2User, oauth2User => oauth2User.user, { cascade: true })
+  public oauth2Users!: OAuth2User[]
+
+  public updateLastLoggedIn(): void {
+    this.lastLoggedInAt = new Date()
+  }
 }

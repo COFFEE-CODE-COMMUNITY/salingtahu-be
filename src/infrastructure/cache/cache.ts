@@ -1,9 +1,9 @@
 import { Injectable } from "@nestjs/common"
-import { Redis } from "ioredis"
+import { RedisService } from "./redis.service"
 
 @Injectable()
 export class Cache {
-  public constructor(private readonly redis: Redis) {}
+  public constructor(private readonly redis: RedisService) {}
 
   public async get<T>(key: string): Promise<T | null> {
     const value = await this.redis.get(key)

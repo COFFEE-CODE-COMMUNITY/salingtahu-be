@@ -15,9 +15,13 @@ import { BullModule } from "@nestjs/bullmq"
 import { EmailService } from "./email/email.service"
 import { EMAIL_QUEUE, EmailConsumer } from "./email/email.consumer"
 import _ from "lodash"
-import Redis from "ioredis"
 import { Resend } from "resend"
 import { User } from "../modules/user/entities/user.entity"
+import { TextHasher } from "./security/cryptography/text-hasher"
+import { Sha256TextHasher } from "./security/cryptography/sha256-text-hasher"
+import { RefreshToken } from "../modules/auth/entities/refresh-token.entity"
+import { OAuth2User } from "../modules/auth/entities/oauth2-user.entity"
+import { RedisService } from "./cache/redis.service"
 
 @Global()
 @Module({
@@ -69,8 +73,8 @@ import { User } from "../modules/user/entities/user.entity"
           username: config.getOrThrow<string>("DATABASE_USERNAME"),
           password: config.getOrThrow<string>("DATABASE_PASSWORD"),
           database: config.getOrThrow<string>("DATABASE_NAME"),
-          synchronize: config.get<NodeEnv>("NODE_ENV", NodeEnv.DEVELOPMENT) == NodeEnv.DEVELOPMENT,
-          entities: [User],
+          synchronize: config.get<NodeEnv>("NODE_ENV", NodeEnv.DEVELOPMENT) != NodeEnv.PRODUCTION,
+          entities: [OAuth2User, RefreshToken, User],
         }
       },
       inject: [ConfigService],
@@ -86,22 +90,27 @@ import { User } from "../modules/user/entities/user.entity"
       useClass: WinstonLogger,
     },
     {
-      provide: Redis,
-      useFactory(config: ConfigService) {
-        return new Redis({
-          host: config.getOrThrow<string>("REDIS_HOST"),
-          port: parseInt(config.getOrThrow<string>("REDIS_PORT"), 10),
+      provide: RedisService,
+      useFactory(config: ConfigService): RedisService {
+        return new RedisService({
+          host: config.getOrThrow("REDIS_HOST"),
+          port: config.getOrThrow("REDIS_PORT"),
         })
       },
       inject: [ConfigService],
     },
     {
       provide: Resend,
-      useFactory(config: ConfigService) {
+      useFactory(config: ConfigService): Resend {
         return new Resend(config.getOrThrow<string>("RESEND_API_KEY"))
       },
       inject: [ConfigService],
     },
+    {
+      provide: TextHasher,
+      useClass: Sha256TextHasher,
+    },
   ],
+  exports: [Logger, UnitOfWork, TextHasher, EmailService, TransactionContextService],
 })
 export class InfrastructureModule {}

@@ -2,5 +2,9 @@
   "app": {
     "port": 8081,
     "domain": "localhost"
+  },
+  "refreshToken": {
+    "bytesLength": 64,
+    "expiresIn": "30d"
   }
 }

@@ -38,7 +38,7 @@ export function Unique<T extends BaseEntity>(
   property: keyof T,
   options?: ValidationOptions,
 ): PropertyDecorator {
-  return function (target: Object, propertyName: string | symbol) {
+  return function (target: object, propertyName: string | symbol) {
     registerDecorator({
       name: "Unique",
       target: target.constructor,
