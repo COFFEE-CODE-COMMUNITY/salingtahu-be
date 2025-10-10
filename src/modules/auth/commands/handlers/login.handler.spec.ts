@@ -9,10 +9,10 @@ import { Test } from "@nestjs/testing"
 import { User } from "../../../user/entities/user.entity"
 import { faker } from "@faker-js/faker"
 import { RefreshToken } from "../../entities/refresh-token.entity"
-import { LoginDto } from "../../dto/login.dto"
+import { LoginDto } from "../../dtos/login.dto"
 import { LoginCommand } from "../login.command"
 import { UserLoggedInEvent } from "../../events/user-logged-in.event"
-import { Oauth2Provider } from "../../enums/oauth2-provider.enum"
+import { OAuth2Provider } from "../../enums/oauth2-provider.enum"
 import { UnauthorizedException, UnprocessableEntityException } from "@nestjs/common"
 import { OAuth2User } from "../../entities/oauth2-user.entity"
 
@@ -161,7 +161,7 @@ describe("LoginHandler", () => {
       user.oauth2Users = [
         {
           id: faker.string.uuid(),
-          provider: Oauth2Provider.GOOGLE,
+          provider: OAuth2Provider.GOOGLE,
           providerUserId: faker.string.uuid(),
           user: user,
         } as OAuth2User,

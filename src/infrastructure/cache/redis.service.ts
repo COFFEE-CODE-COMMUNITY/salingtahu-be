@@ -1,9 +1,10 @@
-import { Injectable, BeforeApplicationShutdown } from "@nestjs/common"
+import { Injectable, BeforeApplicationShutdown, Inject } from "@nestjs/common"
 import { Redis, RedisOptions } from "ioredis"
+import { REDIS_OPTIONS } from "./redis.constant"
 
 @Injectable()
 export class RedisService extends Redis implements BeforeApplicationShutdown {
-  public constructor(options: RedisOptions) {
+  public constructor(@Inject(REDIS_OPTIONS) options: RedisOptions) {
     super(options)
   }
 

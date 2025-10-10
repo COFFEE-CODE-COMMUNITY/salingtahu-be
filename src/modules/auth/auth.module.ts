@@ -13,15 +13,28 @@ import { RefreshTokenRepository } from "./repositories/refresh-token.repository"
 import { RefreshTokenService } from "./services/refresh-token.service"
 import { ConfigModule } from "@nestjs/config"
 import { TokensService } from "./services/tokens.service"
+import { GoogleOAuth2Service } from "./services/google-oauth2.service"
+import { GetGoogleAuthUrlHandler } from "./queries/handlers/get-google-auth-url.handler"
+import { HttpModule } from "@nestjs/axios"
+import { UserService } from "../user/services/user.service"
 
 @Module({
-  imports: [ConfigModule, UserModule, JwtModule.register({})],
+  imports: [
+    ConfigModule,
+    HttpModule.register({
+      timeout: 10_000,
+      maxRedirects: 5,
+    }),
+    UserModule,
+    JwtModule.register({}),
+  ],
   controllers: [AuthController],
   providers: [
     // Handlers
     RegisterHandler,
     LoginHandler,
     UserLoggedInHandler,
+    GetGoogleAuthUrlHandler,
 
     // Mappers
     AuthMapper,
@@ -35,6 +48,8 @@ import { TokensService } from "./services/tokens.service"
     PasswordService,
     RefreshTokenService,
     TokensService,
+    GoogleOAuth2Service,
+    UserService,
   ],
   exports: [AccessTokenService],
 })

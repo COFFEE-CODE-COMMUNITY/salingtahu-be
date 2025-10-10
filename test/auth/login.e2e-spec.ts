@@ -5,10 +5,10 @@ import { faker } from "@faker-js/faker"
 import request from "supertest"
 import { CommandBus } from "@nestjs/cqrs"
 import { RegisterCommand } from "../../src/modules/auth/commands/register.command"
-import { RegisterDto } from "../../src/modules/auth/dto/register.dto"
+import { RegisterDto } from "../../src/modules/auth/dtos/register.dto"
 import { UserRepository } from "../../src/modules/user/repositories/user.repository"
 import { OAuth2User } from "../../src/modules/auth/entities/oauth2-user.entity"
-import { Oauth2Provider } from "../../src/modules/auth/enums/oauth2-provider.enum"
+import { OAuth2Provider } from "../../src/modules/auth/enums/oauth2-provider.enum"
 import { User } from "../../src/modules/user/entities/user.entity"
 import _ from "lodash"
 
@@ -39,7 +39,7 @@ describe("POST /api/v1/auth/login", () => {
 
     const user = await userRepository.findByEmail(email)
     const oauth2User = new OAuth2User()
-    oauth2User.provider = Oauth2Provider.GOOGLE
+    oauth2User.provider = OAuth2Provider.GOOGLE
     oauth2User.providerUserId = "google-id"
 
     user!.oauth2Users = [oauth2User]
@@ -107,7 +107,7 @@ describe("POST /api/v1/auth/login", () => {
       user.email = faker.internet.email()
 
       const oauth2User = new OAuth2User()
-      oauth2User.provider = Oauth2Provider.GOOGLE
+      oauth2User.provider = OAuth2Provider.GOOGLE
       oauth2User.providerUserId = faker.string.uuid()
 
       user.oauth2Users = [oauth2User]

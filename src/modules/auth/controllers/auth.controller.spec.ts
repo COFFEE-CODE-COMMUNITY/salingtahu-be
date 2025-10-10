@@ -1,19 +1,20 @@
 import { Test } from "@nestjs/testing"
 import { AuthController } from "./auth.controller"
-import { CommandBus } from "@nestjs/cqrs"
+import { CommandBus, QueryBus } from "@nestjs/cqrs"
 import { mock, MockProxy } from "jest-mock-extended"
-import { RegisterDto } from "../dto/register.dto"
+import { RegisterDto } from "../dtos/register.dto"
 import { faker } from "@faker-js/faker"
 import { CommonResponseDto } from "../../../common/dto/common-response.dto"
 import { RegisterCommand } from "../commands/register.command"
-import { LoginDto } from "../dto/login.dto"
-import { TokensDto } from "../dto/tokens.dto"
+import { LoginDto } from "../dtos/login.dto"
+import { TokensDto } from "../dtos/tokens.dto"
 import { LoginCommand } from "../commands/login.command"
 import { Response } from "express"
 import { HttpStatus } from "@nestjs/common"
 import { ConfigService } from "@nestjs/config"
 import { REFRESH_TOKEN_COOKIE_NAME } from "../constants/cookie-name.constant"
 import { NodeEnv } from "../../../common/enums/node-env"
+import { GoogleOAuth2Service } from "../services/google-oauth2.service"
 
 describe("AuthController", () => {
   let controller: AuthController
@@ -27,6 +28,9 @@ describe("AuthController", () => {
         {
           provide: CommandBus,
           useValue: mock<CommandBus>(),
+        },
+        { provide: QueryBus,
+          useValue: mock<QueryBus>()
         },
         {
           provide: ConfigService,

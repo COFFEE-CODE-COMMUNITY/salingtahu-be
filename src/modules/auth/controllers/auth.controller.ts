@@ -1,5 +1,5 @@
 import { Body, Controller, Post, HttpCode, HttpStatus, Get, Query, Res } from "@nestjs/common"
-import { RegisterDto } from "../dto/register.dto"
+import { RegisterDto } from "../dtos/register.dto"
 import {
   ApiOperation,
   ApiTags,
@@ -11,13 +11,13 @@ import {
   ApiUnprocessableEntityResponse,
 } from "@nestjs/swagger"
 import { CommonResponseDto } from "../../../common/dto/common-response.dto"
-import { RegisterBadRequestResponseDto } from "../dto/register-bad-request-response.dto"
-import { LoginDto } from "../dto/login.dto"
-import { TokensDto } from "../dto/tokens.dto"
-import { GetRefreshTokenDto } from "../dto/get-refresh-token.dto"
-import { PasswordResetBadRequestDto } from "../dto/password-reset-bad-request.dto"
-import { GoogleAuthResponseDto } from "../dto/google-auth-response.dto"
-import { CommandBus } from "@nestjs/cqrs"
+import { RegisterBadRequestResponseDto } from "../dtos/register-bad-request-response.dto"
+import { LoginDto } from "../dtos/login.dto"
+import { TokensDto } from "../dtos/tokens.dto"
+import { GetRefreshTokenDto } from "../dtos/get-refresh-token.dto"
+import { PasswordResetBadRequestDto } from "../dtos/password-reset-bad-request.dto"
+import { GoogleAuthResponseDto } from "../dtos/google-auth-response.dto"
+import { CommandBus, QueryBus } from "@nestjs/cqrs"
 import { RegisterCommand } from "../commands/register.command"
 import { LoginCommand } from "../commands/login.command"
 import { IpAddress } from "../../../common/http/ip-address.decorator"
@@ -27,6 +27,15 @@ import { NodeEnv } from "../../../common/enums/node-env"
 import { REFRESH_TOKEN_COOKIE_NAME } from "../constants/cookie-name.constant"
 import ms, { StringValue } from "ms"
 import { RequiredHeader } from "../../../common/http/required-header.decorator"
+import { GoogleOAuth2Service } from "../services/google-oauth2.service"
+import { GetGoogleAuthUrlQuery } from "../queries/get-google-auth-url.query"
+import { GoogleOAuth2CallbackCommand } from "../commands/google-oauth2-callback.command"
+import { OAuth2Provider } from "../enums/oauth2-provider.enum"
+
+export interface OAuth2CallbackResult {
+  platform: "web"
+  refreshToken?: string
+}
 
 @ApiTags("Authentication")
 @Controller("auth")
@@ -34,6 +43,7 @@ export class AuthController {
   public constructor(
     private readonly config: ConfigService,
     private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
   ) {}
 
   @Post("register")
@@ -158,7 +168,7 @@ export class AuthController {
     description: "The Google OAuth2 URL has been retrieved successfully.",
   })
   public async googleAuth(): Promise<GoogleAuthResponseDto> {
-    return new GoogleAuthResponseDto()
+    return this.queryBus.execute(new GetGoogleAuthUrlQuery("web"))
   }
 
   @Get("/google/callback")
@@ -170,9 +180,12 @@ export class AuthController {
     @Query("code") code: string,
     @Query("state") state: string,
     @RequiredHeader("User-Agent") userAgent: string,
+    @IpAddress() ipAddress: string,
     @Res() res: Response,
   ): Promise<void> {
-    console.log(code, state, userAgent, res)
+    const result = await this.commandBus.execute(new GoogleOAuth2CallbackCommand(code, state, userAgent, ipAddress))
+
+    this.handleOAuth2CallbackResponse(OAuth2Provider.GOOGLE, result, res)
   }
 
   private getSetCookieOptions(): CookieOptions {
@@ -185,5 +198,17 @@ export class AuthController {
       sameSite: this.config.get("app.nodeEnv") === NodeEnv.PRODUCTION ? "none" : "strict",
       secure: this.config.get("app.nodeEnv") === NodeEnv.PRODUCTION,
     }
+  }
+
+  private handleOAuth2CallbackResponse(provider: OAuth2Provider, result: OAuth2CallbackResult, res: Response): void {
+    const searchParams = new URLSearchParams({
+      success: "true",
+      provider,
+    })
+
+    res.cookie(REFRESH_TOKEN_COOKIE_NAME, result.refreshToken, this.getSetCookieOptions())
+    res.redirect(`${this.config.getOrThrow("client.web.oauth2Redirect")}?${searchParams.toString()}`)
+
+    res.status(500).send("Platform is not supported")
   }
 }

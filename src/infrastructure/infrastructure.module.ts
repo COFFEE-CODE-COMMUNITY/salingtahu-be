@@ -22,6 +22,7 @@ import { Sha256TextHasher } from "./security/cryptography/sha256-text-hasher"
 import { RefreshToken } from "../modules/auth/entities/refresh-token.entity"
 import { OAuth2User } from "../modules/auth/entities/oauth2-user.entity"
 import { RedisService } from "./cache/redis.service"
+import { Cache } from "./cache/cache"
 
 @Global()
 @Module({
@@ -99,6 +100,7 @@ import { RedisService } from "./cache/redis.service"
       },
       inject: [ConfigService],
     },
+    Cache,
     {
       provide: Resend,
       useFactory(config: ConfigService): Resend {
@@ -111,6 +113,6 @@ import { RedisService } from "./cache/redis.service"
       useClass: Sha256TextHasher,
     },
   ],
-  exports: [Logger, UnitOfWork, TextHasher, EmailService, TransactionContextService],
+  exports: [Logger, UnitOfWork, TextHasher, EmailService, TransactionContextService, RedisService, Cache],
 })
 export class InfrastructureModule {}
