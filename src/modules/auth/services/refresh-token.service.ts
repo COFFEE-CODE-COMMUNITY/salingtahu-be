@@ -1,54 +1,44 @@
 import { Injectable } from "@nestjs/common"
-import { TextHasher } from "../../../infrastructure/security/cryptography/text-hasher"
-import { RefreshTokenRepository } from "../repositories/refresh-token.repository"
-import { ConfigService } from "@nestjs/config"
+import { PasswordService } from "./password.service"
+import { JwtService } from "@nestjs/jwt"
 import { User } from "../../user/entities/user.entity"
-import { RefreshToken } from "../entities/refresh-token.entity"
-import { randomBytes } from "crypto"
-import { parse } from "useragent"
-import ms, { StringValue } from "ms"
+import { ConfigService } from "@nestjs/config"
 
 @Injectable()
 export class RefreshTokenService {
   public constructor(
-    private readonly textHasher: TextHasher,
-    private readonly refreshTokenRepository: RefreshTokenRepository,
-    private readonly config: ConfigService,
+    private readonly hasher: PasswordService,
+    private readonly configService: ConfigService,
+    private readonly jwtService: JwtService,
   ) {}
 
-  public create(user: User, userAgent: string, ipAddress: string): Promise<RefreshToken> {
-    const refreshToken = new RefreshToken()
-    refreshToken.user = user
-    refreshToken.token = this.textHasher.hash(
-      randomBytes(this.config.getOrThrow("refreshToken.bytesLength")).toString("hex"),
-    )
-    refreshToken.userAgent = userAgent
-    refreshToken.ipAddress = ipAddress
-    refreshToken.expiresAt = new Date(Date.now() + ms(this.config.getOrThrow<StringValue>("refreshToken.expiresIn")))
+  // async updateRefreshToken(userId: number, refreshToken: string) {
+  //   const hash = await this.hasher.hash(refreshToken)
+  //   await this.userService.update(userId, { hashedRt: hash })
+  // }
+  //
+  // async removeRefreshToken(userId: number) {
+  //   await this.userService.update(userId, { hashedRt: null })
+  // }
 
-    return this.refreshTokenRepository.save(refreshToken)
-  }
-
-  public async verify(refreshToken: string, userAgent: string): Promise<boolean> {
-    const token = await this.refreshTokenRepository.findByToken(refreshToken)
-
-    if (!token) return false
-    if (token.expiresAt < new Date()) return false
-    if (token.revoked) return false
-
-    if (token.userAgent && userAgent) {
-      const agent = parse(userAgent)
-      const tokenAgent = parse(token.userAgent)
-
-      if (
-        tokenAgent.family !== agent.family ||
-        tokenAgent.os.toString() !== agent.os.toString() ||
-        tokenAgent.device.toString() !== agent.device.toString()
-      ) {
-        return false
-      }
+  public async create(user: User, userAgent: string, ipAddress: string): Promise<string> {
+    const payload = {
+      sub: user.id,
+      email: user.email,
+      ua: userAgent,
+      ip: ipAddress,
     }
 
-    return true
+    const [refreshToken] = await Promise.all([
+      this.jwtService.signAsync(payload, {
+        secret: this.configService.getOrThrow("REFRESH_TOKEN_SECRET"),
+        expiresIn: "7d",
+      }),
+    ])
+
+    const hashedRt = await this.hasher.hash(refreshToken)
+    // await this.userService.update(user.id, { hashedRt })
+    console.log(hashedRt)
+    return refreshToken
   }
 }

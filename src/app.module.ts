@@ -6,9 +6,17 @@ import { APP_INTERCEPTOR } from "@nestjs/core"
 import { HttpRequestContextInterceptor } from "./common/http/http-request-context.interceptor"
 import { HttpRequestContext } from "./common/http/http-request-context"
 import { ValidationModule } from "./common/validators/validation.module"
+import { ConfigModule } from "@nestjs/config"
 
 @Module({
-  imports: [AuthModule, InfrastructureModule, ValidationModule],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    InfrastructureModule,
+    ValidationModule,
+    AuthModule,
+  ],
   providers: [
     HttpRequestContext,
     ProviderUtil,
@@ -17,5 +25,6 @@ import { ValidationModule } from "./common/validators/validation.module"
       useClass: HttpRequestContextInterceptor,
     },
   ],
+  exports: [ConfigModule],
 })
 export class AppModule {}

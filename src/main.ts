@@ -26,7 +26,7 @@ export class Main {
       const logger = await app.resolve<Logger>(Logger)
 
       await app.listen(port, () => {
-        logger.info(`Server is running on ${domain}`)
+        logger.info(`Server is running on ${domain} ${port}`)
       })
     }
   }

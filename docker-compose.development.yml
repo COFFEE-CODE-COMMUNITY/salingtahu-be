@@ -4,6 +4,8 @@ name: salingtau-be-development
 services:
   postgres:
     container_name: postgres
+    build:
+      dockerfile: Dockerfile
     image: postgres:16
     ports:
       - "5432:5432"
@@ -13,6 +15,8 @@ services:
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=admin123
       - POSTGRES_DB=salingtau
+      - AT_SECRET=access-secret
+      - RT_SECRET=refresh-secret
 
   redis:
     container_name: redis

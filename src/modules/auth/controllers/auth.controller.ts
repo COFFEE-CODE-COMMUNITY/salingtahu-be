@@ -170,7 +170,7 @@ export class AuthController {
     @RequiredHeader("User-Agent") userAgent: string,
     @Res() res: Response,
   ): Promise<void> {
-    //
+    console.log(code, state, userAgent, res)
   }
 
   private getSetCookieOptions(): CookieOptions {

@@ -10,7 +10,6 @@ export class AccessTokenService {
 
   public async sign(userId: string): Promise<string> {
     const secret = this.config.get("ACCESS_TOKEN_SECRET")
-
     return sign({ sub: userId }, secret, {
       algorithm: "HS256",
       issuer: this.config.get("app.domain"),

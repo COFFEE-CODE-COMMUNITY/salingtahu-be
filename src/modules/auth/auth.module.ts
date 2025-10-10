@@ -1,4 +1,5 @@
 import { Module } from "@nestjs/common"
+import { JwtModule } from "@nestjs/jwt"
 import { AuthController } from "./controllers/auth.controller"
 import { RegisterHandler } from "./commands/handlers/register.handler"
 import { PasswordService } from "./services/password.service"
@@ -10,9 +11,10 @@ import { UserLoggedInHandler } from "./events/handlers/user-logged-in.handler"
 import { OAuth2UserRepository } from "./repositories/oauth2-user.repository"
 import { RefreshTokenRepository } from "./repositories/refresh-token.repository"
 import { RefreshTokenService } from "./services/refresh-token.service"
+import { ConfigModule } from "@nestjs/config"
 
 @Module({
-  imports: [UserModule],
+  imports: [ConfigModule, UserModule, JwtModule.register({})],
   controllers: [AuthController],
   providers: [
     // Handlers
@@ -31,6 +33,8 @@ import { RefreshTokenService } from "./services/refresh-token.service"
     AccessTokenService,
     PasswordService,
     RefreshTokenService,
+
+    // Strategy
   ],
   exports: [AccessTokenService],
 })
