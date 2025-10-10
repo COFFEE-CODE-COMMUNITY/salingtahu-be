@@ -65,7 +65,6 @@ describe("AuthController", () => {
   describe("login", () => {
     it("should response TokensDto", async () => {
       // Act
-      // @ts-expect-error
       config.get.mockImplementation((key: string): any => {
         switch (key) {
           case "client.web.domain":
@@ -74,10 +73,9 @@ describe("AuthController", () => {
             return NodeEnv.DEVELOPMENT
         }
       })
-      // @ts-expect-error
       config.getOrThrow.mockImplementation((key: string): any => {
         switch (key) {
-          case "auth.refreshToken.expiresIn":
+          case "refreshToken.expiresIn":
             return 31536000000
         }
       })

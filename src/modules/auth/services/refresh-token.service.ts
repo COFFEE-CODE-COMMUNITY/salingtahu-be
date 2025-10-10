@@ -3,6 +3,7 @@ import { PasswordService } from "./password.service"
 import { JwtService } from "@nestjs/jwt"
 import { User } from "../../user/entities/user.entity"
 import { ConfigService } from "@nestjs/config"
+import ms from "ms"
 
 @Injectable()
 export class RefreshTokenService {
@@ -21,7 +22,10 @@ export class RefreshTokenService {
   //   await this.userService.update(userId, { hashedRt: null })
   // }
 
-  public async create(user: User, userAgent: string, ipAddress: string): Promise<string> {
+  public async create(user: User, userAgent: string, ipAddress: string): Promise<any> {
+    const expiresIn = "7d"
+    const expiresAt = new Date(Date.now() + ms(expiresIn))
+
     const payload = {
       sub: user.id,
       email: user.email,
@@ -32,13 +36,18 @@ export class RefreshTokenService {
     const [refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload, {
         secret: this.configService.getOrThrow("REFRESH_TOKEN_SECRET"),
-        expiresIn: "7d",
+        expiresIn: expiresIn,
       }),
     ])
 
     const hashedRt = await this.hasher.hash(refreshToken)
     // await this.userService.update(user.id, { hashedRt })
     console.log(hashedRt)
-    return refreshToken
+    return {
+      token: refreshToken,
+      userAgent: userAgent,
+      ipAddress: ipAddress,
+      expireAt: expiresAt,
+    }
   }
 }

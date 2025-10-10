@@ -174,10 +174,12 @@ export class AuthController {
   }
 
   private getSetCookieOptions(): CookieOptions {
+    const raw = this.config.getOrThrow<StringValue>("refreshToken.expiresIn")
+    const maxAge = typeof raw === "string" ? ms(raw) : raw
     return {
       domain: this.config.get("client.web.domain", "localhost"),
       httpOnly: true,
-      maxAge: ms(this.config.getOrThrow<StringValue>("refreshToken.expiresIn")),
+      maxAge: maxAge,
       sameSite: this.config.get("app.nodeEnv") === NodeEnv.PRODUCTION ? "none" : "strict",
       secure: this.config.get("app.nodeEnv") === NodeEnv.PRODUCTION,
     }

@@ -56,8 +56,8 @@ export class LoginHandler implements ICommandHandler<LoginCommand> {
     this.eventBus.publish(new UserLoggedInEvent(user))
 
     return plainToInstance(TokensDto, {
-      accessToken,
-      refreshToken: refreshToken,
+      accessToken: accessToken,
+      refreshToken: refreshToken.token,
     })
   }
 }
