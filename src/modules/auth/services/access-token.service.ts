@@ -1,21 +1,19 @@
-import { sign, verify } from "jsonwebtoken"
+import { verify } from "jsonwebtoken"
 import { ConfigService } from "@nestjs/config"
 import { Injectable } from "@nestjs/common"
+import { TokensService } from "./tokens.service"
 
 @Injectable()
 export class AccessTokenService {
   private readonly JWT_ISSUER = "ourtransfer-client"
 
-  public constructor(private readonly config: ConfigService) {}
+  public constructor(
+    private readonly config: ConfigService,
+    private readonly tokensService: TokensService,
+  ) {}
 
   public async sign(userId: string): Promise<string> {
-    const secret = this.config.get("ACCESS_TOKEN_SECRET")
-    return sign({ sub: userId }, secret, {
-      algorithm: "HS256",
-      issuer: this.config.get("app.domain"),
-      audience: this.JWT_ISSUER,
-      expiresIn: "1h",
-    })
+    return await this.tokensService.accessToken(userId)
   }
 
   public async verify(token: string): Promise<string | null> {

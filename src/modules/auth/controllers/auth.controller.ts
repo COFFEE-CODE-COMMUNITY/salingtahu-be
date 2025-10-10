@@ -82,9 +82,11 @@ export class AuthController {
     @Res() res: Response,
   ): Promise<void> {
     const tokens = await this.commandBus.execute(new LoginCommand(body, userAgent, ipAddress))
+    const payload = new TokensDto()
+    payload.accessToken = tokens.accessToken
 
     res.cookie(REFRESH_TOKEN_COOKIE_NAME, tokens.refreshToken, this.getSetCookieOptions())
-    res.status(HttpStatus.OK).json(tokens)
+    res.status(HttpStatus.OK).json(payload)
   }
 
   @Get("refresh-token")

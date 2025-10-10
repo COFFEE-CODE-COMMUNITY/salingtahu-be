@@ -12,6 +12,7 @@ import { OAuth2UserRepository } from "./repositories/oauth2-user.repository"
 import { RefreshTokenRepository } from "./repositories/refresh-token.repository"
 import { RefreshTokenService } from "./services/refresh-token.service"
 import { ConfigModule } from "@nestjs/config"
+import { TokensService } from "./services/tokens.service"
 
 @Module({
   imports: [ConfigModule, UserModule, JwtModule.register({})],
@@ -33,8 +34,7 @@ import { ConfigModule } from "@nestjs/config"
     AccessTokenService,
     PasswordService,
     RefreshTokenService,
-
-    // Strategy
+    TokensService,
   ],
   exports: [AccessTokenService],
 })
