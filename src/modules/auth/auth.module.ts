@@ -17,10 +17,15 @@ import { GoogleOAuth2Service } from "./services/google-oauth2.service"
 import { GetGoogleAuthUrlHandler } from "./queries/handlers/get-google-auth-url.handler"
 import { HttpModule } from "@nestjs/axios"
 import { UserService } from "../user/services/user.service"
+import { CqrsModule } from "@nestjs/cqrs"
+import { GoogleOAuth2CallbackHandler } from "./commands/handlers/google-oauth2-callback.handler"
+
+const commandHandler = [GoogleOAuth2CallbackHandler]
 
 @Module({
   imports: [
     ConfigModule,
+    CqrsModule,
     HttpModule.register({
       timeout: 10_000,
       maxRedirects: 5,
@@ -35,6 +40,7 @@ import { UserService } from "../user/services/user.service"
     LoginHandler,
     UserLoggedInHandler,
     GetGoogleAuthUrlHandler,
+    ...commandHandler,
 
     // Mappers
     AuthMapper,

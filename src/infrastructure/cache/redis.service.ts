@@ -1,11 +1,15 @@
-import { Injectable, BeforeApplicationShutdown, Inject } from "@nestjs/common"
+import { Injectable, BeforeApplicationShutdown } from "@nestjs/common"
 import { Redis, RedisOptions } from "ioredis"
-import { REDIS_OPTIONS } from "./redis.constant"
 
 @Injectable()
 export class RedisService extends Redis implements BeforeApplicationShutdown {
-  public constructor(@Inject(REDIS_OPTIONS) options: RedisOptions) {
+  public constructor(options: RedisOptions) {
     super(options)
+    this.once("connect", async () => {
+      const db = options.db ?? 0
+      await this.select(db)
+      console.log(`[REDIS] Connected to ${options.host}:${options.port} (db=${db})`)
+    })
   }
 
   public async beforeApplicationShutdown(_signal?: string): Promise<void> {

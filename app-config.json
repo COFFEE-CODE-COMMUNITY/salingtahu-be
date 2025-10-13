@@ -6,5 +6,10 @@
   "refreshToken": {
     "bytesLength": 64,
     "expiresIn": "30d"
+  },
+  "client": {
+    "web": {
+      "oauth2Redirect": "http://localhost:5173/homepage"
+    }
   }
 }

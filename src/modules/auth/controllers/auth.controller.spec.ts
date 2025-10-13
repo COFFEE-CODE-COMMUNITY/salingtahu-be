@@ -14,7 +14,6 @@ import { HttpStatus } from "@nestjs/common"
 import { ConfigService } from "@nestjs/config"
 import { REFRESH_TOKEN_COOKIE_NAME } from "../constants/cookie-name.constant"
 import { NodeEnv } from "../../../common/enums/node-env"
-import { GoogleOAuth2Service } from "../services/google-oauth2.service"
 
 describe("AuthController", () => {
   let controller: AuthController
@@ -29,9 +28,7 @@ describe("AuthController", () => {
           provide: CommandBus,
           useValue: mock<CommandBus>(),
         },
-        { provide: QueryBus,
-          useValue: mock<QueryBus>()
-        },
+        { provide: QueryBus, useValue: mock<QueryBus>() },
         {
           provide: ConfigService,
           useValue: mock<ConfigService>(),

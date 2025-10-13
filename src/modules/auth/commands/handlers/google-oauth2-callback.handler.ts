@@ -17,10 +17,8 @@ export class GoogleOAuth2CallbackHandler implements ICommandHandler<GoogleOAuth2
   public async execute(command: GoogleOAuth2CallbackCommand): Promise<GoogleOAuth2CallbackCommandResponse> {
     const [user, platform] = await this.googleOAuth2Service.verify(command.state, command.code)
     const refreshToken = await this.refreshTokenService.create(user, command.userAgent, command.ipAddress)
-
-    if (platform === "web") {
-      this.eventBus.publish(new UserLoggedInEvent(user))
-    }
+    this.eventBus.publish(new UserLoggedInEvent(user))
+    console.log(platform)
 
     return {
       platform: "web",

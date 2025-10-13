@@ -1,4 +1,4 @@
-import { Body, Controller, Post, HttpCode, HttpStatus, Get, Query, Res } from "@nestjs/common"
+import { Body, Controller, Post, HttpCode, HttpStatus, Get, Query, Res, Req } from "@nestjs/common"
 import { RegisterDto } from "../dtos/register.dto"
 import {
   ApiOperation,
@@ -27,7 +27,6 @@ import { NodeEnv } from "../../../common/enums/node-env"
 import { REFRESH_TOKEN_COOKIE_NAME } from "../constants/cookie-name.constant"
 import ms, { StringValue } from "ms"
 import { RequiredHeader } from "../../../common/http/required-header.decorator"
-import { GoogleOAuth2Service } from "../services/google-oauth2.service"
 import { GetGoogleAuthUrlQuery } from "../queries/get-google-auth-url.query"
 import { GoogleOAuth2CallbackCommand } from "../commands/google-oauth2-callback.command"
 import { OAuth2Provider } from "../enums/oauth2-provider.enum"
@@ -177,12 +176,18 @@ export class AuthController {
     description: "This endpoint handles the redirect from Google after the user has authenticated.",
   })
   public async googleAuthCallback(
+    @Query() query: any,
+    @Req() req: Request,
+
     @Query("code") code: string,
     @Query("state") state: string,
     @RequiredHeader("User-Agent") userAgent: string,
     @IpAddress() ipAddress: string,
     @Res() res: Response,
   ): Promise<void> {
+    console.log("[Google controller] Received state: ", state)
+    console.log("[Google controller] FULL QUERY:", query)
+    console.log("[Google controller] RAW URL:", req.url)
     const result = await this.commandBus.execute(new GoogleOAuth2CallbackCommand(code, state, userAgent, ipAddress))
 
     this.handleOAuth2CallbackResponse(OAuth2Provider.GOOGLE, result, res)

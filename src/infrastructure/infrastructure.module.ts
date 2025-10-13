@@ -23,7 +23,6 @@ import { RefreshToken } from "../modules/auth/entities/refresh-token.entity"
 import { OAuth2User } from "../modules/auth/entities/oauth2-user.entity"
 import { RedisService } from "./cache/redis.service"
 import { Cache } from "./cache/cache"
-
 @Global()
 @Module({
   imports: [
@@ -36,7 +35,6 @@ import { Cache } from "./cache/cache"
           connection: {
             host: config.getOrThrow<string>("REDIS_HOST"),
             port: parseInt(config.getOrThrow<string>("REDIS_PORT"), 10),
-            db: 1,
           },
         }
       },
@@ -96,6 +94,7 @@ import { Cache } from "./cache/cache"
         return new RedisService({
           host: config.getOrThrow("REDIS_HOST"),
           port: config.getOrThrow("REDIS_PORT"),
+          db: 0,
         })
       },
       inject: [ConfigService],
