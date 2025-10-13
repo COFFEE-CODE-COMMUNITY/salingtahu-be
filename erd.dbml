@@ -1,0 +1,589 @@
+enum user_roles {
+  student
+  instructor
+  admin
+}
+
+enum user_status {
+  active
+  suspended
+  deleted
+}
+
+enum oauth2_provider {
+  GOOGLE
+}
+
+enum instructors_status {
+  not_verified
+  verified
+  suspended
+}
+
+enum instructors_verification_status {
+  not_started
+  pending
+  approved
+  failed
+  needs_review
+}
+
+enum courses_status {
+  draft
+  pending_review
+  published
+  archived
+}
+
+enum course_lecture_type {
+  video
+  article
+  file
+  assignment
+}
+
+enum live_session_status {
+  scheduled
+  live
+  completed
+  cancelled
+}
+
+enum payment_method {
+  paypal
+}
+
+enum payment_status {
+  pending
+  completed
+  failed
+  refunded
+}
+
+enum revenue_share_type {
+  course_sale
+  refund
+  platform_fee
+  adjustment
+}
+
+Table users {
+  id uuid [primary key]
+  first_name varchar [not null]
+  last_name varchar [not null]
+  email varchar [not null, unique]
+  password text
+  headline varchar
+  biography text
+  language varchar
+  profile_picture_path text
+  website_url text
+  facebook_url text
+  instagram_url text
+  linkedin_url text
+  tiktok_url text
+  x_url text
+  youtube_url text
+  status user_status [default: 'active']
+  roles user_roles [default: 'student']
+  last_login_at timestamp
+  created_at timestamp [default: 'now']
+  updated_at timestamp [default: 'now']
+
+  indexes {
+    email
+    status
+    roles
+  }
+}
+
+Table refresh_tokens {
+  id uuid [primary key]
+  user_id uuid [not null]
+  token text [not null]
+  user_agent text
+  ip_address varchar
+  expires_at timestamp [not null]
+  revoked bool [default: false]
+  revoked_at timestamp
+  created_at timestamp [default: 'now()']
+  updated_at timestamp [default: 'now()']
+
+  indexes {
+    user_id
+    token
+    expires_at
+  }
+}
+
+Table password_reset_tokens {
+  id uuid [primary key]
+  user_id uuid [not null]
+  token varchar [unique, not null]
+  expires_at timestamp [not null]
+  used_at timestamp
+  created_at timestamp [default: 'now()']
+  updated_at timestamp [default: 'now()']
+
+  indexes {
+    user_id
+    token
+    expires_at
+  }
+}
+
+Table email_verification_tokens {
+  id uuid [primary key]
+  user_id uuid [not null]
+  token varchar [unique, not null]
+  expires_at timestamp [not null]
+  verified_at timestamp
+  created_at timestamp [default: 'now()']
+
+  indexes {
+    user_id
+    token
+    expires_at
+  }
+}
+
+Table oauth2_users {
+  id uuid [primary key]
+  user_id uuid [not null]
+  provider "oauth2_provider" [not null]
+  provider_user_id text [not null]
+  created_at timestamp [default: 'now()']
+  updated_at timestamp [default: 'now()']
+
+  indexes {
+    user_id
+    (provider, provider_user_id) [unique]
+  }
+}
+
+Table instructors {
+  id uuid [primary key]
+  user_id uuid [not null]
+  status instructors_status
+  verified_at timestamp
+  created_at timestamp
+  updated_at timestamp
+
+  indexes {
+    user_id
+    status
+  }
+}
+
+Table instructor_verifications {
+  id uuid [primary key]
+  instructor_id uuid [not null, unique]
+  inquiry_id varchar [unique]
+  account_id varchar
+  verification_status instructors_verification_status [default: 'not_started']
+  verification_type varchar
+  submitted_at timestamp
+  completed_at timestamp
+  failed_reason text
+  verification_data json
+  created_at timestamp [default: 'now()']
+  updated_at timestamp [default: 'now()']
+
+  indexes {
+    instructor_id
+    inquiry_id
+    verification_status
+  }
+}
+
+Table courses {
+  id uuid [primary key]
+  instructor_id uuid [not null]
+  category_id uuid
+  title varchar [not null]
+  slug varchar [unique, not null]
+  description text
+  language varchar [default: 'en']
+  currency varchar [default: 'USD']
+  price decimal
+  status courses_status
+  thumbnail_path text
+  created_at timestamp [default: 'now()']
+  updated_at timestamp [default: 'now()']
+
+  indexes {
+    instructor_id
+    category_id
+    slug
+    status
+  }
+}
+
+Table course_reviews {
+  id uuid [primary key]
+  user_id uuid
+  rating smallint
+  review text
+  created_at timestamp [default: 'now()']
+  updated_at timestamp [default: 'now()']
+}
+
+Table course_categories {
+  id uuid [primary key]
+  parent_id uuid // Reference to parent categories
+  name varchar
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table course_sections {
+  id uuid [primary key]
+  course_id uuid
+  title varchar [not null]
+  description text
+  display_order int [not null]
+  created_at timestamp [default: 'now()']
+  updated_at timestamp [default: 'now()']
+
+  indexes {
+    course_id
+    (course_id, display_order)
+  }
+}
+
+Table course_lectures {
+  id uuid [primary key]
+  section_id uuid [not null]
+  title varchar [not null]
+  description text
+  type course_lecture_type [not null]
+  display_order int [not null]
+  created_at timestamp [default: 'now()']
+  updated_at timestamp [default: 'now()']
+
+  indexes {
+    section_id
+    (section_id, display_order)
+  }
+}
+
+Table lecture_resources {
+  id uuid [primary key]
+  lecture_id uuid [not null]
+  title varchar [not null]
+  file_path text [not null]
+  file_size_bytes bigint
+  mimetype varchar
+  created_at timestamp [default: 'now()']
+
+  indexes {
+    lecture_id
+  }
+}
+
+Table live_sessions {
+  id uuid [primary key]
+  course_id uuid [not null]
+  scheduled_at timestamp [not null]
+  title varchar
+  description text
+  content_path text
+  durations_ms bigint
+  status live_session_status
+  created_at timestamp [default: 'now()']
+  updated_at timestamp [default: 'now()']
+
+  indexes {
+    course_id
+    scheduled_at
+    status
+  }
+}
+
+Table live_session_attendance {
+  id uuid [primary key]
+  live_session_id uuid [not null]
+  user_id uuid [not null]
+  joined_at timestamp
+  left_at timestamp
+  duration_ms bigint
+  created_at timestmap [default: 'now()']
+
+  indexes {
+    live_session_id
+    user_id
+    (live_session_id, user_id) [unique]
+  }
+}
+
+Table live_session_chats {
+  id uuid [primary key]
+  live_session_id uuid [not null]
+  user_id uuid [not null]
+  message text [not null]
+  created_at timestamp [default: 'now()']
+  updated_at timestamp [default: 'now()']
+
+  indexes {
+    live_session_id
+    user_id
+  }
+}
+
+Table assigments {
+  id uuid [primary key]
+  lecture_id uuid [not null]
+  title varchar [not null]
+  description text [not null]
+  due_date timestamp
+  created_at timestamp [default: 'now()']
+  updated_at timestamp [default: 'now()']
+}
+
+Table assignment_submissions {
+  id uuid [primary key]
+  assignment_id uuid [not null]
+  user_id uuid
+  enrollment_id uuid
+  submission_text text
+
+}
+
+Table assignment_submission_attachments {
+  id uuid [primary key]
+  assigment_submission_id uuid [not null]
+  name varchar
+  mimetype varchar
+  created_at timestamp [default: 'now()']
+  updated_at timestamp [default: 'now()']
+}
+
+// Payment system
+Table transactions {
+  id uuid [primary key]
+  user_id uuid [not null]
+  course_id uuid [not null]
+  amount decimal(10, 2) [not null]
+  currency varchar [default: 'USD']
+  payment_method payment_method [not null]
+  payment_gateway varchar
+  transaction_id varchar [unique]
+  status payment_status
+  payment_details json
+  created_at timestamp [default: 'now()']
+  updated_at timestamp [default: 'now()']
+
+  indexes {
+    user_id
+    course_id
+    transaction_id
+    status
+  }
+}
+
+Table instructor_balances {
+  id uuid [primary key]
+  instructor_id uuid [not null, unique]
+  available_balance decimal(12, 2) [default: 0]
+  pending_balance decimal(12, 2) [default: 0] // Not yet cleared (refund period)
+  total_earned decimal(12, 2) [default: 0] // Lifetime earned
+  total_withdrawn decimal(12, 2) [default: 0] // Total withdrawn
+  currency varchar [default: "USD"]
+  last_payout_at timestamp
+  created_at timestamp [default: 'now()']
+  updated_at timestamp [default: 'now()']
+
+  indexes {
+    instructor_id
+  }
+}
+
+Table revenue_transactions {
+  id uuid [primary key]
+  instructor_id uuid [not null]
+  transaction_id uuid // Reference to original transaction
+  type revenue_share_type [not null]
+  amount decimal(10,2) [not null]
+  platform_fee_percentage decimal(5,2)
+  platform_fee_amount decimal(10,2)
+  instructor_share decimal(10,2)
+  currency varchar [default: 'USD']
+  course_id uuid
+  description text
+  cleared_at timestamp // When funds become available for withdrawal
+  created_at timestamp [default: `now()`]
+
+  indexes {
+    instructor_id
+    transaction_id
+    type
+    cleared_at
+    created_at
+  }
+}
+
+Table payout_methods {
+id uuid [primary key]
+  instructor_id uuid [not null]
+  method_type withdrawal_method [not null]
+  is_default bool [default: false]
+
+  // Bank Transfer Details
+  bank_name varchar
+  account_holder_name varchar
+  account_number varchar
+  routing_number varchar
+  swift_code varchar
+  iban varchar
+
+  // PayPal/Stripe Details
+  email varchar
+  account_id varchar
+
+  country varchar
+  currency varchar
+  details json
+
+  is_verified bool [default: false]
+  verified_at timestamp
+  created_at timestamp [default: 'now()']
+  updated_at timestamp [default: 'now()']
+
+  indexes {
+    instructor_id
+    is_default
+  }
+}
+
+Table withdrawal_requests {
+  id uuid [primary key]
+  instructor_id uuid [not null]
+  payout_method_id uuid [not null]
+  amount decimal(10,2) [not null]
+  currency varchar [default: 'USD']
+  status withdrawal_status [default: 'pending']
+
+  requested_at timestamp [default: 'now()']
+  processed_at timestamp
+  completed_at timestamp
+  rejected_at timestamp
+
+  rejection_reason text
+  processing_notes text
+  transaction_reference varchar
+  proof_of_payment_url text
+
+  processing_fee decimal(10,2)
+  net_amount decimal(10,2)
+
+  created_at timestamp [default: 'now()']
+  updated_at timestamp [default: 'now()']
+
+  indexes {
+    instructor_id
+    payout_method_id
+    status
+    requested_at
+  }
+}
+
+// Wishlist
+Table wishlists {
+  id uuid [primary key]
+  user_id uuid [not null]
+  course_id uuid [not null]
+  created_at timestamp [default: "now()"]
+  updated_at timestamp [default: "now()"]
+
+  indexes {
+    user_id
+    course_id
+    (user_id, course_id) [unique]
+  }
+}
+
+// Shopping cart
+Table cart_items {
+  id uuid [primary key]
+  user_id uuid [not null]
+  course_id uuid [not null]
+  created_at timestamp [default: 'now()']
+  updated_at timestamp [default: 'now()']
+
+  indexes {
+    user_id
+    (user_id, course_id) [unique]
+  }
+}
+
+Table notifications {
+  id uuid [primary key]
+  user_id uuid [not null]
+  type varchar [not null]
+  title varchar [not null]
+  message text
+  data text // JSON
+  is_read boolean [default: false]
+  read_at timestamp
+  created_at timestamp [default: `now()`]
+
+  indexes {
+    user_id
+    is_read
+    created_at
+  }
+}
+
+Ref: refresh_tokens.user_id < users.id
+
+Ref: "oauth2_users".user_id < users.id
+
+Ref: instructors.user_id < users.id
+
+Ref: instructor_verifications.instructor_id < instructors.id
+
+Ref: courses.category_id < course_categories.id
+Ref: courses.instructor_id < instructors.id
+
+Ref: course_categories.parent_id < course_categories.id
+
+Ref: course_reviews.user_id < users.id
+
+Ref: course_sections.course_id < courses.id
+
+Ref: course_lectures.section_id < course_sections.id
+
+Ref: live_sessions.course_id < courses.id
+
+Ref: live_session_attendance.live_session_id < live_sessions.id
+Ref: live_session_attendance.user_id < users.id
+
+Ref: live_session_chats.live_session_id < live_sessions.id
+Ref: live_session_chats.user_id < users.id
+
+Ref: assigments.lecture_id < course_lectures.id
+
+Ref: assignment_submissions.assignment_id < assigments.id
+
+Ref: assignment_submission_attachments.assigment_submission_id < assignment_submissions.id
+
+Ref: transactions.user_id < users.id
+Ref: transactions.course_id < courses.id
+
+Ref: instructor_balances.instructor_id < instructors.id
+
+Ref: revenue_transactions.instructor_id < instructors.id
+Ref: revenue_transactions.transaction_id < transactions.id
+
+Ref: payout_methods.instructor_id < instructors.id
+
+Ref: withdrawal_requests.instructor_id < instructors.id
+Ref: withdrawal_requests.payout_method_id < payout_methods.id
+
+Ref: wishlists.user_id < users.id
+Ref: wishlists.course_id < courses.id
+
+Ref: cart_items.user_id < users.id
+Ref: cart_items.course_id < courses.id
+
+Ref: notifications.user_id < users.id

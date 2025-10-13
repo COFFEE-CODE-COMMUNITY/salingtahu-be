@@ -9,6 +9,7 @@ import { AllExceptionFilter } from "./common/filters/all-exception.filter"
 import cors from "cors"
 import cookieParser from "cookie-parser"
 import { useContainer } from "class-validator"
+import { NodeEnv } from "./common/enums/node-env"
 
 export class Main {
   private static readonly isMain = require.main === module
@@ -82,8 +83,25 @@ export class Main {
 
     const swaggerConfig = new DocumentBuilder()
       .setTitle("SalingTahu API")
-      .setDescription("Api documentation for SalingTahu")
-      .setVersion("1.0")
+      .setDescription(
+        "API documentation for SalingTau. A platform where anyone can share and find knowledge about anything",
+      )
+      .setVersion("1.0.0")
+      .addBearerAuth(
+        {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+          name: "Authorization",
+          description: "Enter JWT token",
+          in: "header",
+        },
+        "bearer",
+      )
+      .addServer(
+        `http://${config.get<string>("app.domain")}:${config.get<number>("app.port", 3000)}`,
+        config.get<NodeEnv>("app.nodeEnv") === NodeEnv.DEVELOPMENT ? "Development server" : "Production server",
+      )
       .build()
     const document = SwaggerModule.createDocument(app, swaggerConfig)
 

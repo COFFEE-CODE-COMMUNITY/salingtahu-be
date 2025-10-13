@@ -14,7 +14,7 @@ export class RegisterDto {
     example: "John",
     minLength: 2,
     maxLength: 30,
-    type: String,
+    required: true,
   })
   @AutoMap()
   public firstName!: string
@@ -28,7 +28,7 @@ export class RegisterDto {
     example: "Doe",
     minLength: 2,
     maxLength: 30,
-    type: String,
+    required: true,
   })
   @AutoMap()
   public lastName!: string
@@ -43,7 +43,7 @@ export class RegisterDto {
     example: "johndoe@example.com",
     format: "email",
     maxLength: 50,
-    type: String,
+    required: true,
   })
   @AutoMap()
   public email!: string
@@ -57,7 +57,7 @@ export class RegisterDto {
     example: "SecurePass123!",
     minLength: 8,
     maxLength: 100,
-    type: String,
+    required: true,
   })
   @AutoMap()
   public password!: string
