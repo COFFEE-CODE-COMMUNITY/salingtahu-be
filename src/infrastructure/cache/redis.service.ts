@@ -8,7 +8,6 @@ export class RedisService extends Redis implements BeforeApplicationShutdown {
     this.once("connect", async () => {
       const db = options.db ?? 0
       await this.select(db)
-      console.log(`[REDIS] Connected to ${options.host}:${options.port} (db=${db})`)
     })
   }
 
