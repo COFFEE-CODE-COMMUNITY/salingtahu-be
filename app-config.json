@@ -9,7 +9,8 @@
   },
   "client": {
     "web": {
-      "oauth2Redirect": "http://localhost:5173/homepage"
+      "oauth2Redirect": "http://localhost:5173/homepage",
+      "changePassword": "http://localhost:5173/change-password"
     }
   }
 }

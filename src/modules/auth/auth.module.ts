@@ -19,8 +19,8 @@ import { HttpModule } from "@nestjs/axios"
 import { UserService } from "../user/services/user.service"
 import { CqrsModule } from "@nestjs/cqrs"
 import { GoogleOAuth2CallbackHandler } from "./commands/handlers/google-oauth2-callback.handler"
-
-const commandHandler = [GoogleOAuth2CallbackHandler]
+import { PasswordResetHandler } from "./commands/handlers/password-reset.handler"
+import { PasswordResetService } from "./services/password-reset.service"
 
 @Module({
   imports: [
@@ -40,7 +40,8 @@ const commandHandler = [GoogleOAuth2CallbackHandler]
     LoginHandler,
     UserLoggedInHandler,
     GetGoogleAuthUrlHandler,
-    ...commandHandler,
+    GoogleOAuth2CallbackHandler,
+    PasswordResetHandler,
 
     // Mappers
     AuthMapper,
@@ -56,6 +57,7 @@ const commandHandler = [GoogleOAuth2CallbackHandler]
     TokensService,
     GoogleOAuth2Service,
     UserService,
+    PasswordResetService,
   ],
   exports: [AccessTokenService],
 })

@@ -1,4 +1,4 @@
-import { Body, Controller, Post, HttpCode, HttpStatus, Get, Query, Res, Req } from "@nestjs/common"
+import { Body, Controller, Post, HttpCode, HttpStatus, Get, Query, Res } from "@nestjs/common"
 import { RegisterDto } from "../dtos/register.dto"
 import {
   ApiOperation,
@@ -30,6 +30,8 @@ import { RequiredHeader } from "../../../common/http/required-header.decorator"
 import { GetGoogleAuthUrlQuery } from "../queries/get-google-auth-url.query"
 import { GoogleOAuth2CallbackCommand } from "../commands/google-oauth2-callback.command"
 import { OAuth2Provider } from "../enums/oauth2-provider.enum"
+import { PasswordResetCommand } from "../commands/password-reset.command"
+import { PasswordResetDto } from "../dtos/password-reset.dto"
 
 export interface OAuth2CallbackResult {
   platform: "web"
@@ -131,8 +133,9 @@ export class AuthController {
     type: PasswordResetBadRequestDto,
     description: "The request body is invalid.",
   })
-  public async passwordReset(): Promise<CommonResponseDto> {
-    return new CommonResponseDto()
+  public async passwordReset(@Body() dto: PasswordResetDto): Promise<CommonResponseDto> {
+    console.log("Dto: ", dto)
+    return await this.commandBus.execute(new PasswordResetCommand(dto))
   }
 
   @Post("/password-reset/change")
@@ -176,18 +179,12 @@ export class AuthController {
     description: "This endpoint handles the redirect from Google after the user has authenticated.",
   })
   public async googleAuthCallback(
-    @Query() query: any,
-    @Req() req: Request,
-
     @Query("code") code: string,
     @Query("state") state: string,
     @RequiredHeader("User-Agent") userAgent: string,
     @IpAddress() ipAddress: string,
     @Res() res: Response,
   ): Promise<void> {
-    console.log("[Google controller] Received state: ", state)
-    console.log("[Google controller] FULL QUERY:", query)
-    console.log("[Google controller] RAW URL:", req.url)
     const result = await this.commandBus.execute(new GoogleOAuth2CallbackCommand(code, state, userAgent, ipAddress))
 
     this.handleOAuth2CallbackResponse(OAuth2Provider.GOOGLE, result, res)
