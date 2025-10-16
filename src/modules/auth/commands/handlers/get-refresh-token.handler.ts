@@ -19,7 +19,7 @@ export class GetRefreshTokenHandler implements ICommandHandler<GetRefreshTokenCo
 
     if (!isRefreshTokenValid) {
       throw new UnauthorizedException({
-        message: 'Invalid refresh token.',
+        message: "Invalid refresh token.",
       })
     }
 
@@ -27,7 +27,7 @@ export class GetRefreshTokenHandler implements ICommandHandler<GetRefreshTokenCo
 
     if (!oldRefreshToken) {
       throw new UnauthorizedException({
-        message: 'Invalid refresh token.',
+        message: "Invalid refresh token.",
       })
     }
 
@@ -44,5 +44,4 @@ export class GetRefreshTokenHandler implements ICommandHandler<GetRefreshTokenCo
 
     return tokens
   }
-
 }

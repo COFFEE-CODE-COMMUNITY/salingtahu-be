@@ -14,7 +14,6 @@ import { CommonResponseDto } from "../../../common/dto/common-response.dto"
 import { RegisterBadRequestResponseDto } from "../dtos/register-bad-request-response.dto"
 import { LoginDto } from "../dtos/login.dto"
 import { TokensDto } from "../dtos/tokens.dto"
-import { GetRefreshTokenDto } from "../dtos/get-refresh-token.dto"
 import { PasswordResetBadRequestDto } from "../dtos/password-reset-bad-request.dto"
 import { GoogleAuthResponseDto } from "../dtos/google-auth-response.dto"
 import { CommandBus, QueryBus } from "@nestjs/cqrs"
@@ -35,6 +34,7 @@ import { PasswordResetDto } from "../dtos/password-reset.dto"
 import { ChangePasswordDto } from "../dtos/change-password.dto"
 import { ChangePasswordCommand } from "../commands/change-password.command"
 import { GetRefreshTokenCommand } from "../commands/get-refresh-token.command"
+import { Cookie } from "../../../common/http/cookie.decorator"
 
 export interface OAuth2CallbackResult {
   platform: "web"
@@ -117,11 +117,11 @@ export class AuthController {
     description: "The user is not authorized to perform this action.",
   })
   public async refreshToken(
-    @Body() _body: GetRefreshTokenDto,
     @RequiredHeader("User-Agent") _userAgent: string,
     @IpAddress() ipAddress: string,
+    @Cookie(REFRESH_TOKEN_COOKIE_NAME) refreshToken: string,
   ): Promise<TokensDto> {
-    return this.commandBus.execute(new GetRefreshTokenCommand(_body.refreshToken, _userAgent, ipAddress))
+    return this.commandBus.execute(new GetRefreshTokenCommand(refreshToken, _userAgent, ipAddress))
   }
 
   @Post("/password-reset")
@@ -211,7 +211,7 @@ export class AuthController {
       maxAge: maxAge,
       sameSite: this.config.get("app.nodeEnv") === NodeEnv.PRODUCTION ? "none" : "strict",
       secure: this.config.get("app.nodeEnv") === NodeEnv.PRODUCTION,
-      path: '/'
+      path: "/",
     }
   }
 

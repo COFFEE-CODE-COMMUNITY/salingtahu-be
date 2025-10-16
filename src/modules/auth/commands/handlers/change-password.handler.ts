@@ -6,11 +6,13 @@ import { BadRequestException, UnauthorizedException } from "@nestjs/common"
 import { plainToInstance } from "class-transformer"
 import { PasswordService } from "../../services/password.service"
 import { RefreshTokenRepository } from "../../repositories/refresh-token.repository"
+import { UserRepository } from "../../../user/repositories/user.repository"
+import { User } from "../../../user/entities/user.entity"
 
 @CommandHandler(ChangePasswordCommand)
 export class ChangePasswordHandler implements ICommandHandler<ChangePasswordCommand> {
   public constructor(
-    private readonly userRepository: any,
+    private readonly userRepository: UserRepository,
     private readonly cache: Cache,
     private readonly passwordService: PasswordService,
     private readonly refreshTokenRepository: RefreshTokenRepository,
@@ -28,7 +30,13 @@ export class ChangePasswordHandler implements ICommandHandler<ChangePasswordComm
     const hashed = await this.passwordService.hash(command.dto.password)
 
     const user = await this.userRepository.findByEmail(userEmail)
-    if (user?.password) {
+    if (!user) {
+      throw new BadRequestException(
+        plainToInstance(CommonResponseDto, {
+          message: "Cannot find email",
+        }),
+      )
+    } else if (user?.password) {
       const isUsed = await this.passwordService.compare(user.password, hashed)
       if (isUsed) {
         throw new BadRequestException(
@@ -40,7 +48,10 @@ export class ChangePasswordHandler implements ICommandHandler<ChangePasswordComm
     }
 
     //Need to create new repository
-    await this.userRepository.setPassword(hashed)
+    await this.userRepository.update(user.id, {
+      password: hashed,
+    } as User)
+
     if (command.dto.logoutAll) {
       if (!command.refreshToken) throw new UnauthorizedException("No refresh token found")
 

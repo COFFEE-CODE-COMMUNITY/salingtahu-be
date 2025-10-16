@@ -37,8 +37,8 @@ export class RefreshTokenService {
     return this.refreshTokenRepository.save(option)
   }
 
-  public async verify(refreshToken: string, userAgent: string):Promise<boolean> {
-    const token =  await this.refreshTokenRepository.findByToken(refreshToken)
+  public async verify(refreshToken: string, userAgent: string): Promise<boolean> {
+    const token = await this.refreshTokenRepository.findByToken(refreshToken)
 
     if (!token) return false
     if (token.expiresAt < new Date()) return false
