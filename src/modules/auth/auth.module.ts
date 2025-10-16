@@ -21,6 +21,7 @@ import { CqrsModule } from "@nestjs/cqrs"
 import { GoogleOAuth2CallbackHandler } from "./commands/handlers/google-oauth2-callback.handler"
 import { PasswordResetHandler } from "./commands/handlers/password-reset.handler"
 import { PasswordResetService } from "./services/password-reset.service"
+import { ChangePasswordHandler } from "./commands/handlers/change-password.handler"
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { PasswordResetService } from "./services/password-reset.service"
     GetGoogleAuthUrlHandler,
     GoogleOAuth2CallbackHandler,
     PasswordResetHandler,
+    ChangePasswordHandler,
 
     // Mappers
     AuthMapper,

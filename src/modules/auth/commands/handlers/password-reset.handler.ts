@@ -23,10 +23,10 @@ export class PasswordResetHandler implements ICommandHandler<PasswordResetComman
       )
     }
 
-    await this.passwordResetService.verifyEmail(user.email)
+    const message = await this.passwordResetService.verifyEmail(user.email)
 
     return plainToInstance(CommonResponseDto, {
-      message: "A verification code has send to the email. Please check your inbox.",
+      message: message,
     })
   }
 }

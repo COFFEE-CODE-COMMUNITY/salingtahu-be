@@ -15,4 +15,10 @@ export class RefreshTokenRepository extends BaseRepository<RefreshToken> {
       where: { token },
     })
   }
+
+  public async deleteByToken(refreshToken: string): Promise<void> {
+    await this.getRepository().delete({
+      token: refreshToken
+    })
+  }
 }

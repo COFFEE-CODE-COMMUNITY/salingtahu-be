@@ -1,4 +1,4 @@
-import { Body, Controller, Post, HttpCode, HttpStatus, Get, Query, Res } from "@nestjs/common"
+import { Body, Controller, Post, HttpCode, HttpStatus, Get, Query, Res, Req } from "@nestjs/common"
 import { RegisterDto } from "../dtos/register.dto"
 import {
   ApiOperation,
@@ -21,7 +21,7 @@ import { CommandBus, QueryBus } from "@nestjs/cqrs"
 import { RegisterCommand } from "../commands/register.command"
 import { LoginCommand } from "../commands/login.command"
 import { IpAddress } from "../../../common/http/ip-address.decorator"
-import { Response, CookieOptions } from "express"
+import { Response, CookieOptions, Request } from "express"
 import { ConfigService } from "@nestjs/config"
 import { NodeEnv } from "../../../common/enums/node-env"
 import { REFRESH_TOKEN_COOKIE_NAME } from "../constants/cookie-name.constant"
@@ -32,6 +32,9 @@ import { GoogleOAuth2CallbackCommand } from "../commands/google-oauth2-callback.
 import { OAuth2Provider } from "../enums/oauth2-provider.enum"
 import { PasswordResetCommand } from "../commands/password-reset.command"
 import { PasswordResetDto } from "../dtos/password-reset.dto"
+import { ChangePasswordDto } from "../dtos/change-password.dto"
+import { ChangePasswordCommand } from "../commands/change-password.command"
+import { GetRefreshTokenCommand } from "../commands/get-refresh-token.command"
 
 export interface OAuth2CallbackResult {
   platform: "web"
@@ -116,8 +119,9 @@ export class AuthController {
   public async refreshToken(
     @Body() _body: GetRefreshTokenDto,
     @RequiredHeader("User-Agent") _userAgent: string,
+    @IpAddress() ipAddress: string,
   ): Promise<TokensDto> {
-    return new TokensDto()
+    return this.commandBus.execute(new GetRefreshTokenCommand(_body.refreshToken, _userAgent, ipAddress))
   }
 
   @Post("/password-reset")
@@ -151,8 +155,16 @@ export class AuthController {
     type: PasswordResetBadRequestDto,
     description: "The request body is invalid.",
   })
-  public async changePassword(): Promise<CommonResponseDto> {
-    return new CommonResponseDto()
+  public async changePassword(
+    @Query("token") token: string,
+    @Body() dto: ChangePasswordDto,
+    @Req() req: Request,
+    @Res() res: Response,
+  ): Promise<CommonResponseDto> {
+    const refreshToken = req.cookies[REFRESH_TOKEN_COOKIE_NAME]
+    const result = await this.commandBus.execute(new ChangePasswordCommand(dto, token, refreshToken))
+    if (dto.logoutAll) this.clearRefreshTokenCookie(res)
+    return result
   }
 
   @Get("/google")
@@ -199,6 +211,7 @@ export class AuthController {
       maxAge: maxAge,
       sameSite: this.config.get("app.nodeEnv") === NodeEnv.PRODUCTION ? "none" : "strict",
       secure: this.config.get("app.nodeEnv") === NodeEnv.PRODUCTION,
+      path: '/'
     }
   }
 
@@ -212,5 +225,15 @@ export class AuthController {
     res.redirect(`${this.config.getOrThrow("client.web.oauth2Redirect")}?${searchParams.toString()}`)
 
     res.status(500).send("Platform is not supported")
+  }
+
+  private clearRefreshTokenCookie(response: Response): void {
+    response.clearCookie(REFRESH_TOKEN_COOKIE_NAME, {
+      domain: this.config.get("client.web.domain", "localhost"),
+      path: "/",
+      httpOnly: true,
+      sameSite: this.config.get("app.nodeEnv") === NodeEnv.PRODUCTION ? "none" : "strict",
+      secure: this.config.get("app.nodeEnv") === NodeEnv.PRODUCTION,
+    })
   }
 }

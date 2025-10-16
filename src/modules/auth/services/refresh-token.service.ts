@@ -3,12 +3,13 @@ import { PasswordService } from "./password.service"
 import { User } from "../../user/entities/user.entity"
 import { RefreshTokenRepository } from "../repositories/refresh-token.repository"
 import { TokensService } from "./tokens.service"
+import { parse } from "useragent"
 
 @Injectable()
 export class RefreshTokenService {
   public constructor(
     private readonly hasher: PasswordService,
-    private readonly repo: RefreshTokenRepository,
+    private readonly refreshTokenRepository: RefreshTokenRepository,
     private readonly token: TokensService,
   ) {}
 
@@ -33,6 +34,28 @@ export class RefreshTokenService {
       expiresAt: exp,
     }
 
-    return this.repo.save(option)
+    return this.refreshTokenRepository.save(option)
+  }
+
+  public async verify(refreshToken: string, userAgent: string):Promise<boolean> {
+    const token =  await this.refreshTokenRepository.findByToken(refreshToken)
+
+    if (!token) return false
+    if (token.expiresAt < new Date()) return false
+    if (token.revoked) return false
+
+    if (token.userAgent === userAgent) {
+      const agent = parse(userAgent)
+      const tokenAgent = parse(token.userAgent)
+      if (
+        tokenAgent.family !== agent.family ||
+        tokenAgent.os.toString() !== agent.os.toString() ||
+        tokenAgent.device.toString() !== agent.device.toString()
+      ) {
+        return false
+      }
+    }
+
+    return true
   }
 }
