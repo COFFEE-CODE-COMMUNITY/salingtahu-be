@@ -31,6 +31,8 @@ export class StreamValidation extends Transform {
       callback()
     } catch (err) {
       const error = err instanceof Error ? err : new Error("Unknown stream validation error")
+
+      this.destroy(error)
       callback(error)
     }
   }
@@ -74,6 +76,7 @@ export class SizeLimitingValidator implements StreamValidator {
 
 export class FileTypeValidator implements StreamValidator {
   private readonly detectionBuffers: Buffer[] = []
+  private readonly fileTypeResolver: PromiseWithResolvers<FileType> = Promise.withResolvers()
   private completeDetection: boolean = false
   private detectedMimeType: string | null = null
 
@@ -103,6 +106,12 @@ export class FileTypeValidator implements StreamValidator {
         return false
       }
 
+      this.fileTypeResolver.resolve({
+        extension: fileType.ext,
+        mimeType: fileType.mime,
+      })
+
+      // Clear buffers after detection to free memory
       this.detectionBuffers.length = 0
     }
 
