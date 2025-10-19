@@ -1,25 +1,32 @@
-import { Body, Controller, Get, Patch, Put } from "@nestjs/common"
+import { Body, Controller, Get, Patch, Put, Req, UseGuards, Param } from "@nestjs/common"
 import { UserDto } from "../dto/user.dto"
 import { CommonResponseDto } from "../../../common/dto/common-response.dto"
-import { ApiBearerAuth, ApiConsumes, ApiOkResponse, ApiOperation, ApiUnauthorizedResponse } from "@nestjs/swagger"
+import {
+  ApiBearerAuth,
+  ApiConsumes,
+  ApiOkResponse,
+  ApiOperation,
+  ApiPayloadTooLargeResponse,
+  ApiUnauthorizedResponse,
+  ApiUnsupportedMediaTypeResponse,
+} from "@nestjs/swagger"
 import { UpdateUserDto } from "../dto/update-user.dto"
 import { UserPublicDto } from "../dto/user-public.dto"
+import { CommandBus, QueryBus } from "@nestjs/cqrs"
+import { UpdateProfilePictureCommand } from "../commands/update-profile-picture.command"
+import { Request } from "express"
+import { UserId } from "../../../common/http/user-id.decorator"
+import { BearerTokenGuard } from "../../../common/guards/bearer-token.guard"
+import { GetCurrentUserQuery } from "../queries/get-current-user.query"
+import { GetUserQuery } from "../queries/get-user.query"
+import { ALLOWED_IMAGE_MIMETYPES } from "../../../constants/mimetype.constant"
 
 @Controller("users")
 export class UserController {
-  @Get(":userId")
-  @ApiOperation({
-    summary: "Get public user profile by ID",
-    description:
-      "Retrieves the public profile information of a user by their unique identifier, including personal details, social media links, and professional headline",
-  })
-  @ApiOkResponse({
-    type: UserPublicDto,
-    description: "Successfully retrieved public user profile",
-  })
-  public async getUserById(): Promise<UserPublicDto> {
-    return new UserPublicDto()
-  }
+  public constructor(
+    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
+  ) {}
 
   @Get("me")
   @ApiBearerAuth()
@@ -36,8 +43,23 @@ export class UserController {
     type: CommonResponseDto,
     description: "User is not authenticated or token is invalid",
   })
-  public async getMe(): Promise<UserDto> {
-    return new UserDto()
+  @UseGuards(BearerTokenGuard)
+  public async getMe(@UserId() userId: string): Promise<UserDto> {
+    return this.queryBus.execute(new GetCurrentUserQuery(userId))
+  }
+
+  @Get(":userId")
+  @ApiOperation({
+    summary: "Get public user profile by ID",
+    description:
+      "Retrieves the public profile information of a user by their unique identifier, including personal details, social media links, and professional headline",
+  })
+  @ApiOkResponse({
+    type: UserPublicDto,
+    description: "Successfully retrieved public user profile",
+  })
+  public async getUserById(@Param("userId") userId: string): Promise<UserPublicDto> {
+    return this.queryBus.execute(new GetUserQuery(userId))
   }
 
   @Patch("me")
@@ -55,6 +77,7 @@ export class UserController {
     type: CommonResponseDto,
     description: "User is not authenticated or token is invalid",
   })
+  @UseGuards(BearerTokenGuard)
   public async updateMe(@Body() dto: UpdateUserDto): Promise<UserDto> {
     return new UserDto()
   }
@@ -73,8 +96,17 @@ export class UserController {
     type: CommonResponseDto,
     description: "User is not authenticated or token is invalid",
   })
-  @ApiConsumes("image/*")
-  public async updateProfilePicture(): Promise<CommonResponseDto> {
-    return new CommonResponseDto()
+  @ApiPayloadTooLargeResponse({
+    type: CommonResponseDto,
+    description: "Uploaded file exceeds the maximum allowed size",
+  })
+  @ApiUnsupportedMediaTypeResponse({
+    type: CommonResponseDto,
+    description: `Uploaded file has an unsupported media type. Allowed types: ${ALLOWED_IMAGE_MIMETYPES.join(", ")}`,
+  })
+  @ApiConsumes(...ALLOWED_IMAGE_MIMETYPES)
+  @UseGuards(BearerTokenGuard)
+  public async updateProfilePicture(@Req() request: Request, @UserId() userId: string): Promise<CommonResponseDto> {
+    return this.commandBus.execute(new UpdateProfilePictureCommand(userId, request))
   }
 }

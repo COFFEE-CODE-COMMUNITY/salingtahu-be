@@ -54,7 +54,8 @@ export class WinstonLogger extends Logger {
         const argsStr = Object.keys(meta).length > 0 ? ` ${JSON.stringify(meta)}` : ""
         // eslint-disable-next-line @typescript-eslint/no-base-to-string
         const stackStr = stack ? `\n${stack}` : ""
-        return `[${level}] [${parentClass.constructor.name}] ${timestamp} - ${message}${argsStr}${stackStr}`
+        const className = parentClass?.constructor?.name || "Unknown"
+        return `[${level}] [${className}] ${timestamp} - ${message}${argsStr}${stackStr}`
       }),
     )
     const fileFormat = format.combine(

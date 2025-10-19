@@ -1,0 +1,50 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    // Test-specific types
+    "types": ["jest", "node"],
+
+    // Allow importing from src without relative paths
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["src/*"],
+      "@test/*": ["test/*"]
+    },
+
+    // Disable declaration files for tests
+    "declaration": false,
+    "declarationMap": false,
+
+    // Enable source maps for debugging tests
+    "sourceMap": true,
+    "inlineSourceMap": false,
+
+    // Allow importing .tsx files (for email templates in tests)
+    "jsx": "react-jsx",
+
+    // Ensure proper module resolution for tests
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+
+    // Less strict for test files
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
+  },
+  "include": [
+    // Include unit tests (*.spec.ts files in src)
+    "src/**/*.spec.ts",
+    "src/**/*.test.ts",
+
+    // Include integration/e2e tests
+    "test/**/*.ts",
+    "test/**/*.tsx",
+
+    // Include test utilities
+    "test/**/*.e2e-spec.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "coverage"
+  ]
+}

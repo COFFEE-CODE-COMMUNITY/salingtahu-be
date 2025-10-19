@@ -3,44 +3,29 @@ import { Main } from "../src/main"
 import { INestApplication } from "@nestjs/common"
 import { Test, TestingModuleBuilder } from "@nestjs/testing"
 import { AppModule } from "../src/app.module"
-import { PostgreSqlContainer, StartedPostgreSqlContainer } from "@testcontainers/postgresql"
-import { RedisContainer, StartedRedisContainer } from "@testcontainers/redis"
-import { ConfigService  } from "@nestjs/config"
+import { ConfigService } from "@nestjs/config"
+import { randomBytes } from "crypto"
+import { readFileSync } from "fs"
+import { GLOBAL_CONFIG_PATH } from "./jest.global-setup"
+import { GlobalConfig } from "./types/config"
 
-let postgresqlContainer: StartedPostgreSqlContainer | null = null
-let redisContainer: StartedRedisContainer | null = null
-
-export async function setupTestContainers() {
-  if (!postgresqlContainer) {
-    postgresqlContainer = await new PostgreSqlContainer("postgres:17").start()
-  }
-  if (!redisContainer) {
-    redisContainer = await new RedisContainer("redis:8.2.1").start()
-  }
-}
-
-export async function teardownTestContainers() {
-  if (postgresqlContainer) {
-    await postgresqlContainer.stop()
-    postgresqlContainer = null
-  }
-  if (redisContainer) {
-    await redisContainer.stop()
-    redisContainer = null
-  }
-}
+const MINIO_ROOT_USER = "minioadmin"
+const MINIO_ROOT_PASSWORD = "minioadmin"
 
 class TestConfigService extends ConfigService {
   public constructor(internalConfig: Record<string, any>) {
+    const globalConfig: GlobalConfig = JSON.parse(readFileSync(GLOBAL_CONFIG_PATH, "utf-8"))
+
     super({
       ...internalConfig,
-      DATABASE_HOST: postgresqlContainer!.getHost(),
-      DATABASE_PORT: postgresqlContainer!.getPort().toString(),
-      DATABASE_USERNAME: postgresqlContainer!.getUsername(),
-      DATABASE_PASSWORD: postgresqlContainer!.getPassword(),
-      DATABASE_NAME: postgresqlContainer!.getDatabase(),
-      REDIS_HOST: redisContainer!.getHost(),
-      REDIS_PORT: redisContainer!.getPort().toString(),
+      ...globalConfig.environment,
+      DATABASE_TYPE: "postgres",
+      ACCESS_TOKEN_SECRET: randomBytes(32).toString("hex"),
+      S3_REGION: "us-east-1",
+      S3_ENDPOINT: `http://${globalConfig.environment.MINIO_HOST}:${globalConfig.environment.MINIO_PORT}`,
+      S3_BUCKET_NAME: "salingtau",
+      S3_ACCESS_KEY: MINIO_ROOT_USER,
+      S3_SECRET_KEY: MINIO_ROOT_PASSWORD,
     })
   }
 }
@@ -48,13 +33,11 @@ class TestConfigService extends ConfigService {
 export async function createTestApp(
   builder?: (builder: TestingModuleBuilder) => TestingModuleBuilder,
 ): Promise<INestApplication<App>> {
-  await setupTestContainers()
-
   const testBuilder = Test.createTestingModule({
     imports: [AppModule],
   })
-  .overrideProvider(ConfigService)
-  .useClass(TestConfigService)
+    .overrideProvider(ConfigService)
+    .useClass(TestConfigService)
 
   if (builder) {
     builder(testBuilder)
@@ -66,6 +49,9 @@ export async function createTestApp(
       bodyParser: false,
     }),
   )
+
+  // Enable graceful shutdown for proper cleanup
+  app.enableShutdownHooks()
 
   await app.init()
 

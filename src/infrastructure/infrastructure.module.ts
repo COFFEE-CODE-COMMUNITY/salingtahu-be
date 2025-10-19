@@ -14,7 +14,6 @@ import { CqrsModule } from "@nestjs/cqrs"
 import { BullModule } from "@nestjs/bullmq"
 import { EmailService } from "./email/email.service"
 import { EMAIL_QUEUE, EmailConsumer } from "./email/email.consumer"
-import _ from "lodash"
 import { Resend } from "resend"
 import { User } from "../modules/user/entities/user.entity"
 import { TextHasher } from "./security/cryptography/text-hasher"
@@ -22,6 +21,7 @@ import { Sha256TextHasher } from "./security/cryptography/sha256-text-hasher"
 import { RefreshToken } from "../modules/auth/entities/refresh-token.entity"
 import { OAuth2User } from "../modules/auth/entities/oauth2-user.entity"
 import { RedisService } from "./cache/redis.service"
+import _ from "lodash"
 
 @Global()
 @Module({

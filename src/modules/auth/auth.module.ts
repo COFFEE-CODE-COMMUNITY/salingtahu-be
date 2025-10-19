@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common"
+import { Global, Module } from "@nestjs/common"
 import { AuthController } from "./controllers/auth.controller"
 import { RegisterHandler } from "./commands/handlers/register.handler"
 import { PasswordService } from "./services/password.service"
@@ -11,6 +11,7 @@ import { OAuth2UserRepository } from "./repositories/oauth2-user.repository"
 import { RefreshTokenRepository } from "./repositories/refresh-token.repository"
 import { RefreshTokenService } from "./services/refresh-token.service"
 
+@Global()
 @Module({
   imports: [UserModule],
   controllers: [AuthController],

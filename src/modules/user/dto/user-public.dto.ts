@@ -1,4 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger"
+import { ImageDto } from "../../../common/dto/image.dto"
 
 export class UserPublicDto {
   @ApiProperty({
@@ -26,10 +27,18 @@ export class UserPublicDto {
   public biography!: string
 
   @ApiProperty({
-    description: "URL to the user profile picture",
-    example: "https://example.com/profile/avatar.jpg",
+    description: "Array of user profile pictures with dimensions",
+    example: [
+      {
+        url: "https://example.com/profile/avatar.jpg",
+        width: 400,
+        height: 400,
+      },
+    ],
+    type: [ImageDto],
+    isArray: true,
   })
-  public profilePictureUrl!: string
+  public profilePictures!: ImageDto[]
 
   @ApiProperty({
     description: "Personal or professional website URL",

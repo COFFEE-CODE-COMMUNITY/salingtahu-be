@@ -63,9 +63,9 @@ describe("POST /api/v1/auth/login", () => {
       expect(response.status).toBe(200)
       expect(response.body).toEqual({
         refreshToken: expect.any(String),
-        accessToken: expect.any(String)
+        accessToken: expect.any(String),
       })
-      expect(response.headers['set-cookie']![0]).toMatch(/refreshToken=.+;/)
+      expect(response.headers["set-cookie"]![0]).toMatch(/refreshToken=.+;/)
     })
   })
 
@@ -75,7 +75,7 @@ describe("POST /api/v1/auth/login", () => {
         .post("/api/v1/auth/login")
         .send({
           email: faker.internet.email(),
-          password
+          password,
         })
         .set("User-Agent", faker.internet.userAgent())
         .expect(401)
