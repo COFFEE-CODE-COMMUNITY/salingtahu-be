@@ -1,4 +1,5 @@
 import { ApiPropertyOptional } from "@nestjs/swagger"
+import { Language } from "../../../common/enums/language"
 
 export class UpdateUserDto {
   @ApiPropertyOptional({
@@ -35,7 +36,7 @@ export class UpdateUserDto {
     description: "Preferred language for the user",
     example: "en",
   })
-  public language?: string
+  public language?: Language
 
   @ApiPropertyOptional({
     description: "URL to the user profile picture",

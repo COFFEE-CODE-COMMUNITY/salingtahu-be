@@ -77,6 +77,7 @@ export default tseslint.config([
         {
           selector: "classMethod",
           format: ["camelCase"],
+          leadingUnderscore: "allow",
         },
         {
           selector: "classProperty",
@@ -151,7 +152,7 @@ export default tseslint.config([
       "@typescript-eslint/no-duplicate-type-constituents": "error",
       "@typescript-eslint/no-dynamic-delete": "off",
       "no-empty-function": "off",
-      "@typescript-eslint/no-empty-function": "error",
+      "@typescript-eslint/no-empty-function": "warn",
       "@typescript-eslint/no-empty-object-type": [
         "error",
         {

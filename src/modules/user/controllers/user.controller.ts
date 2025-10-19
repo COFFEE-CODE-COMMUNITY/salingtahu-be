@@ -4,6 +4,7 @@ import { CommonResponseDto } from "../../../common/dto/common-response.dto"
 import {
   ApiBearerAuth,
   ApiConsumes,
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiPayloadTooLargeResponse,
@@ -20,6 +21,7 @@ import { BearerTokenGuard } from "../../../common/guards/bearer-token.guard"
 import { GetCurrentUserQuery } from "../queries/get-current-user.query"
 import { GetUserQuery } from "../queries/get-user.query"
 import { ALLOWED_IMAGE_MIMETYPES } from "../../../constants/mimetype.constant"
+import { UpdateUserCommand } from "../commands/update-user.command"
 
 @Controller("users")
 export class UserController {
@@ -58,6 +60,10 @@ export class UserController {
     type: UserPublicDto,
     description: "Successfully retrieved public user profile",
   })
+  @ApiNotFoundResponse({
+    type: CommonResponseDto,
+    description: "User not found.",
+  })
   public async getUserById(@Param("userId") userId: string): Promise<UserPublicDto> {
     return this.queryBus.execute(new GetUserQuery(userId))
   }
@@ -78,8 +84,8 @@ export class UserController {
     description: "User is not authenticated or token is invalid",
   })
   @UseGuards(BearerTokenGuard)
-  public async updateMe(@Body() dto: UpdateUserDto): Promise<UserDto> {
-    return new UserDto()
+  public async updateMe(@Body() dto: UpdateUserDto, @UserId() userId: string): Promise<UserDto> {
+    return this.commandBus.execute(new UpdateUserCommand(userId, dto))
   }
 
   @Put("me/profile-picture")
