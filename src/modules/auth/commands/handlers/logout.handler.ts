@@ -7,16 +7,13 @@ import { plainToInstance } from "class-transformer"
 
 @CommandHandler(LogoutCommand)
 export class LogoutHandler implements ICommandHandler<LogoutCommand> {
-  public constructor(
-    private readonly refreshTokenRepository: RefreshTokenRepository
-  ) {}
+  public constructor(private readonly refreshTokenRepository: RefreshTokenRepository) {}
 
   public async execute(command: LogoutCommand): Promise<CommonResponseDto> {
     const refreshToken = await this.refreshTokenRepository.findByToken(command.refreshToken)
     if (refreshToken?.userAgent !== command.userAgent || refreshToken.ipAddress !== command.ipAddress) {
       throw new UnauthorizedException({ message: "Token mismatch or from different device." })
     }
-
 
     refreshToken.revoke()
     await this.refreshTokenRepository.save(refreshToken)
