@@ -1,4 +1,4 @@
-import { Body, Controller, Post, HttpCode, HttpStatus, Get, Query, Res, Req } from "@nestjs/common"
+import { Body, Controller, Post, HttpCode, HttpStatus, Get, Query, Res } from "@nestjs/common"
 import { RegisterDto } from "../dtos/register.dto"
 import {
   ApiOperation,
@@ -20,7 +20,7 @@ import { CommandBus, QueryBus } from "@nestjs/cqrs"
 import { RegisterCommand } from "../commands/register.command"
 import { LoginCommand } from "../commands/login.command"
 import { IpAddress } from "../../../common/http/ip-address.decorator"
-import { Response, CookieOptions, Request } from "express"
+import { Response, CookieOptions } from "express"
 import { ConfigService } from "@nestjs/config"
 import { NodeEnv } from "../../../common/enums/node-env"
 import { REFRESH_TOKEN_COOKIE_NAME } from "../constants/cookie-name.constant"
