@@ -36,7 +36,7 @@ export class ChangePasswordHandler implements ICommandHandler<ChangePasswordComm
           message: "Cannot find email",
         }),
       )
-    } else if (user?.password) {
+    } else if (user.password) {
       const isUsed = await this.passwordService.compare(user.password, hashed)
       if (isUsed) {
         throw new BadRequestException(
@@ -55,7 +55,11 @@ export class ChangePasswordHandler implements ICommandHandler<ChangePasswordComm
     if (command.dto.logoutAll) {
       if (!command.refreshToken) throw new UnauthorizedException("No refresh token found")
 
-      await this.refreshTokenRepository.deleteByToken(command.refreshToken)
+      const refreshToken = await this.refreshTokenRepository.findByToken(command.refreshToken)
+      if (!refreshToken) throw new UnauthorizedException("Refresh token not found");
+    
+      refreshToken.revoke()
+      await this.refreshTokenRepository.save(refreshToken) 
     }
 
     return plainToInstance(CommonResponseDto, {

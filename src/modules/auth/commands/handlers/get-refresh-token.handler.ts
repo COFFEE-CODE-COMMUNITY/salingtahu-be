@@ -8,40 +8,42 @@ import { TokensService } from "../../services/tokens.service"
 
 @CommandHandler(GetRefreshTokenCommand)
 export class GetRefreshTokenHandler implements ICommandHandler<GetRefreshTokenCommand> {
-  public constructor(
+  constructor(
     private readonly refreshTokenService: RefreshTokenService,
     private readonly refreshTokenRepository: RefreshTokenRepository,
     private readonly tokensService: TokensService,
   ) {}
 
   public async execute(command: GetRefreshTokenCommand): Promise<TokensDto> {
-    const isRefreshTokenValid = await this.refreshTokenService.verify(command.refreshToken, command.userAgent)
+    const { refreshToken, userAgent } = command;
 
-    if (!isRefreshTokenValid) {
-      throw new UnauthorizedException({
-        message: "Invalid refresh token.",
-      })
+    if (!refreshToken) {
+      throw new UnauthorizedException({ message: "Missing refresh token." });
     }
 
-    const oldRefreshToken = await this.refreshTokenRepository.findByToken(command.refreshToken)
-
-    if (!oldRefreshToken) {
-      throw new UnauthorizedException({
-        message: "Invalid refresh token.",
-      })
+    const decoded = await this.refreshTokenService.verify(refreshToken, userAgent);
+    if (!decoded) {
+      throw new UnauthorizedException({ message: "Invalid or malformed refresh token." });
     }
 
-    const refreshToken = await this.refreshTokenService.create(
-      oldRefreshToken.user,
-      command.userAgent,
-      command.ipAddress,
-    )
+    const tokenEntity = await this.refreshTokenRepository.findByToken(refreshToken);
+    if (!tokenEntity) {
+      throw new UnauthorizedException({ message: "Refresh token not found." });
+    }
 
-    const accessToken = await this.tokensService.accessToken(oldRefreshToken.id)
-    const tokens = new TokensDto()
-    tokens.accessToken = accessToken
-    tokens.refreshToken = refreshToken.token
+    if (tokenEntity.revoked) {
+      throw new UnauthorizedException({ message: "Refresh token has been revoked." });
+    }
 
-    return tokens
+    if (tokenEntity.expiresAt <= new Date()) {
+      throw new UnauthorizedException({ message: "Refresh token has expired." });
+    }
+
+    const accessToken = await this.tokensService.accessToken(tokenEntity.user.id);
+
+    const tokens = new TokensDto();
+    tokens.accessToken = accessToken;
+
+    return tokens;
   }
 }

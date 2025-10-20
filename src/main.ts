@@ -24,6 +24,10 @@ export class Main {
       const domain = configService.get<string>("app.domain")
       const port = configService.get<number>("app.port", 3000)
       const logger = await app.resolve<Logger>(Logger)
+      app.enableCors({
+        origin: 'http://localhost:5173',
+        credentials: true,
+      })
 
       await app.listen(port, () => {
         logger.info(`Server is running on ${domain} ${port}`)
