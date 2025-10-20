@@ -25,7 +25,7 @@ export class Main {
       const port = configService.get<number>("app.port", 3000)
       const logger = await app.resolve<Logger>(Logger)
       app.enableCors({
-        origin: 'http://localhost:5173',
+        origin: "http://localhost:5173",
         credentials: true,
       })
 

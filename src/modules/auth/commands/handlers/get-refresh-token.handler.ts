@@ -8,42 +8,42 @@ import { TokensService } from "../../services/tokens.service"
 
 @CommandHandler(GetRefreshTokenCommand)
 export class GetRefreshTokenHandler implements ICommandHandler<GetRefreshTokenCommand> {
-  constructor(
+  public constructor(
     private readonly refreshTokenService: RefreshTokenService,
     private readonly refreshTokenRepository: RefreshTokenRepository,
     private readonly tokensService: TokensService,
   ) {}
 
   public async execute(command: GetRefreshTokenCommand): Promise<TokensDto> {
-    const { refreshToken, userAgent } = command;
+    const { refreshToken, userAgent } = command
 
     if (!refreshToken) {
-      throw new UnauthorizedException({ message: "Missing refresh token." });
+      throw new UnauthorizedException({ message: "Missing refresh token." })
     }
 
-    const decoded = await this.refreshTokenService.verify(refreshToken, userAgent);
+    const decoded = await this.refreshTokenService.verify(refreshToken, userAgent)
     if (!decoded) {
-      throw new UnauthorizedException({ message: "Invalid or malformed refresh token." });
+      throw new UnauthorizedException({ message: "Invalid or malformed refresh token." })
     }
 
-    const tokenEntity = await this.refreshTokenRepository.findByToken(refreshToken);
+    const tokenEntity = await this.refreshTokenRepository.findByToken(refreshToken)
     if (!tokenEntity) {
-      throw new UnauthorizedException({ message: "Refresh token not found." });
+      throw new UnauthorizedException({ message: "Refresh token not found." })
     }
 
     if (tokenEntity.revoked) {
-      throw new UnauthorizedException({ message: "Refresh token has been revoked." });
+      throw new UnauthorizedException({ message: "Refresh token has been revoked." })
     }
 
     if (tokenEntity.expiresAt <= new Date()) {
-      throw new UnauthorizedException({ message: "Refresh token has expired." });
+      throw new UnauthorizedException({ message: "Refresh token has expired." })
     }
 
-    const accessToken = await this.tokensService.accessToken(tokenEntity.user.id);
+    const accessToken = await this.tokensService.accessToken(tokenEntity.user.id)
 
-    const tokens = new TokensDto();
-    tokens.accessToken = accessToken;
+    const tokens = new TokensDto()
+    tokens.accessToken = accessToken
 
-    return tokens;
+    return tokens
   }
 }

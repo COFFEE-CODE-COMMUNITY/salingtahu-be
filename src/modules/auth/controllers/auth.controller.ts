@@ -35,6 +35,7 @@ import { ChangePasswordDto } from "../dtos/change-password.dto"
 import { ChangePasswordCommand } from "../commands/change-password.command"
 import { GetRefreshTokenCommand } from "../commands/get-refresh-token.command"
 import { Cookie } from "../../../common/http/cookie.decorator"
+import { LogoutCommand } from "../commands/logout.command"
 
 export interface OAuth2CallbackResult {
   platform: "web"
@@ -103,6 +104,35 @@ export class AuthController {
     res.status(HttpStatus.OK).json(payload)
   }
 
+  @Post("logout")
+  @ApiOperation({
+    summary: "Logout user",
+    description: "Logout user and revoke the refresh token.",
+  })
+  @ApiOkResponse({
+    description: "User successfully logged out.",
+    type: CommonResponseDto,
+  })
+  @ApiBadRequestResponse({
+    description: "Missing required header.",
+    type: CommonResponseDto,
+  })
+  @ApiUnauthorizedResponse({
+    description: "User unauthorized.",
+    type: CommonResponseDto,
+  })
+  @HttpCode(HttpStatus.OK)
+  public async logout(
+    @RequiredHeader("User-Agent") _userAgent: string,
+    @IpAddress() ipAddress: string,
+    @Cookie(REFRESH_TOKEN_COOKIE_NAME) refreshToken: string,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<CommonResponseDto> {
+    const result = await this.commandBus.execute(new LogoutCommand(refreshToken, _userAgent, ipAddress))
+    this.clearRefreshTokenCookie(res)
+    return result
+  }
+
   @Get("refresh-token")
   @ApiOperation({
     summary: "Refresh token.",
@@ -158,10 +188,9 @@ export class AuthController {
   public async changePassword(
     @Query("token") token: string,
     @Body() dto: ChangePasswordDto,
-    @Req() req: Request,
-    @Res() res: Response,
+    @Cookie() refreshToken: string,
+    @Res({ passthrough: true }) res: Response,
   ): Promise<CommonResponseDto> {
-    const refreshToken = req.cookies[REFRESH_TOKEN_COOKIE_NAME]
     const result = await this.commandBus.execute(new ChangePasswordCommand(dto, token, refreshToken))
     if (dto.logoutAll) this.clearRefreshTokenCookie(res)
     return result
@@ -195,7 +224,7 @@ export class AuthController {
     @Query("state") state: string,
     @RequiredHeader("User-Agent") userAgent: string,
     @IpAddress() ipAddress: string,
-    @Res() res: Response,
+    @Res({ passthrough: true }) res: Response,
   ): Promise<void> {
     const result = await this.commandBus.execute(new GoogleOAuth2CallbackCommand(code, state, userAgent, ipAddress))
 

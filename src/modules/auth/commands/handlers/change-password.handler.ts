@@ -56,10 +56,10 @@ export class ChangePasswordHandler implements ICommandHandler<ChangePasswordComm
       if (!command.refreshToken) throw new UnauthorizedException("No refresh token found")
 
       const refreshToken = await this.refreshTokenRepository.findByToken(command.refreshToken)
-      if (!refreshToken) throw new UnauthorizedException("Refresh token not found");
-    
+      if (!refreshToken) throw new UnauthorizedException("Refresh token not found")
+
       refreshToken.revoke()
-      await this.refreshTokenRepository.save(refreshToken) 
+      await this.refreshTokenRepository.save(refreshToken)
     }
 
     return plainToInstance(CommonResponseDto, {
