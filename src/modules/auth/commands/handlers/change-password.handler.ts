@@ -59,7 +59,7 @@ export class ChangePasswordHandler implements ICommandHandler<ChangePasswordComm
       refreshToken.revoke()
       await this.refreshTokenRepository.save(refreshToken)
     }
-
+    await this.cache.delete(`token:${command.token}`)
     return plainToInstance(CommonResponseDto, {
       message: "Password changed successfully.",
     })

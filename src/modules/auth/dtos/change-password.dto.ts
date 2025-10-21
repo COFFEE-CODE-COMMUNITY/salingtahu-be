@@ -19,7 +19,6 @@ export class ChangePasswordDto {
     maxLength: 100,
     required: true,
   })
-
   public confirmPassword!: string
 
   @ApiProperty({
