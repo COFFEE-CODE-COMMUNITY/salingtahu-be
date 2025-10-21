@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany } from "typeorm"
+import { Column, Entity, OneToMany, OneToOne } from "typeorm"
 import { BaseEntity } from "../../../common/base/base.entity"
 import { Language } from "../../../common/enums/language"
 import { AutoMap } from "@automapper/classes"
@@ -7,6 +7,7 @@ import { UserRole } from "../enums/user-role.enum"
 import { RefreshToken } from "../../auth/entities/refresh-token.entity"
 import { OAuth2User } from "../../auth/entities/oauth2-user.entity"
 import { ImageMetadata } from "../../../entities/image-metadata.entity"
+import { Instructor } from "../../instructor/entities/instructor.entity"
 
 @Entity({ name: "users" })
 export class User extends BaseEntity {
@@ -84,6 +85,9 @@ export class User extends BaseEntity {
 
   @OneToMany(() => OAuth2User, oauth2User => oauth2User.user, { cascade: true })
   public oauth2Users!: OAuth2User[]
+
+  @OneToOne(() => Instructor, instructor => instructor.user)
+  public instructor!: Instructor
 
   public updateLastLoggedIn(): void {
     this.lastLoggedInAt = new Date()
