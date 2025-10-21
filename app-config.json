@@ -1,7 +1,8 @@
 {
   "app": {
     "port": 8081,
-    "domain": "localhost"
+    "domain": "localhost",
+    "nodeEnv": "development"
   },
   "refreshToken": {
     "bytesLength": 64,
@@ -10,10 +11,11 @@
   "client": {
     "web": {
       "oauth2Redirect": "http://localhost:5173/homepage",
-      "changePassword": "http://localhost:8081/api/auth/v1/password-reset/change"
+      "changePassword": "http://localhost:5173/change-password",
+      "url": "http://localhost:5173"
     }
   },
   "email": {
-    "from": "noreply <onboarding@resend.dev>"
+    "from": "SalingTau <onboarding@resend.dev>"
   }
 }

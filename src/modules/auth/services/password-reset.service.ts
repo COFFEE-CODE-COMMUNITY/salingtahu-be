@@ -32,7 +32,7 @@ export class PasswordResetService {
         },
       })
 
-      this.logger.info(`Sent email sent to ${url.toString()}`)
+      this.logger.info(`Sent email sent to ${email}`)
       return "A verification code has send to the email. Please check your inbox."
     } catch (error) {
       this.logger.error("Occured error: ", error)

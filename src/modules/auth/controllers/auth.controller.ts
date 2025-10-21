@@ -94,7 +94,7 @@ export class AuthController {
     @Body() body: LoginDto,
     @RequiredHeader("User-Agent") userAgent: string,
     @IpAddress() ipAddress: string,
-    @Res() res: Response,
+    @Res({ passthrough: true }) res: Response,
   ): Promise<void> {
     const tokens = await this.commandBus.execute(new LoginCommand(body, userAgent, ipAddress))
     const payload = new TokensDto()
@@ -168,7 +168,6 @@ export class AuthController {
     description: "The request body is invalid.",
   })
   public async passwordReset(@Body() dto: PasswordResetDto): Promise<CommonResponseDto> {
-    console.log("Dto: ", dto)
     return await this.commandBus.execute(new PasswordResetCommand(dto))
   }
 
@@ -188,7 +187,7 @@ export class AuthController {
   public async changePassword(
     @Query("token") token: string,
     @Body() dto: ChangePasswordDto,
-    @Cookie() refreshToken: string,
+    @Cookie(REFRESH_TOKEN_COOKIE_NAME) refreshToken: string,
     @Res({ passthrough: true }) res: Response,
   ): Promise<CommonResponseDto> {
     const result = await this.commandBus.execute(new ChangePasswordCommand(dto, token, refreshToken))
@@ -234,6 +233,13 @@ export class AuthController {
   private getSetCookieOptions(): CookieOptions {
     const raw = this.config.getOrThrow<StringValue>("refreshToken.expiresIn")
     const maxAge = typeof raw === "string" ? ms(raw) : raw
+    // return {
+    //  httpOnly: true,
+    //   maxAge,
+    //   sameSite: "lax", // 'lax' supaya bisa kirim dari login form
+    //   secure: false,   // false untuk HTTP localhost
+    //   path: "/",       // cookie berlaku di semua endpoint
+    // }
     return {
       domain: this.config.get("client.web.domain", "localhost"),
       httpOnly: true,
@@ -263,6 +269,8 @@ export class AuthController {
       httpOnly: true,
       sameSite: this.config.get("app.nodeEnv") === NodeEnv.PRODUCTION ? "none" : "strict",
       secure: this.config.get("app.nodeEnv") === NodeEnv.PRODUCTION,
+      // sameSite: "lax",
+      // secure: false
     })
   }
 }
