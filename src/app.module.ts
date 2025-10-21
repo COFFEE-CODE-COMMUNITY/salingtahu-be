@@ -9,9 +9,18 @@ import { ValidationModule } from "./common/validators/validation.module"
 import { UserModule } from "./modules/user/user.module"
 import { QueueModule } from "./queue/queue.module"
 import { StorageModule } from "./storage/storage.module"
+import { InstructorModule } from "./modules/instructor/instructor.module"
 
 @Module({
-  imports: [AuthModule, InfrastructureModule, QueueModule, StorageModule, UserModule, ValidationModule],
+  imports: [
+    AuthModule,
+    InfrastructureModule,
+    InstructorModule,
+    QueueModule,
+    StorageModule,
+    UserModule,
+    ValidationModule,
+  ],
   providers: [
     HttpRequestContext,
     ProviderUtil,
