@@ -22,6 +22,7 @@ import { RefreshToken } from "../modules/auth/entities/refresh-token.entity"
 import { OAuth2User } from "../modules/auth/entities/oauth2-user.entity"
 import { RedisService } from "./cache/redis.service"
 import _ from "lodash"
+import { Instructor } from "../modules/instructor/entities/instructor.entity"
 
 @Global()
 @Module({
@@ -74,7 +75,7 @@ import _ from "lodash"
           password: config.getOrThrow<string>("DATABASE_PASSWORD"),
           database: config.getOrThrow<string>("DATABASE_NAME"),
           synchronize: config.get<NodeEnv>("NODE_ENV", NodeEnv.DEVELOPMENT) != NodeEnv.PRODUCTION,
-          entities: [OAuth2User, RefreshToken, User],
+          entities: [OAuth2User, RefreshToken, User, Instructor],
         }
       },
       inject: [ConfigService],
