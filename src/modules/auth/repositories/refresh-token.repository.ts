@@ -13,6 +13,7 @@ export class RefreshTokenRepository extends BaseRepository<RefreshToken> {
   public async findByToken(token: string): Promise<RefreshToken | null> {
     return this.getRepository().findOne({
       where: { token },
+      relations: ["user"],
     })
   }
 

@@ -22,6 +22,8 @@ import { GoogleOAuth2CallbackHandler } from "./commands/handlers/google-oauth2-c
 import { PasswordResetHandler } from "./commands/handlers/password-reset.handler"
 import { PasswordResetService } from "./services/password-reset.service"
 import { ChangePasswordHandler } from "./commands/handlers/change-password.handler"
+import { LogoutHandler } from "./commands/handlers/logout.handler"
+import { GetRefreshTokenHandler } from "./commands/handlers/get-refresh-token.handler"
 
 @Module({
   imports: [
@@ -44,6 +46,8 @@ import { ChangePasswordHandler } from "./commands/handlers/change-password.handl
     GoogleOAuth2CallbackHandler,
     PasswordResetHandler,
     ChangePasswordHandler,
+    LogoutHandler,
+    GetRefreshTokenHandler,
 
     // Mappers
     AuthMapper,

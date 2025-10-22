@@ -27,7 +27,7 @@ export class LoginHandler implements ICommandHandler<LoginCommand> {
     if (!user) {
       throw new UnauthorizedException(
         plainToInstance(CommonResponseDto, {
-          message: "Invalid credentials.",
+          message: "Email is not valid.",
         }),
       )
     }
