@@ -1,5 +1,5 @@
 import { Body, Controller, Post, HttpCode, HttpStatus, Get, Query, Res } from "@nestjs/common"
-import { RegisterDto } from "../dto/register.dto"
+import { RegisterDto } from "../dtos/register.dto"
 import {
   ApiOperation,
   ApiTags,
@@ -11,13 +11,12 @@ import {
   ApiUnprocessableEntityResponse,
 } from "@nestjs/swagger"
 import { CommonResponseDto } from "../../../common/dto/common-response.dto"
-import { RegisterBadRequestResponseDto } from "../dto/register-bad-request-response.dto"
-import { LoginDto } from "../dto/login.dto"
-import { TokensDto } from "../dto/tokens.dto"
-import { GetRefreshTokenDto } from "../dto/get-refresh-token.dto"
-import { PasswordResetBadRequestDto } from "../dto/password-reset-bad-request.dto"
-import { GoogleAuthResponseDto } from "../dto/google-auth-response.dto"
-import { CommandBus } from "@nestjs/cqrs"
+import { RegisterBadRequestResponseDto } from "../dtos/register-bad-request-response.dto"
+import { LoginDto } from "../dtos/login.dto"
+import { TokensDto } from "../dtos/tokens.dto"
+import { PasswordResetBadRequestDto } from "../dtos/password-reset-bad-request.dto"
+import { GoogleAuthResponseDto } from "../dtos/google-auth-response.dto"
+import { CommandBus, QueryBus } from "@nestjs/cqrs"
 import { RegisterCommand } from "../commands/register.command"
 import { LoginCommand } from "../commands/login.command"
 import { IpAddress } from "../../../common/http/ip-address.decorator"
@@ -27,6 +26,21 @@ import { NodeEnv } from "../../../common/enums/node-env"
 import { REFRESH_TOKEN_COOKIE_NAME } from "../constants/cookie-name.constant"
 import ms, { StringValue } from "ms"
 import { RequiredHeader } from "../../../common/http/required-header.decorator"
+import { GetGoogleAuthUrlQuery } from "../queries/get-google-auth-url.query"
+import { GoogleOAuth2CallbackCommand } from "../commands/google-oauth2-callback.command"
+import { OAuth2Provider } from "../enums/oauth2-provider.enum"
+import { PasswordResetCommand } from "../commands/password-reset.command"
+import { PasswordResetDto } from "../dtos/password-reset.dto"
+import { ChangePasswordDto } from "../dtos/change-password.dto"
+import { ChangePasswordCommand } from "../commands/change-password.command"
+import { GetRefreshTokenCommand } from "../commands/get-refresh-token.command"
+import { Cookie } from "../../../common/http/cookie.decorator"
+import { LogoutCommand } from "../commands/logout.command"
+
+export interface OAuth2CallbackResult {
+  platform: "web"
+  refreshToken?: string
+}
 
 @ApiTags("Authentication")
 @Controller("auth")
@@ -34,6 +48,7 @@ export class AuthController {
   public constructor(
     private readonly config: ConfigService,
     private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
   ) {}
 
   @Post("register")
@@ -79,12 +94,43 @@ export class AuthController {
     @Body() body: LoginDto,
     @RequiredHeader("User-Agent") userAgent: string,
     @IpAddress() ipAddress: string,
-    @Res() res: Response,
+    @Res({ passthrough: true }) res: Response,
   ): Promise<void> {
     const tokens = await this.commandBus.execute(new LoginCommand(body, userAgent, ipAddress))
+    const payload = new TokensDto()
+    payload.accessToken = tokens.accessToken
 
     res.cookie(REFRESH_TOKEN_COOKIE_NAME, tokens.refreshToken, this.getSetCookieOptions())
-    res.status(HttpStatus.OK).json(tokens)
+    res.status(HttpStatus.OK).json(payload)
+  }
+
+  @Post("logout")
+  @ApiOperation({
+    summary: "Logout user",
+    description: "Logout user and revoke the refresh token.",
+  })
+  @ApiOkResponse({
+    description: "User successfully logged out.",
+    type: CommonResponseDto,
+  })
+  @ApiBadRequestResponse({
+    description: "Missing required header.",
+    type: CommonResponseDto,
+  })
+  @ApiUnauthorizedResponse({
+    description: "User unauthorized.",
+    type: CommonResponseDto,
+  })
+  @HttpCode(HttpStatus.OK)
+  public async logout(
+    @RequiredHeader("User-Agent") _userAgent: string,
+    @IpAddress() ipAddress: string,
+    @Cookie(REFRESH_TOKEN_COOKIE_NAME) refreshToken: string,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<CommonResponseDto> {
+    const result = await this.commandBus.execute(new LogoutCommand(refreshToken, _userAgent, ipAddress))
+    this.clearRefreshTokenCookie(res)
+    return result
   }
 
   @Get("refresh-token")
@@ -101,10 +147,11 @@ export class AuthController {
     description: "The user is not authorized to perform this action.",
   })
   public async refreshToken(
-    @Body() _body: GetRefreshTokenDto,
     @RequiredHeader("User-Agent") _userAgent: string,
+    @IpAddress() ipAddress: string,
+    @Cookie(REFRESH_TOKEN_COOKIE_NAME) refreshToken: string,
   ): Promise<TokensDto> {
-    return new TokensDto()
+    return this.commandBus.execute(new GetRefreshTokenCommand(refreshToken, _userAgent, ipAddress))
   }
 
   @Post("/password-reset")
@@ -120,8 +167,8 @@ export class AuthController {
     type: PasswordResetBadRequestDto,
     description: "The request body is invalid.",
   })
-  public async passwordReset(): Promise<CommonResponseDto> {
-    return new CommonResponseDto()
+  public async passwordReset(@Body() dto: PasswordResetDto): Promise<CommonResponseDto> {
+    return await this.commandBus.execute(new PasswordResetCommand(dto))
   }
 
   @Post("/password-reset/change")
@@ -137,8 +184,15 @@ export class AuthController {
     type: PasswordResetBadRequestDto,
     description: "The request body is invalid.",
   })
-  public async changePassword(): Promise<CommonResponseDto> {
-    return new CommonResponseDto()
+  public async changePassword(
+    @Query("token") token: string,
+    @Body() dto: ChangePasswordDto,
+    @Cookie(REFRESH_TOKEN_COOKIE_NAME) refreshToken: string,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<CommonResponseDto> {
+    const result = await this.commandBus.execute(new ChangePasswordCommand(dto, token, refreshToken))
+    if (dto.logoutAll) this.clearRefreshTokenCookie(res)
+    return result
   }
 
   @Get("/google")
@@ -156,7 +210,7 @@ export class AuthController {
     description: "The Google OAuth2 URL has been retrieved successfully.",
   })
   public async googleAuth(): Promise<GoogleAuthResponseDto> {
-    return new GoogleAuthResponseDto()
+    return this.queryBus.execute(new GetGoogleAuthUrlQuery("web"))
   }
 
   @Get("/google/callback")
@@ -168,18 +222,55 @@ export class AuthController {
     @Query("code") code: string,
     @Query("state") state: string,
     @RequiredHeader("User-Agent") userAgent: string,
-    @Res() res: Response,
+    @IpAddress() ipAddress: string,
+    @Res({ passthrough: true }) res: Response,
   ): Promise<void> {
-    //
+    const result = await this.commandBus.execute(new GoogleOAuth2CallbackCommand(code, state, userAgent, ipAddress))
+
+    this.handleOAuth2CallbackResponse(OAuth2Provider.GOOGLE, result, res)
   }
 
   private getSetCookieOptions(): CookieOptions {
+    const raw = this.config.getOrThrow<StringValue>("refreshToken.expiresIn")
+    const maxAge = typeof raw === "string" ? ms(raw) : raw
+    // return {
+    //  httpOnly: true,
+    //   maxAge,
+    //   sameSite: "lax", // 'lax' supaya bisa kirim dari login form
+    //   secure: false,   // false untuk HTTP localhost
+    //   path: "/",       // cookie berlaku di semua endpoint
+    // }
     return {
       domain: this.config.get("client.web.domain", "localhost"),
       httpOnly: true,
-      maxAge: ms(this.config.getOrThrow<StringValue>("refreshToken.expiresIn")),
+      maxAge: maxAge,
       sameSite: this.config.get("app.nodeEnv") === NodeEnv.PRODUCTION ? "none" : "strict",
       secure: this.config.get("app.nodeEnv") === NodeEnv.PRODUCTION,
+      path: "/",
     }
+  }
+
+  private handleOAuth2CallbackResponse(provider: OAuth2Provider, result: OAuth2CallbackResult, res: Response): void {
+    const searchParams = new URLSearchParams({
+      success: "true",
+      provider,
+    })
+
+    res.cookie(REFRESH_TOKEN_COOKIE_NAME, result.refreshToken, this.getSetCookieOptions())
+    res.redirect(`${this.config.getOrThrow("client.web.oauth2Redirect")}?${searchParams.toString()}`)
+
+    res.status(500).send("Platform is not supported")
+  }
+
+  private clearRefreshTokenCookie(response: Response): void {
+    response.clearCookie(REFRESH_TOKEN_COOKIE_NAME, {
+      domain: this.config.get("client.web.domain", "localhost"),
+      path: "/",
+      httpOnly: true,
+      sameSite: this.config.get("app.nodeEnv") === NodeEnv.PRODUCTION ? "none" : "strict",
+      secure: this.config.get("app.nodeEnv") === NodeEnv.PRODUCTION,
+      // sameSite: "lax",
+      // secure: false
+    })
   }
 }

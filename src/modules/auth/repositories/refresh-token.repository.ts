@@ -13,6 +13,13 @@ export class RefreshTokenRepository extends BaseRepository<RefreshToken> {
   public async findByToken(token: string): Promise<RefreshToken | null> {
     return this.getRepository().findOne({
       where: { token },
+      relations: ["user"],
+    })
+  }
+
+  public async deleteByToken(refreshToken: string): Promise<void> {
+    await this.getRepository().delete({
+      token: refreshToken,
     })
   }
 }

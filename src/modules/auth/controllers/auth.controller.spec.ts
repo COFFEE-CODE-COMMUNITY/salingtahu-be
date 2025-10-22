@@ -1,13 +1,13 @@
 import { Test } from "@nestjs/testing"
 import { AuthController } from "./auth.controller"
-import { CommandBus } from "@nestjs/cqrs"
+import { CommandBus, QueryBus } from "@nestjs/cqrs"
 import { mock, MockProxy } from "jest-mock-extended"
-import { RegisterDto } from "../dto/register.dto"
+import { RegisterDto } from "../dtos/register.dto"
 import { faker } from "@faker-js/faker"
 import { CommonResponseDto } from "../../../common/dto/common-response.dto"
 import { RegisterCommand } from "../commands/register.command"
-import { LoginDto } from "../dto/login.dto"
-import { TokensDto } from "../dto/tokens.dto"
+import { LoginDto } from "../dtos/login.dto"
+import { TokensDto } from "../dtos/tokens.dto"
 import { LoginCommand } from "../commands/login.command"
 import { Response } from "express"
 import { HttpStatus } from "@nestjs/common"
@@ -28,6 +28,7 @@ describe("AuthController", () => {
           provide: CommandBus,
           useValue: mock<CommandBus>(),
         },
+        { provide: QueryBus, useValue: mock<QueryBus>() },
         {
           provide: ConfigService,
           useValue: mock<ConfigService>(),
@@ -65,7 +66,6 @@ describe("AuthController", () => {
   describe("login", () => {
     it("should response TokensDto", async () => {
       // Act
-      // @ts-expect-error
       config.get.mockImplementation((key: string): any => {
         switch (key) {
           case "client.web.domain":
@@ -74,10 +74,9 @@ describe("AuthController", () => {
             return NodeEnv.DEVELOPMENT
         }
       })
-      // @ts-expect-error
       config.getOrThrow.mockImplementation((key: string): any => {
         switch (key) {
-          case "auth.refreshToken.expiresIn":
+          case "refreshToken.expiresIn":
             return 31536000000
         }
       })

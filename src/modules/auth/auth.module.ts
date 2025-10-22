@@ -13,13 +13,28 @@ import { RefreshTokenService } from "./services/refresh-token.service"
 
 @Global()
 @Module({
-  imports: [UserModule],
+  imports: [
+    ConfigModule,
+    CqrsModule,
+    HttpModule.register({
+      timeout: 10_000,
+      maxRedirects: 5,
+    }),
+    UserModule,
+    JwtModule.register({}),
+  ],
   controllers: [AuthController],
   providers: [
     // Handlers
     RegisterHandler,
     LoginHandler,
     UserLoggedInHandler,
+    GetGoogleAuthUrlHandler,
+    GoogleOAuth2CallbackHandler,
+    PasswordResetHandler,
+    ChangePasswordHandler,
+    LogoutHandler,
+    GetRefreshTokenHandler,
 
     // Mappers
     AuthMapper,
@@ -32,6 +47,10 @@ import { RefreshTokenService } from "./services/refresh-token.service"
     AccessTokenService,
     PasswordService,
     RefreshTokenService,
+    TokensService,
+    GoogleOAuth2Service,
+    UserService,
+    PasswordResetService,
   ],
   exports: [AccessTokenService],
 })

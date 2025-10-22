@@ -1,32 +1,40 @@
 import { Injectable } from "@nestjs/common"
-import { TextHasher } from "../../../infrastructure/security/cryptography/text-hasher"
-import { RefreshTokenRepository } from "../repositories/refresh-token.repository"
-import { ConfigService } from "@nestjs/config"
+import { PasswordService } from "./password.service"
 import { User } from "../../user/entities/user.entity"
-import { RefreshToken } from "../entities/refresh-token.entity"
-import { randomBytes } from "crypto"
+import { RefreshTokenRepository } from "../repositories/refresh-token.repository"
+import { TokensService } from "./tokens.service"
 import { parse } from "useragent"
-import ms, { StringValue } from "ms"
 
 @Injectable()
 export class RefreshTokenService {
   public constructor(
-    private readonly textHasher: TextHasher,
+    private readonly hasher: PasswordService,
     private readonly refreshTokenRepository: RefreshTokenRepository,
-    private readonly config: ConfigService,
+    private readonly token: TokensService,
   ) {}
 
-  public create(user: User, userAgent: string, ipAddress: string): Promise<RefreshToken> {
-    const refreshToken = new RefreshToken()
-    refreshToken.user = user
-    refreshToken.token = this.textHasher.hash(
-      randomBytes(this.config.getOrThrow("refreshToken.bytesLength")).toString("hex"),
-    )
-    refreshToken.userAgent = userAgent
-    refreshToken.ipAddress = ipAddress
-    refreshToken.expiresAt = new Date(Date.now() + ms(this.config.getOrThrow<StringValue>("refreshToken.expiresIn")))
+  // async updateRefreshToken(userId: number, refreshToken: string) {
+  //   const hash = await this.hasher.hash(refreshToken)
+  //   await this.userService.update(userId, { hashedRt: hash })
+  // }
+  //
+  // async removeRefreshToken(userId: number) {
+  //   await this.userService.update(userId, { hashedRt: null })
+  // }
 
-    return this.refreshTokenRepository.save(refreshToken)
+  public async create(user: User, userAgent: string, ipAddress: string): Promise<any> {
+    const { token: rt, exp } = await this.token.refreshToken(user.id)
+    const hashedRt = await this.hasher.hash(rt)
+
+    const option: any = {
+      user: user,
+      token: hashedRt,
+      userAgent: userAgent,
+      ipAddress: ipAddress,
+      expiresAt: exp,
+    }
+
+    return this.refreshTokenRepository.save(option)
   }
 
   public async verify(refreshToken: string, userAgent: string): Promise<boolean> {
@@ -36,10 +44,9 @@ export class RefreshTokenService {
     if (token.expiresAt < new Date()) return false
     if (token.revoked) return false
 
-    if (token.userAgent && userAgent) {
+    if (token.userAgent === userAgent) {
       const agent = parse(userAgent)
       const tokenAgent = parse(token.userAgent)
-
       if (
         tokenAgent.family !== agent.family ||
         tokenAgent.os.toString() !== agent.os.toString() ||

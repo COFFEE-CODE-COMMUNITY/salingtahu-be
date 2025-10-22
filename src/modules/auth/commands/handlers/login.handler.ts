@@ -1,7 +1,7 @@
 import { CommandHandler, EventBus, ICommandHandler } from "@nestjs/cqrs"
 import { LoginCommand } from "../login.command"
 import { CommonResponseDto } from "../../../../common/dto/common-response.dto"
-import { TokensDto } from "../../dto/tokens.dto"
+import { TokensDto } from "../../dtos/tokens.dto"
 import { UserRepository } from "../../../user/repositories/user.repository"
 import { AccessTokenService } from "../../services/access-token.service"
 import { RefreshTokenService } from "../../services/refresh-token.service"
@@ -27,7 +27,7 @@ export class LoginHandler implements ICommandHandler<LoginCommand> {
     if (!user) {
       throw new UnauthorizedException(
         plainToInstance(CommonResponseDto, {
-          message: "Invalid credentials.",
+          message: "Email is not valid.",
         }),
       )
     }
@@ -56,7 +56,7 @@ export class LoginHandler implements ICommandHandler<LoginCommand> {
     this.eventBus.publish(new UserLoggedInEvent(user))
 
     return plainToInstance(TokensDto, {
-      accessToken,
+      accessToken: accessToken,
       refreshToken: refreshToken.token,
     })
   }

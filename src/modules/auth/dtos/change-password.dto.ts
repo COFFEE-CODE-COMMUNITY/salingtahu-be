@@ -1,4 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger"
+import { IsNotEmpty, IsBoolean } from "class-validator"
 
 export class ChangePasswordDto {
   @ApiProperty({
@@ -8,6 +9,7 @@ export class ChangePasswordDto {
     maxLength: 100,
     required: true,
   })
+  @IsNotEmpty({ message: "Password is required" })
   public password!: string
 
   @ApiProperty({
@@ -25,5 +27,6 @@ export class ChangePasswordDto {
     required: false,
     default: false,
   })
+  @IsBoolean()
   public logoutAll: boolean = false
 }
