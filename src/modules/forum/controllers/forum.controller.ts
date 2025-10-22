@@ -2,9 +2,10 @@ import { ApiBadRequestResponse, ApiCreatedResponse, ApiOperation, ApiTags } from
 import { Body, Controller, Post } from "@nestjs/common"
 import { CommonResponseDto } from "../../../common/dto/common-response.dto"
 import { RegisterBadRequestResponseDto } from "../../auth/dtos/register-bad-request-response.dto"
-import { RegisterDto } from "../../auth/dtos/register.dto"
-import { RegisterCommand } from "../../auth/commands/register.command"
 import { CommandBus } from "@nestjs/cqrs"
+import { CreateThreadDto } from "../dtos/create-thread.dto"
+import { CreateThreadCommand } from "../commands/create-thread.command"
+import { CreateThreadResponseDto } from "../dtos/create-thread-response.dto"
 
 @ApiTags("Forums")
 @Controller("forum")
@@ -24,7 +25,10 @@ export class ForumController {
     description: "Invalid input data",
     type: RegisterBadRequestResponseDto,
   })
-  public async createThread(@Body() body: RegisterDto): Promise<CommonResponseDto> {
-    return this.commandBus.execute(new RegisterCommand(body))
+  public async createThread(
+    userId: string,
+    @Body() dto: CreateThreadDto
+  ): Promise<CreateThreadResponseDto> {
+    return this.commandBus.execute(new CreateThreadCommand(userId, dto))
   }
 }

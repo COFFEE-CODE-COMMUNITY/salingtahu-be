@@ -1,12 +1,15 @@
-import { Entity, Column, OneToMany } from "typeorm"
-import { Reply } from "./reply.entity"
-import { ForumRating } from "./forum-rating.entity"
+import { Entity, Column, ManyToOne, JoinColumn } from "typeorm"
 import { BaseEntity } from "../../../common/base/base.entity"
+import { User } from "../../user/entities/user.entity"
 
 @Entity("threads")
 export class Thread extends BaseEntity {
   @Column({ type: "uuid", name: "user_id", nullable: false })
   public userId!: string
+
+  @ManyToOne(() => User, { onDelete: "SET NULL" })
+  @JoinColumn({ name: "user_id" })
+  public user?: User | null
 
   @Column("text")
   public title!: string
@@ -19,10 +22,4 @@ export class Thread extends BaseEntity {
 
   @Column({ name: "replies_count", type: "int", default: 0 })
   public repliesCount!: number
-
-  @OneToMany(() => Reply, reply => reply.thread)
-  public replies!: Reply[]
-
-  @OneToMany(() => ForumRating, rating => rating.thread)
-  public ratings!: ForumRating[]
 }

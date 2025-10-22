@@ -1,31 +1,34 @@
-import { Entity, Column, DeleteDateColumn, ManyToOne, OneToMany } from "typeorm"
+import { Entity, Column, ManyToOne, JoinColumn, DeleteDateColumn } from "typeorm"
 import { Thread } from "./thread.entity"
-import { ForumRating } from "./forum-rating.entity"
+import { User } from "../../user/entities/user.entity"
 import { BaseEntity } from "../../../common/base/base.entity"
 
 @Entity("replies")
 export class Reply extends BaseEntity {
-  @ManyToOne(() => Thread, thread => thread.replies, { onDelete: "CASCADE" })
+  @Column({ type: "uuid", name: "thread_id", nullable: false })
+  public threadId!: string
+
+  @ManyToOne(() => Thread, { onDelete: "CASCADE" })
+  @JoinColumn({ name: "thread_id" })
   public thread!: Thread
 
   @Column({ type: "uuid", name: "user_id", nullable: false })
   public userId!: string
 
+  @ManyToOne(() => User, { onDelete: "SET NULL" })
+  @JoinColumn({ name: "user_id" })
+  public user?: User | null
+
   @Column("text")
   public content!: string
 
-  @Column({ type: "smallint", nullable: true })
-  public rating?: number
+  @Column({ type: "uuid", name: "parent_reply_id", nullable: true })
+  public parentReplyId?: string | null
 
-  @ManyToOne(() => Reply, reply => reply.children, { nullable: true, onDelete: "CASCADE" })
-  public parent?: Reply
-
-  @OneToMany(() => Reply, reply => reply.parent)
-  public children!: Reply[]
-
-  @OneToMany(() => ForumRating, rating => rating.reply)
-  public ratings!: ForumRating[]
+  @ManyToOne(() => Reply, { onDelete: "CASCADE" })
+  @JoinColumn({ name: "parent_reply_id" })
+  public parent?: Reply | null
 
   @DeleteDateColumn({ name: "deleted_at", nullable: true })
-  public deletedAt?: Date
+  public deletedAt?: Date | null
 }
