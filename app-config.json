@@ -10,7 +10,7 @@
   "client": {
     "web": {
       "oauth2Redirect": "http://localhost:5173/homepage",
-      "changePassword": "http://localhost:8081/api/auth/v1/password-reset/change"
+      "changePassword": "http://localhost:5173/change-password"
     }
   },
   "email": {
