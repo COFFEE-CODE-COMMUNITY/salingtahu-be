@@ -4,6 +4,7 @@ import { ApiOperation, ApiOkResponse, ApiBadRequestResponse, ApiConflictResponse
 import { CommonResponseDto } from "../../../common/dto/common-response.dto"
 import { ApplyAsInstructorCommand } from "../commands/apply-as-instructor.command"
 import { UserId } from "../../../common/http/user-id.decorator"
+import { GetBucketEncryptionCommand } from "@aws-sdk/client-s3"
 
 @Controller("instructors")
 export class InstructorController {
@@ -27,7 +28,13 @@ export class InstructorController {
     return this.commandBus.execute(new ApplyAsInstructorCommand(userId))
   }
 
-  @Post("me/verification")
+  @Get("me/verification")
+  @ApiOperation({ summary: "Verify instructor." })
+  @ApiOkResponse({})
+  @ApiUnauthorizedResponse({
+    description: "User is not an instructor or unauthorized user.",
+    type: CommonResponseDto,
+  })
   public async verifyInstructor(): Promise<void> {}
 
   @Get("me")

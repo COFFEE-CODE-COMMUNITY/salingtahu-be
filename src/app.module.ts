@@ -1,4 +1,5 @@
 import { Module } from "@nestjs/common"
+import { HttpModule } from "@nestjs/axios"
 import { AuthModule } from "./modules/auth/auth.module"
 import { ProviderUtil } from "./common/utils/provider.util"
 import { InfrastructureModule } from "./infrastructure/infrastructure.module"
@@ -20,6 +21,7 @@ import { InstructorModule } from "./modules/instructor/instructor.module"
     StorageModule,
     UserModule,
     ValidationModule,
+    HttpModule,
   ],
   providers: [
     HttpRequestContext,
