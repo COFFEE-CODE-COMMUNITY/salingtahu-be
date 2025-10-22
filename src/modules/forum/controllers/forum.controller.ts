@@ -25,10 +25,7 @@ export class ForumController {
     description: "Invalid input data",
     type: RegisterBadRequestResponseDto,
   })
-  public async createThread(
-    userId: string,
-    @Body() dto: CreateThreadDto
-  ): Promise<CreateThreadResponseDto> {
+  public async createThread(userId: string, @Body() dto: CreateThreadDto): Promise<CreateThreadResponseDto> {
     return this.commandBus.execute(new CreateThreadCommand(userId, dto))
   }
 }

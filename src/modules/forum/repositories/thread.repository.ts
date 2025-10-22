@@ -11,7 +11,7 @@ export class ThreadRepository extends BaseRepository<Thread> {
     super(dataSource, transactionContextService, Thread)
   }
 
-  public async createThread(userId: string, dto: CreateThreadDto) {
+  public async createThread(userId: string, dto: CreateThreadDto): Promise<Thread> {
     const entity = this.getRepository().create({
       userId,
       title: dto.title,
