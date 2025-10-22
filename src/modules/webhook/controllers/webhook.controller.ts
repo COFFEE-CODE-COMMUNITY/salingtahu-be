@@ -6,6 +6,6 @@ export class WebhookController {
   
   @Post("veriff/decision")
   public async handleVeriffDecision(@Body() body: any): Promise<void> {
-    // Handle the Veriff decision webhook
+    // TODO: Implement the logic to handle the Veriff decision webhook
   }
 }

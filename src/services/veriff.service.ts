@@ -57,8 +57,8 @@ export class VeriffService {
     }
   }
   
-  public handleDecisionWebHook() {
-    
+  public async handleDecisionWebHook(payload: any): Promise<void> {
+    // TODO: Implement the logic to handle the Veriff decision webhook
   }
 
   private getHmacSignature(body: object): string {
