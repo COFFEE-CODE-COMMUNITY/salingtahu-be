@@ -1,31 +1,26 @@
-import {
-  Entity,
-  Column,
-  ManyToOne,
-  Unique,
-} from 'typeorm'
-import { Thread } from './thread.entity'
-import { Reply } from './reply.entity'
+import { Entity, Column, ManyToOne, Unique } from "typeorm"
+import { Thread } from "./thread.entity"
+import { Reply } from "./reply.entity"
 import { BaseEntity } from "../../../common/base/base.entity"
 
-@Entity('forums_ratings')
-@Unique(['userId', 'thread', 'reply'])
+@Entity("forums_ratings")
+@Unique(["userId", "thread", "reply"])
 export class ForumRating extends BaseEntity {
-  @Column({ type: 'uuid', name: 'user_id', nullable: false })
-  userId!: string
+  @Column({ type: "uuid", name: "user_id", nullable: false })
+  public userId!: string
 
   @ManyToOne(() => Thread, thread => thread.ratings, {
     nullable: true,
-    onDelete: 'CASCADE',
+    onDelete: "CASCADE",
   })
-  thread!: Thread | null
+  public thread!: Thread | null
 
   @ManyToOne(() => Reply, reply => reply.ratings, {
     nullable: true,
-    onDelete: 'CASCADE',
+    onDelete: "CASCADE",
   })
-  reply!: Reply | null
+  public reply!: Reply | null
 
-  @Column({ type: 'smallint' })
-  rating!: number
+  @Column({ type: "smallint" })
+  public rating!: number
 }

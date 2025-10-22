@@ -16,8 +16,6 @@ import { JwtModule } from "@nestjs/jwt"
     UserModule,
     JwtModule.register({}),
   ],
-  providers: [
-
-  ],
+  providers: [],
 })
 export class ForumModule {}

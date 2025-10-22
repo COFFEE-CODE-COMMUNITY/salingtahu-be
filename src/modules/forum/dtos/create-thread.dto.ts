@@ -5,7 +5,7 @@ export class CreateThreadDto {
     description: "Title for thread",
     example: "How to use javascript",
     type: String,
-    required: true
+    required: true,
   })
   public title!: string
 
@@ -13,7 +13,7 @@ export class CreateThreadDto {
     description: "Content body for thread",
     example: "I dont know how to use javascript for the first time...",
     type: String,
-    required: true
+    required: true,
   })
   public content!: string
 
@@ -21,7 +21,7 @@ export class CreateThreadDto {
     description: "Category for thread",
     example: "Tech",
     type: String,
-    required: true
+    required: true,
   })
   public category!: string
 }
