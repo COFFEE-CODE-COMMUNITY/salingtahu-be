@@ -10,7 +10,7 @@
     // See also https://aka.ms/tsconfig/module
     "module": "CommonJS",
     "target": "ES2024",
-    "types": ["jest", "node"],
+    "types": ["node"],
     // For nodejs:
     // "lib": ["esnext"],
     // "types": ["node"],
@@ -47,7 +47,6 @@
     "allowSyntheticDefaultImports": true
   },
   "ts-node": {
-    "transpileOnly": true,
     "files": true
   },
   "include": ["src/**/*"],

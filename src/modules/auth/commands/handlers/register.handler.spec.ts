@@ -6,7 +6,7 @@ import { Test } from "@nestjs/testing"
 import { getMapperToken } from "@automapper/nestjs"
 import { Mapper } from "@automapper/core"
 import { faker } from "@faker-js/faker"
-import { RegisterDto } from "../../dtos/register.dto"
+import { RegisterDto } from "../../dto/register.dto"
 import { User } from "../../../user/entities/user.entity"
 import { RegisterCommand } from "../register.command"
 

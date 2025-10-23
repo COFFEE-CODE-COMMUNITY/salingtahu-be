@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany } from "typeorm"
+import { Column, Entity, OneToMany, OneToOne } from "typeorm"
 import { BaseEntity } from "../../../common/base/base.entity"
 import { Language } from "../../../common/enums/language"
 import { AutoMap } from "@automapper/classes"
@@ -6,6 +6,9 @@ import { UserStatus } from "../enums/user-status.enum"
 import { UserRole } from "../enums/user-role.enum"
 import { RefreshToken } from "../../auth/entities/refresh-token.entity"
 import { OAuth2User } from "../../auth/entities/oauth2-user.entity"
+import { ImageMetadata } from "../../../entities/image-metadata.entity"
+import { Instructor } from "../../instructor/entities/instructor.entity"
+import { PasswordResetSession } from "../../auth/entities/password-reset-session.entity"
 
 @Entity({ name: "users" })
 export class User extends BaseEntity {
@@ -26,36 +29,47 @@ export class User extends BaseEntity {
   public password?: string
 
   @Column({ nullable: true })
+  @AutoMap()
   public headline?: string
 
   @Column({ nullable: true })
+  @AutoMap()
   public biography?: string
 
   @Column({ type: "enum", enum: Language, default: Language.ENGLISH_US })
+  @AutoMap()
   public language!: Language
 
-  @Column({ name: "profile_picture_path", nullable: true })
-  public profilePicturePath?: string
+  @Column({ name: "profile_pictures", type: "jsonb", nullable: true })
+  @AutoMap()
+  public profilePictures?: ImageMetadata[]
 
   @Column({ name: "website_url", nullable: true })
+  @AutoMap()
   public websiteUrl?: string
 
   @Column({ name: "facebook_url", nullable: true })
+  @AutoMap()
   public facebookUrl?: string
 
   @Column({ name: "instagram_url", nullable: true })
+  @AutoMap()
   public instagramUrl?: string
 
   @Column({ name: "linkedin_url", nullable: true })
+  @AutoMap()
   public linkedinUrl?: string
 
   @Column({ name: "tiktok_url", nullable: true })
+  @AutoMap()
   public tiktokUrl?: string
 
   @Column({ name: "x_url", nullable: true })
+  @AutoMap()
   public xUrl?: string
 
   @Column({ name: "youtube_url", nullable: true })
+  @AutoMap()
   public youtubeUrl?: string
 
   @Column({ type: "enum", enum: UserStatus, default: UserStatus.ACTIVE })
@@ -72,6 +86,12 @@ export class User extends BaseEntity {
 
   @OneToMany(() => OAuth2User, oauth2User => oauth2User.user, { cascade: true })
   public oauth2Users!: OAuth2User[]
+
+  @OneToOne(() => Instructor, instructor => instructor.user)
+  public instructor!: Instructor
+
+  @OneToMany(() => PasswordResetSession, passwordResetSession => passwordResetSession.user)
+  public passwordResetSessions!: PasswordResetSession[]
 
   public updateLastLoggedIn(): void {
     this.lastLoggedInAt = new Date()

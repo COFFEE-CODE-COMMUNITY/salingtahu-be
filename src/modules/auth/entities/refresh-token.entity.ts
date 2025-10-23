@@ -29,4 +29,8 @@ export class RefreshToken extends BaseEntity {
     this.revoked = true
     this.revokedAt = new Date()
   }
+
+  public isExpired(): boolean {
+    return this.expiresAt < new Date()
+  }
 }

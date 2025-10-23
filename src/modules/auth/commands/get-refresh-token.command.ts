@@ -1,5 +1,5 @@
 import { Command } from "@nestjs/cqrs"
-import { TokensDto } from "../dtos/tokens.dto"
+import { TokensDto } from "../dto/tokens.dto"
 
 export class GetRefreshTokenCommand extends Command<TokensDto> {
   public constructor(

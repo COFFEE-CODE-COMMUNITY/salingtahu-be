@@ -1,65 +1,56 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { ChangePasswordCommand } from "../change-password.command"
 import { CommonResponseDto } from "../../../../common/dto/common-response.dto"
-import { Cache } from "../../../../infrastructure/cache/cache"
-import { BadRequestException, UnauthorizedException } from "@nestjs/common"
+import { UnauthorizedException } from "@nestjs/common"
 import { plainToInstance } from "class-transformer"
 import { PasswordService } from "../../services/password.service"
 import { RefreshTokenRepository } from "../../repositories/refresh-token.repository"
 import { UserRepository } from "../../../user/repositories/user.repository"
-import { User } from "../../../user/entities/user.entity"
+import { PasswordResetSessionRepository } from "../../repositories/password-reset-session.repository"
+import { TextHasher } from "../../../../infrastructure/security/cryptography/text-hasher"
+import { UnitOfWork } from "../../../../infrastructure/database/unit-of-work/unit-of-work"
 
 @CommandHandler(ChangePasswordCommand)
 export class ChangePasswordHandler implements ICommandHandler<ChangePasswordCommand> {
   public constructor(
+    private readonly passwordResetSessionRepository: PasswordResetSessionRepository,
     private readonly userRepository: UserRepository,
-    private readonly cache: Cache,
     private readonly passwordService: PasswordService,
     private readonly refreshTokenRepository: RefreshTokenRepository,
+    private readonly textHasher: TextHasher,
+    private readonly unitOfWork: UnitOfWork,
   ) {}
 
   public async execute(command: ChangePasswordCommand): Promise<CommonResponseDto> {
-    const userEmail = await this.cache.get<string>(`token:${command.token}`)
-    if (!userEmail) {
+    const passwordResetSession = await this.passwordResetSessionRepository.findByToken(
+      this.textHasher.hash(command.token),
+    )
+
+    if (!passwordResetSession || passwordResetSession.isExpired()) {
       throw new UnauthorizedException(
         plainToInstance(CommonResponseDto, {
-          message: "Invalid session.",
+          message: "Invalid or expired password reset token.",
         }),
       )
     }
-    const hashed = await this.passwordService.hash(command.dto.password)
 
-    const user = await this.userRepository.findByEmail(userEmail)
-    if (!user) {
-      throw new BadRequestException(
-        plainToInstance(CommonResponseDto, {
-          message: "Cannot find email",
-        }),
-      )
-    } else if (user.password) {
-      const isUsed = await this.passwordService.compare(user.password, hashed)
-      if (isUsed) {
-        throw new BadRequestException(
-          plainToInstance(CommonResponseDto, {
-            message: "New password cannot be same as old password",
-          }),
-        )
+    await this.unitOfWork.transaction(async () => {
+      const user = passwordResetSession.user
+      user.password = await this.passwordService.hash(command.dto.password)
+
+      await this.userRepository.update(user)
+
+      if (command.dto.logoutAll) {
+        const refreshTokens = await this.refreshTokenRepository.findActiveByUserId(user.id)
+
+        for (const refreshToken of refreshTokens) {
+          refreshToken.revoke()
+
+          await this.refreshTokenRepository.update(refreshToken)
+        }
       }
-    }
+    })
 
-    //Need to create new repository
-    await this.userRepository.update(user.id, {
-      password: hashed,
-    } as User)
-
-    if (command.dto.logoutAll && command.refreshToken) {
-      const refreshToken = await this.refreshTokenRepository.findByToken(command.refreshToken)
-      if (!refreshToken) throw new UnauthorizedException("Refresh token not found")
-
-      refreshToken.revoke()
-      await this.refreshTokenRepository.save(refreshToken)
-    }
-    await this.cache.delete(`token:${command.token}`)
     return plainToInstance(CommonResponseDto, {
       message: "Password changed successfully.",
     })

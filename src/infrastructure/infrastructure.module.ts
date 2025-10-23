@@ -14,7 +14,6 @@ import { CqrsModule } from "@nestjs/cqrs"
 import { BullModule } from "@nestjs/bullmq"
 import { EmailService } from "./email/email.service"
 import { EMAIL_QUEUE, EmailConsumer } from "./email/email.consumer"
-import _ from "lodash"
 import { Resend } from "resend"
 import { User } from "../modules/user/entities/user.entity"
 import { TextHasher } from "./security/cryptography/text-hasher"
@@ -22,7 +21,11 @@ import { Sha256TextHasher } from "./security/cryptography/sha256-text-hasher"
 import { RefreshToken } from "../modules/auth/entities/refresh-token.entity"
 import { OAuth2User } from "../modules/auth/entities/oauth2-user.entity"
 import { RedisService } from "./cache/redis.service"
+import _ from "lodash"
+import { Instructor } from "../modules/instructor/entities/instructor.entity"
 import { Cache } from "./cache/cache"
+import { PasswordResetSession } from "../modules/auth/entities/password-reset-session.entity"
+
 @Global()
 @Module({
   imports: [
@@ -35,6 +38,7 @@ import { Cache } from "./cache/cache"
           connection: {
             host: config.getOrThrow<string>("REDIS_HOST"),
             port: parseInt(config.getOrThrow<string>("REDIS_PORT"), 10),
+            db: 1,
           },
         }
       },
@@ -73,7 +77,7 @@ import { Cache } from "./cache/cache"
           password: config.getOrThrow<string>("DATABASE_PASSWORD"),
           database: config.getOrThrow<string>("DATABASE_NAME"),
           synchronize: config.get<NodeEnv>("NODE_ENV", NodeEnv.DEVELOPMENT) != NodeEnv.PRODUCTION,
-          entities: [OAuth2User, RefreshToken, User],
+          entities: [OAuth2User, PasswordResetSession, RefreshToken, User, Instructor],
         }
       },
       inject: [ConfigService],
