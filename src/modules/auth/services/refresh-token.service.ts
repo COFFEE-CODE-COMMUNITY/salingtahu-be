@@ -32,7 +32,7 @@ export class RefreshTokenService {
 
   public async verifyAndRevoke(refreshToken: string, userAgent: string): Promise<boolean> {
     if (!refreshToken) return false
-    
+
     const token = await this.refreshTokenRepository.findByToken(this.textHasher.hash(refreshToken))
 
     if (!token) return false

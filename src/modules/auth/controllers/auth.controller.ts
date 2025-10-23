@@ -153,9 +153,9 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ): Promise<TokensDto> {
     const tokens = await this.commandBus.execute(new GetRefreshTokenCommand(refreshToken, _userAgent, ipAddress))
-    
+
     res.cookie(REFRESH_TOKEN_COOKIE_NAME, tokens.refreshToken, this.getSetCookieOptions())
-    
+
     return tokens
   }
 

@@ -35,9 +35,9 @@ export class NotSameAsCurrentPasswordConstraint implements ValidatorConstraintIn
     // Check if user has a password set (OAuth users might not have passwords)
     if (passwordResetSession.user.password) {
       const isSamePassword = await this.passwordService.compare(value, passwordResetSession.user.password)
-      
+
       this.logger.debug(`Password comparison result: ${isSamePassword}`)
-      
+
       return !isSamePassword // Return false if passwords match (validation fails)
     }
 
