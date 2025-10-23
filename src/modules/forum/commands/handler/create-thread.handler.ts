@@ -1,12 +1,13 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { CreateThreadCommand } from "../create-thread.command"
 import { CreateThreadResponseDto } from "../../dtos/create-thread-response.dto"
+import { ThreadResponse, ThreadService } from "../../services/thread.service"
 
 @CommandHandler(CreateThreadCommand)
 export class CreateThreadHandler implements ICommandHandler<CreateThreadCommand> {
-  // public constructor() {}
+  public constructor(private readonly threadService: ThreadService) {}
 
-  public async execute(command: CreateThreadCommand): Promise<CreateThreadResponseDto> {
-    return new CreateThreadResponseDto()
+  public async execute(command: CreateThreadCommand): Promise<ThreadResponse<CreateThreadResponseDto>> {
+    return await this.threadService.create(command.userId, command.dto)
   }
 }
