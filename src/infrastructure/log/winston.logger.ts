@@ -19,7 +19,7 @@ export class WinstonLogger extends Logger {
 
   public constructor(
     private readonly config: ConfigService,
-    @Inject(INQUIRER) parentClass: object = new Object(),
+    @Inject(INQUIRER) parentClass: object = {},
   ) {
     super()
 
@@ -51,10 +51,27 @@ export class WinstonLogger extends Logger {
       })(),
       format.colorize({ level: true }),
       format.printf(({ message, level, timestamp, stack, ...meta }): string => {
-        const argsStr = Object.keys(meta).length > 0 ? ` ${JSON.stringify(meta)}` : ""
+        const safeStringify = (obj: any): string => {
+          const seen = new WeakSet()
+          return JSON.stringify(
+            obj,
+            (key, value) => {
+              if (typeof value === "object" && value !== null) {
+                if (seen.has(value)) return "[Circular]"
+                seen.add(value)
+              }
+              if (typeof value === "function") return "[Function]"
+              return value
+            },
+            2,
+          )
+        }
+        const argsStr = Object.keys(meta).length > 0 ? ` ${safeStringify(meta)}` : ""
+
         // eslint-disable-next-line @typescript-eslint/no-base-to-string
         const stackStr = stack ? `\n${stack}` : ""
-        const className = parentClass.constructor.name || "Unknown"
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        const className = parentClass?.constructor.name || "Unknown"
         return `[${level}] [${className}] ${timestamp} - ${message}${argsStr}${stackStr}`
       }),
     )

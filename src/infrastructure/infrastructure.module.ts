@@ -23,6 +23,8 @@ import { OAuth2User } from "../modules/auth/entities/oauth2-user.entity"
 import { RedisService } from "./cache/redis.service"
 import _ from "lodash"
 import { Instructor } from "../modules/instructor/entities/instructor.entity"
+import { Cache } from "./cache/cache"
+import { PasswordResetSession } from "../modules/auth/entities/password-reset-session.entity"
 
 @Global()
 @Module({
@@ -75,7 +77,7 @@ import { Instructor } from "../modules/instructor/entities/instructor.entity"
           password: config.getOrThrow<string>("DATABASE_PASSWORD"),
           database: config.getOrThrow<string>("DATABASE_NAME"),
           synchronize: config.get<NodeEnv>("NODE_ENV", NodeEnv.DEVELOPMENT) != NodeEnv.PRODUCTION,
-          entities: [OAuth2User, RefreshToken, User, Instructor],
+          entities: [OAuth2User, PasswordResetSession, RefreshToken, User, Instructor],
         }
       },
       inject: [ConfigService],
@@ -96,10 +98,12 @@ import { Instructor } from "../modules/instructor/entities/instructor.entity"
         return new RedisService({
           host: config.getOrThrow("REDIS_HOST"),
           port: config.getOrThrow("REDIS_PORT"),
+          db: 0,
         })
       },
       inject: [ConfigService],
     },
+    Cache,
     {
       provide: Resend,
       useFactory(config: ConfigService): Resend {
@@ -112,6 +116,6 @@ import { Instructor } from "../modules/instructor/entities/instructor.entity"
       useClass: Sha256TextHasher,
     },
   ],
-  exports: [Logger, UnitOfWork, TextHasher, EmailService, TransactionContextService],
+  exports: [Logger, UnitOfWork, TextHasher, EmailService, TransactionContextService, RedisService, Cache],
 })
 export class InfrastructureModule {}
