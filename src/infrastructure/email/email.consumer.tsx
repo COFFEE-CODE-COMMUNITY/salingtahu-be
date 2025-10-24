@@ -1,4 +1,3 @@
-
 import React from "react"
 import { Processor, WorkerHost } from "@nestjs/bullmq"
 import { Job } from "bullmq"
@@ -37,7 +36,7 @@ export class EmailConsumer extends WorkerHost {
       from: this.config.getOrThrow<string>("email.from"),
       to: job.data.to,
       subject: job.data.subject,
-      html
+      html,
     })
   }
 

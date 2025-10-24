@@ -5,7 +5,7 @@ import { faker } from "@faker-js/faker"
 import request from "supertest"
 import { CommandBus } from "@nestjs/cqrs"
 import { RegisterCommand } from "../../src/modules/auth/commands/register.command"
-import { RegisterDto } from "../../src/modules/auth/dtos/register.dto"
+import { RegisterDto } from "../../src/modules/auth/dto/register.dto"
 import { UserRepository } from "../../src/modules/user/repositories/user.repository"
 import { OAuth2User } from "../../src/modules/auth/entities/oauth2-user.entity"
 import { OAuth2Provider } from "../../src/modules/auth/enums/oauth2-provider.enum"
@@ -63,9 +63,9 @@ describe("POST /api/v1/auth/login", () => {
       expect(response.status).toBe(200)
       expect(response.body).toEqual({
         refreshToken: expect.any(String),
-        accessToken: expect.any(String)
+        accessToken: expect.any(String),
       })
-      expect(response.headers['set-cookie']![0]).toMatch(/refreshToken=.+;/)
+      expect(response.headers["set-cookie"]![0]).toMatch(/refreshToken=.+;/)
     })
   })
 
@@ -75,7 +75,7 @@ describe("POST /api/v1/auth/login", () => {
         .post("/api/v1/auth/login")
         .send({
           email: faker.internet.email(),
-          password
+          password,
         })
         .set("User-Agent", faker.internet.userAgent())
         .expect(401)

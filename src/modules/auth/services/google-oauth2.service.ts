@@ -77,7 +77,6 @@ export class GoogleOAuth2Service extends OAuth2Service {
     const tokenUrl = new URLSearchParams("https://oauth2.googleapis.com/token")
     tokenUrl.set("code", code)
     tokenUrl.set("client_id", await this.config.getOrThrow("GOOGLE_CLIENT_ID"))
-    tokenUrl.set("client_secret", await this.config.getOrThrow("GOOGLE_CLIENT_SECRET"))
     tokenUrl.set("redirect_uri", await this.config.getOrThrow("GOOGLE_CALLBACK_URL"))
     tokenUrl.set("grant_type", "authorization_code")
 
@@ -97,9 +96,10 @@ export class GoogleOAuth2Service extends OAuth2Service {
     })
 
     return {
-      avatarUrl: userInfo.picture,
-      name: userInfo.name,
+      firstName: userInfo.given_name,
+      lastName: userInfo.family_name,
       email: userInfo.email,
+      profilePictureUrl: userInfo.picture,
     }
   }
 }
