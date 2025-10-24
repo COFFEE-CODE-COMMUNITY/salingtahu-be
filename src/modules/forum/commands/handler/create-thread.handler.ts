@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { CreateThreadCommand } from "../create-thread.command"
-import { CreateThreadResponseDto } from "../../dtos/create-thread-response.dto"
+import { CreateThreadResponseDto } from "../../dtos/threads/create-thread-response.dto"
 import { ThreadResponse, ThreadService } from "../../services/thread.service"
 
 @CommandHandler(CreateThreadCommand)

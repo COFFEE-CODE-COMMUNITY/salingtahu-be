@@ -1,7 +1,7 @@
 import { Command } from "@nestjs/cqrs"
 import { ThreadResponse } from "../services/thread.service"
-import { UpdateThreadResponseDto } from "../dtos/update-thread-response.dto"
-import { UpdateThreadDto } from "../dtos/update-thread.dto"
+import { UpdateThreadResponseDto } from "../dtos/threads/update-thread-response.dto"
+import { UpdateThreadDto } from "../dtos/threads/update-thread.dto"
 
 export class UpdateThreadCommand extends Command<ThreadResponse<UpdateThreadResponseDto>> {
   public constructor(

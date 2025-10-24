@@ -1,12 +1,12 @@
 import { ThreadRepository } from "../repositories/thread.repository"
 import { Transactional } from "../../../infrastructure/database/unit-of-work/transactional.decorator"
-import { DeleteThreadResponseDto } from "../dtos/delete-thread-response.dto"
+import { DeleteThreadResponseDto } from "../dtos/threads/delete-thread-response.dto"
 import { ForbiddenException, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common"
-import { CreateThreadDto } from "../dtos/create-thread.dto"
-import { CreateThreadResponseDto } from "../dtos/create-thread-response.dto"
+import { CreateThreadDto } from "../dtos/threads/create-thread.dto"
+import { CreateThreadResponseDto } from "../dtos/threads/create-thread-response.dto"
 import { UserForumRepository } from "../repositories/user-forum.repository"
-import { UpdateThreadDto } from "../dtos/update-thread.dto"
-import { UpdateThreadResponseDto } from "../dtos/update-thread-response.dto"
+import { UpdateThreadDto } from "../dtos/threads/update-thread.dto"
+import { UpdateThreadResponseDto } from "../dtos/threads/update-thread-response.dto"
 
 export interface ThreadResponse<T> {
   message: string
@@ -84,5 +84,9 @@ export class ThreadService {
         deletedAt: new Date(),
       },
     }
+  }
+
+  public async getAllThreads(page = 1, limit = 10, category?: string, sort?: "latest" | "popular"): Promise<any> {
+    return this.threadRepository.findPaginated(page, limit, { category, sort })
   }
 }

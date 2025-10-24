@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { DeleteReplyCommand } from "../delete-reply.command"
-import { DeleteReplyResponseDto } from "../../dtos/delete-reply-response.dto"
+import { DeleteReplyResponseDto } from "../../dtos/replies/delete-reply-response.dto"
 import { ReplyResponse, ReplyService } from "../../services/reply.service"
 
 @CommandHandler(DeleteReplyCommand)

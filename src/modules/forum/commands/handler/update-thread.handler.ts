@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { UpdateThreadCommand } from "../update-thread.command"
 import { ThreadResponse, ThreadService } from "../../services/thread.service"
-import { UpdateThreadResponseDto } from "../../dtos/update-thread-response.dto"
+import { UpdateThreadResponseDto } from "../../dtos/threads/update-thread-response.dto"
 
 @CommandHandler(UpdateThreadCommand)
 export class UpdateThreadHandler implements ICommandHandler<UpdateThreadCommand> {

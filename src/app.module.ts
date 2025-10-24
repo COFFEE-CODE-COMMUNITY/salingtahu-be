@@ -7,6 +7,7 @@ import { HttpRequestContextInterceptor } from "./common/http/http-request-contex
 import { HttpRequestContext } from "./common/http/http-request-context"
 import { ValidationModule } from "./common/validators/validation.module"
 import { ConfigModule } from "@nestjs/config"
+import { ForumModule } from "./modules/forum/forum.module"
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { ConfigModule } from "@nestjs/config"
     InfrastructureModule,
     ValidationModule,
     AuthModule,
+    ForumModule,
   ],
   providers: [
     HttpRequestContext,

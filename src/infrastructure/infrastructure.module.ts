@@ -23,6 +23,8 @@ import { RefreshToken } from "../modules/auth/entities/refresh-token.entity"
 import { OAuth2User } from "../modules/auth/entities/oauth2-user.entity"
 import { RedisService } from "./cache/redis.service"
 import { Cache } from "./cache/cache"
+import { Thread } from "../modules/forum/entities/thread.entity"
+import { Reply } from "../modules/forum/entities/reply.entity"
 @Global()
 @Module({
   imports: [
@@ -73,7 +75,7 @@ import { Cache } from "./cache/cache"
           password: config.getOrThrow<string>("DATABASE_PASSWORD"),
           database: config.getOrThrow<string>("DATABASE_NAME"),
           synchronize: config.get<NodeEnv>("NODE_ENV", NodeEnv.DEVELOPMENT) != NodeEnv.PRODUCTION,
-          entities: [OAuth2User, RefreshToken, User],
+          entities: [OAuth2User, RefreshToken, User, Thread, Reply],
         }
       },
       inject: [ConfigService],

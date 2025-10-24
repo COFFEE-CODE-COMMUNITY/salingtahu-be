@@ -3,8 +3,8 @@ import { Reply } from "../entities/reply.entity"
 import { DataSource, EntityManager } from "typeorm"
 import { TransactionContextService } from "../../../infrastructure/database/unit-of-work/transaction-context.service"
 import { Injectable } from "@nestjs/common"
-import { CreateReplyDto } from "../dtos/create-reply.dto"
-import { UpdateThreadDto } from "../dtos/update-thread.dto"
+import { CreateReplyDto } from "../dtos/replies/create-reply.dto"
+import { UpdateThreadDto } from "../dtos/threads/update-thread.dto"
 
 @Injectable()
 export class ReplyRepository extends BaseRepository<Reply> {

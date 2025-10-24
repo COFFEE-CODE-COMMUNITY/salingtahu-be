@@ -10,7 +10,9 @@ export class UserForumRepository extends BaseRepository<User> {
     super(dataSource, transactionContextService, User)
   }
 
-  public async findByPublicId(id: string): Promise<{ id: string; username: string; avatarUrl: string | null } | null> {
+  public async findByPublicId(
+    id: string,
+  ): Promise<{ id: string; username: string; profilePicturePath: string | null } | null> {
     const user = await this.getRepository()
       .createQueryBuilder("user")
       .select(["user.id", "user.firstname", "user.lastname", "user.profilePicturePath"])
@@ -22,7 +24,7 @@ export class UserForumRepository extends BaseRepository<User> {
     return {
       id: user.id,
       username: user.firstName + " " + user.lastName,
-      avatarUrl: user.profilePicturePath ?? null,
+      profilePicturePath: user.profilePicturePath ?? null,
     }
   }
 

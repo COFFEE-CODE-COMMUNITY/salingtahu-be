@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger"
-import { BadRequestResponseDto } from "../../../common/dto/bad-request-response.dto"
+import { BadRequestResponseDto } from "../../../../common/dto/bad-request-response.dto"
 
 class UpdateReplyErrorMessage {
   @ApiProperty({

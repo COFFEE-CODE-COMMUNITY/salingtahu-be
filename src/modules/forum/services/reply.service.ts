@@ -1,13 +1,13 @@
 import { ReplyRepository } from "../repositories/reply.repository"
 import { ThreadRepository } from "../repositories/thread.repository"
-import { CreateReplyDto } from "../dtos/create-reply.dto"
+import { CreateReplyDto } from "../dtos/replies/create-reply.dto"
 import { Transactional } from "../../../infrastructure/database/unit-of-work/transactional.decorator"
 import { ForbiddenException, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common"
-import { DeleteReplyResponseDto } from "../dtos/delete-reply-response.dto"
-import { CreateReplyResponseDto } from "../dtos/create-reply-response.dto"
+import { DeleteReplyResponseDto } from "../dtos/replies/delete-reply-response.dto"
+import { CreateReplyResponseDto } from "../dtos/replies/create-reply-response.dto"
 import { UserForumRepository } from "../repositories/user-forum.repository"
-import { UpdateReplyResponseDto } from "../dtos/update-reply-response.dto"
-import { UpdateReplyDto } from "../dtos/update-reply.dto"
+import { UpdateReplyResponseDto } from "../dtos/replies/update-reply-response.dto"
+import { UpdateReplyDto } from "../dtos/replies/update-reply.dto"
 
 export interface ReplyResponse<T> {
   message: string

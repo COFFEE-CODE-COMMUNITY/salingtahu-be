@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { CreateReplyCommand } from "../create-reply.command"
-import { CreateReplyResponseDto } from "../../dtos/create-reply-response.dto"
+import { CreateReplyResponseDto } from "../../dtos/replies/create-reply-response.dto"
 import { ReplyService, ReplyResponse } from "../../services/reply.service"
 
 @CommandHandler(CreateReplyCommand)

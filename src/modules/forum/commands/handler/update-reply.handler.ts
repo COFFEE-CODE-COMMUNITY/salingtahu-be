@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { UpdateReplyCommand } from "../update-reply.command"
 import { ReplyResponse, ReplyService } from "../../services/reply.service"
-import { UpdateReplyResponseDto } from "../../dtos/update-reply-response.dto"
+import { UpdateReplyResponseDto } from "../../dtos/replies/update-reply-response.dto"
 
 @CommandHandler(UpdateReplyCommand)
 export class UpdateReplyHandler implements ICommandHandler<UpdateReplyCommand> {

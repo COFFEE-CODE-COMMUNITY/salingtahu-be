@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger"
-import { UserForumDto } from "./user-forum.dto"
+import { UserForumDto } from "../user-forum.dto"
 
 export class UpdateThreadResponseDto {
   @ApiProperty({
