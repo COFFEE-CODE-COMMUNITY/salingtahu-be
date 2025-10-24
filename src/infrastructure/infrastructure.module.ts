@@ -24,6 +24,8 @@ import { RedisService } from "./cache/redis.service"
 import _ from "lodash"
 import { Instructor } from "../modules/instructor/entities/instructor.entity"
 import { Cache } from "./cache/cache"
+import { Thread } from "../modules/forum/entities/thread.entity"
+import { Reply } from "../modules/forum/entities/reply.entity"
 import { PasswordResetSession } from "../modules/auth/entities/password-reset-session.entity"
 
 @Global()
@@ -77,7 +79,7 @@ import { PasswordResetSession } from "../modules/auth/entities/password-reset-se
           password: config.getOrThrow<string>("DATABASE_PASSWORD"),
           database: config.getOrThrow<string>("DATABASE_NAME"),
           synchronize: config.get<NodeEnv>("NODE_ENV", NodeEnv.DEVELOPMENT) != NodeEnv.PRODUCTION,
-          entities: [OAuth2User, PasswordResetSession, RefreshToken, User, Instructor],
+          entities: [OAuth2User, PasswordResetSession, RefreshToken, User, Instructor, Thread, Reply],
         }
       },
       inject: [ConfigService],
