@@ -3,6 +3,8 @@ import { BaseRepository } from "../../../common/base/base.repository"
 import { User } from "../entities/user.entity"
 import { DataSource, EntityManager } from "typeorm"
 import { TransactionContextService } from "../../../infrastructure/database/unit-of-work/transaction-context.service"
+import { EntityId } from "../../../common/base/base.entity"
+import { UserRole } from "../enums/user-role.enum"
 
 @Injectable()
 export class UserRepository extends BaseRepository<User> {
@@ -12,5 +14,11 @@ export class UserRepository extends BaseRepository<User> {
 
   public async findByEmail(email: string): Promise<User | null> {
     return this.getRepository().findOne({ where: { email }, relations: { oauth2Users: true } })
+  }
+
+  public async findRolesById(userId: EntityId): Promise<UserRole[]> {
+    const user = await this.getRepository().findOne({ where: { id: userId }, select: { roles: true } })
+
+    return user ? user.roles : []
   }
 }

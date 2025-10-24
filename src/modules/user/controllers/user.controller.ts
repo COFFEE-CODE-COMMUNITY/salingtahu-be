@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Patch, Put, Req, UseGuards, Param } from "@nestjs/common"
+import { Body, Controller, Get, Patch, Put, Req, Param } from "@nestjs/common"
 import { UserDto } from "../dto/user.dto"
 import { CommonResponseDto } from "../../../common/dto/common-response.dto"
 import {
@@ -17,7 +17,7 @@ import { CommandBus, QueryBus } from "@nestjs/cqrs"
 import { UpdateProfilePictureCommand } from "../commands/update-profile-picture.command"
 import { Request } from "express"
 import { UserId } from "../../../common/http/user-id.decorator"
-import { BearerTokenGuard } from "../../../common/guards/bearer-token.guard"
+import { Authorized } from "../../../common/guards/bearer-token.guard"
 import { GetCurrentUserQuery } from "../queries/get-current-user.query"
 import { GetUserQuery } from "../queries/get-user.query"
 import { ALLOWED_IMAGE_MIMETYPES } from "../../../constants/mimetype.constant"
@@ -45,7 +45,7 @@ export class UserController {
     type: CommonResponseDto,
     description: "User is not authenticated or token is invalid",
   })
-  @UseGuards(BearerTokenGuard)
+  @Authorized()
   public async getMe(@UserId() userId: string): Promise<UserDto> {
     return this.queryBus.execute(new GetCurrentUserQuery(userId))
   }
@@ -83,7 +83,7 @@ export class UserController {
     type: CommonResponseDto,
     description: "User is not authenticated or token is invalid",
   })
-  @UseGuards(BearerTokenGuard)
+  @Authorized()
   public async updateMe(@Body() dto: UpdateUserDto, @UserId() userId: string): Promise<UserDto> {
     return this.commandBus.execute(new UpdateUserCommand(userId, dto))
   }
@@ -111,7 +111,7 @@ export class UserController {
     description: `Uploaded file has an unsupported media type. Allowed types: ${ALLOWED_IMAGE_MIMETYPES.join(", ")}`,
   })
   @ApiConsumes(...ALLOWED_IMAGE_MIMETYPES)
-  @UseGuards(BearerTokenGuard)
+  @Authorized()
   public async updateProfilePicture(@Req() request: Request, @UserId() userId: string): Promise<CommonResponseDto> {
     return this.commandBus.execute(new UpdateProfilePictureCommand(userId, request))
   }
