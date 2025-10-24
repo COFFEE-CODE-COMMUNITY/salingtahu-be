@@ -17,6 +17,10 @@ import { ThreadRepository } from "./repositories/thread.repository"
 import { UserForumRepository } from "./repositories/user-forum.repository"
 import { ReplyRepository } from "./repositories/reply.repository"
 import { ForumController } from "./controllers/forum.controller"
+import { GetAllThreadByKeyHandler } from "./commands/handler/get-all-thread-by-key.handler"
+import { GetAllThreadByUserIdHandler } from "./commands/handler/get-all-thread-by-user-id.handler"
+import { GetAllReplyHandler } from "./commands/handler/get-all-reply.handler"
+import { GetAllChildrenReplyHandler } from "./commands/handler/get-all-children-reply.handler"
 
 @Module({
   imports: [
@@ -38,6 +42,10 @@ import { ForumController } from "./controllers/forum.controller"
     DeleteThreadHandler,
     DeleteReplyHandler,
     GetAllThreadHandler,
+    GetAllThreadByKeyHandler,
+    GetAllThreadByUserIdHandler,
+    GetAllReplyHandler,
+    GetAllChildrenReplyHandler,
 
     ThreadService,
     ReplyService,

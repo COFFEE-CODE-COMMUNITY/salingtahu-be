@@ -8,6 +8,8 @@ import { CreateReplyResponseDto } from "../dtos/replies/create-reply-response.dt
 import { UserForumRepository } from "../repositories/user-forum.repository"
 import { UpdateReplyResponseDto } from "../dtos/replies/update-reply-response.dto"
 import { UpdateReplyDto } from "../dtos/replies/update-reply.dto"
+import { GetAllChildrenReplyResponseDto } from "../dtos/replies/get-all-children-reply-response.dto"
+import { GetAllReplyByThreadResponseDto } from "../dtos/replies/get-all-reply-by-thread-id-response.dto"
 
 export interface ReplyResponse<T> {
   message: string
@@ -27,6 +29,7 @@ export class ReplyService {
     const user = await this.userForumRepository.findByPublicId(userId)
 
     if (!user) throw new UnauthorizedException("User does not exist")
+    await this.threadRepository.increment(reply.threadId)
 
     return {
       message: "Reply successfully created",
@@ -86,5 +89,23 @@ export class ReplyService {
         deletedAt: new Date(),
       },
     }
+  }
+
+  public async getAllReplyByThreadId(
+    threadId: string,
+    page: number = 1,
+    limit: number = 15,
+    sort: "latest" | "oldest" = "latest",
+  ): Promise<GetAllReplyByThreadResponseDto> {
+    return await this.replyRepository.findPaginatedByThread(threadId, page, limit, sort)
+  }
+
+  public async getAllChildrenReply(
+    parentReplyId: string,
+    page: number = 1,
+    limit: number = 15,
+    sort: "latest" | "oldest" = "latest",
+  ): Promise<GetAllChildrenReplyResponseDto> {
+    return await this.replyRepository.findAllChildrenReply(parentReplyId, page, limit, sort)
   }
 }

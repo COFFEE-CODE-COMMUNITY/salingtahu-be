@@ -7,6 +7,8 @@ import { CreateThreadResponseDto } from "../dtos/threads/create-thread-response.
 import { UserForumRepository } from "../repositories/user-forum.repository"
 import { UpdateThreadDto } from "../dtos/threads/update-thread.dto"
 import { UpdateThreadResponseDto } from "../dtos/threads/update-thread-response.dto"
+import { GetAllThreadByUserIdResponseDto } from "../dtos/threads/get-all-thread-by-user-id-response.dto"
+import { GetAllThreadByKeyResponseDto } from "../dtos/threads/get-all-thread-by-key-response.dto"
 
 export interface ThreadResponse<T> {
   message: string
@@ -87,6 +89,25 @@ export class ThreadService {
   }
 
   public async getAllThreads(page = 1, limit = 10, category?: string, sort?: "latest" | "popular"): Promise<any> {
-    return this.threadRepository.findPaginated(page, limit, { category, sort })
+    return await this.threadRepository.findPaginated(page, limit, { category, sort })
+  }
+
+  public async getAllThreadsByUserId(
+    userId: string,
+    page = 1,
+    limit = 10,
+    category?: string,
+    sort?: "latest" | "popular",
+  ): Promise<GetAllThreadByUserIdResponseDto> {
+    return await this.threadRepository.findPaginatedByUserId(userId, page, limit, { category, sort })
+  }
+  public async getAllThreadByKey(
+    key: string,
+    page = 1,
+    limit = 10,
+    category?: string,
+    sort?: "latest" | "popular",
+  ): Promise<GetAllThreadByKeyResponseDto> {
+    return await this.threadRepository.findPaginatedBySearch(key, page, limit, { category, sort })
   }
 }

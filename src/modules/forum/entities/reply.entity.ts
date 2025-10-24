@@ -1,4 +1,4 @@
-import { Entity, Column, ManyToOne, JoinColumn, DeleteDateColumn } from "typeorm"
+import { Entity, Column, ManyToOne, JoinColumn, DeleteDateColumn, OneToMany } from "typeorm"
 import { Thread } from "./thread.entity"
 import { User } from "../../user/entities/user.entity"
 import { BaseEntity } from "../../../common/base/base.entity"
@@ -28,6 +28,9 @@ export class Reply extends BaseEntity {
   @ManyToOne(() => Reply, { onDelete: "CASCADE" })
   @JoinColumn({ name: "parent_reply_id" })
   public parent?: Reply | null
+
+  @OneToMany(() => Reply, reply => reply.parent)
+  public children?: Reply[]
 
   @DeleteDateColumn({ name: "deleted_at", nullable: true })
   public deletedAt?: Date | null
