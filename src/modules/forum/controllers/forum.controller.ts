@@ -1,7 +1,7 @@
 import { ApiBadRequestResponse, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger"
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query as QueryParam } from "@nestjs/common"
 import { CommonResponseDto } from "../../../common/dto/common-response.dto"
-import { CommandBus } from "@nestjs/cqrs"
+import { CommandBus, QueryBus } from "@nestjs/cqrs"
 import { CreateThreadDto } from "../dtos/threads/create-thread.dto"
 import { CreateThreadCommand } from "../commands/create-thread.command"
 import { CreateThreadResponseDto } from "../dtos/threads/create-thread-response.dto"
@@ -26,21 +26,26 @@ import { UpdateReplyCommand } from "../commands/update-reply.command"
 import { UpdateReplyDto } from "../dtos/replies/update-reply.dto"
 import { UpdateReplyResponseDto } from "../dtos/replies/update-reply-response.dto"
 import { UpdateReplyBadRequestDto } from "../dtos/replies/update-reply-bad-request.dto"
-import { GetAllThreadCommand } from "../commands/get-all-thread.command"
+import { GetAllThreadQuery } from "../queries/get-all-thread.query"
 import { GetAllThreadResponseDto } from "../dtos/threads/get-all-thread-response.dto"
 import { GetAllThreadByKeyResponseDto } from "../dtos/threads/get-all-thread-by-key-response.dto"
-import { GetAllThreadByKeyCommand } from "../commands/get-all-thread-by-key.command"
+import { GetAllThreadByKeyQuery } from "../queries/get-all-thread-by-key.query"
 import { GetAllThreadByUserIdResponseDto } from "../dtos/threads/get-all-thread-by-user-id-response.dto"
-import { GetAllThreadByUserIdCommand } from "../commands/get-all-thread-by-user-id.command"
-import { GetAllReplyCommand } from "../commands/get-all-reply.command"
-import { GetAllChildrenReplyCommand } from "../commands/get-all-children-reply.command"
+import { GetAllThreadByUserIdQuery } from "../queries/get-all-thread-by-user-id.query"
+import { GetAllReplyQuery } from "../queries/get-all-reply.query"
+import { GetAllChildrenReplyQuery } from "../queries/get-all-children-reply.query"
 import { GetAllReplyByThreadResponseDto } from "../dtos/replies/get-all-reply-by-thread-id-response.dto"
 import { GetAllChildrenReplyResponseDto } from "../dtos/replies/get-all-children-reply-response.dto"
+import { Authorized } from "../../../common/guards/bearer-token.guard"
+import { UserId } from "../../../common/http/user-id.decorator"
 
 @ApiTags("Forum")
 @Controller("forums")
 export class ForumController {
-  public constructor(private readonly commandBus: CommandBus) {}
+  public constructor(
+    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
+  ) {}
 
   @Post("threads")
   @ApiOperation({
@@ -55,9 +60,9 @@ export class ForumController {
     description: "Invalid input data",
     type: CreateThreadBadRequestDto,
   })
-  // need to use guard
+  @Authorized()
   public async createThread(
-    @QueryParam("userId") userId: string,
+    @UserId() userId: string,
     @Body() dto: CreateThreadDto,
   ): Promise<ThreadResponse<CreateThreadResponseDto>> {
     return this.commandBus.execute(new CreateThreadCommand(userId, dto))
@@ -76,8 +81,9 @@ export class ForumController {
     description: "Invalid input data or thread not found",
     type: DeleteThreadBadResponseDto,
   })
+  @Authorized()
   public async deleteThread(
-    userId: string,
+    @UserId() userId: string,
     @Param("threadId") threadId: string,
   ): Promise<ThreadResponse<DeleteThreadResponseDto>> {
     return this.commandBus.execute(new DeleteThreadCommand(userId, threadId))
@@ -96,8 +102,9 @@ export class ForumController {
     description: "Invalid input data or thread not found",
     type: UpdateThreadBadRequestDto,
   })
+  @Authorized()
   public async updateThread(
-    userId: string,
+    @UserId() userId: string,
     @Param("threadId") threadId: string,
     @Body() dto: UpdateThreadDto,
   ): Promise<ThreadResponse<UpdateThreadResponseDto>> {
@@ -117,13 +124,14 @@ export class ForumController {
     description: "Invalid input data or reply not found",
     type: UpdateReplyBadRequestDto,
   })
+  @Authorized()
   public async getAllThread(
     @QueryParam("page") page: number,
     @QueryParam("limit") limit: number,
     @QueryParam("category") category?: string,
     @QueryParam("sort") sort?: "latest" | "popular",
   ): Promise<GetAllThreadResponseDto> {
-    return await this.commandBus.execute(new GetAllThreadCommand(page, limit, category, sort))
+    return await this.commandBus.execute(new GetAllThreadQuery(page, limit, category, sort))
   }
 
   @Get("threads/:key")
@@ -139,6 +147,7 @@ export class ForumController {
     description: "Invalid input data or reply not found",
     type: UpdateReplyBadRequestDto,
   })
+  @Authorized()
   public async getThreadByKey(
     @QueryParam("key") key: string,
     @QueryParam("page") page: number,
@@ -146,7 +155,7 @@ export class ForumController {
     @QueryParam("category") category?: string,
     @QueryParam("sort") sort?: "latest" | "popular",
   ): Promise<GetAllThreadByKeyResponseDto> {
-    return await this.commandBus.execute(new GetAllThreadByKeyCommand(key, page, limit, category, sort))
+    return await this.queryBus.execute(new GetAllThreadByKeyQuery(key, page, limit, category, sort))
   }
 
   @Get("threads/my-threads")
@@ -162,14 +171,15 @@ export class ForumController {
     description: "Invalid input data or reply not found",
     type: UpdateReplyBadRequestDto,
   })
+  @Authorized()
   public async getThreadByUserId(
-    userId: string,
+    @UserId() userId: string,
     @QueryParam("page") page: number,
     @QueryParam("limit") limit: number,
     @QueryParam("category") category?: string,
     @QueryParam("sort") sort?: "latest" | "popular",
   ): Promise<GetAllThreadByUserIdResponseDto> {
-    return await this.commandBus.execute(new GetAllThreadByUserIdCommand(userId, page, limit, category, sort))
+    return await this.queryBus.execute(new GetAllThreadByUserIdQuery(userId, page, limit, category, sort))
   }
 
   @Post("replies")
@@ -185,9 +195,9 @@ export class ForumController {
     description: "Invalid input data",
     type: CreateReplyBadRequestDto,
   })
-  // need to use guard
+  @Authorized()
   public async createReply(
-    userId: string,
+    @UserId() userId: string,
     @Body() dto: CreateReplyDto,
   ): Promise<ReplyResponse<CreateReplyResponseDto>> {
     return this.commandBus.execute(new CreateReplyCommand(userId, dto))
@@ -206,8 +216,9 @@ export class ForumController {
     description: "Invalid input data or reply not found",
     type: DeleteReplyBadResponseDto,
   })
+  @Authorized()
   public async deleteReply(
-    userId: string,
+    @UserId() userId: string,
     @Param("replyId") replyId: string,
   ): Promise<ReplyResponse<DeleteReplyResponseDto>> {
     return this.commandBus.execute(new DeleteReplyCommand(userId, replyId))
@@ -226,8 +237,9 @@ export class ForumController {
     description: "Invalid input data or reply not found",
     type: UpdateReplyBadRequestDto,
   })
+  @Authorized()
   public async updateReply(
-    userId: string,
+    @UserId() userId: string,
     @Param("replyId") replyId: string,
     @Body() dto: UpdateReplyDto,
   ): Promise<ReplyResponse<UpdateReplyResponseDto>> {
@@ -247,13 +259,14 @@ export class ForumController {
     description: "Invalid input data or reply not found",
     type: UpdateReplyBadRequestDto,
   })
+  @Authorized()
   public async getAllReply(
     @Param("threadId") threadId: string,
     @QueryParam("page") page: number,
     @QueryParam("limit") limit: number,
     @QueryParam("sort") sort?: "latest" | "oldest",
   ): Promise<GetAllReplyByThreadResponseDto> {
-    return await this.commandBus.execute(new GetAllReplyCommand(threadId, page, limit, sort))
+    return await this.queryBus.execute(new GetAllReplyQuery(threadId, page, limit, sort))
   }
 
   @Get("replies/:parentReplyId")
@@ -269,12 +282,13 @@ export class ForumController {
     description: "Invalid input data or reply not found",
     type: UpdateReplyBadRequestDto,
   })
+  @Authorized()
   public async getAllChildrenReply(
     @Param("parentReplyId") parentReplyId: string,
     @QueryParam("page") page: number,
     @QueryParam("limit") limit: number,
     @QueryParam("sort") sort?: "latest" | "oldest",
   ): Promise<GetAllChildrenReplyResponseDto> {
-    return await this.commandBus.execute(new GetAllChildrenReplyCommand(parentReplyId, page, limit, sort))
+    return await this.queryBus.execute(new GetAllChildrenReplyQuery(parentReplyId, page, limit, sort))
   }
 }

@@ -1,7 +1,7 @@
-import { Command } from "@nestjs/cqrs"
+import { Query } from "@nestjs/cqrs"
 import { GetAllThreadByKeyResponseDto } from "../dtos/threads/get-all-thread-by-key-response.dto"
 
-export class GetAllThreadByKeyCommand extends Command<GetAllThreadByKeyResponseDto> {
+export class GetAllThreadByKeyQuery extends Query<GetAllThreadByKeyResponseDto> {
   public constructor(
     public readonly searchKey: string,
     public readonly page: number,
