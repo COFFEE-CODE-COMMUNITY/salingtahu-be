@@ -20,10 +20,7 @@ import { GetAllReplyHandler } from "./queries/handlers/get-all-reply.handler"
 import { GetAllChildrenReplyHandler } from "./queries/handlers/get-all-children-reply.handler"
 
 @Module({
-  imports: [
-    UserModule,
-    JwtModule.register({}),
-  ],
+  imports: [UserModule, JwtModule.register({})],
   controllers: [ForumController],
   providers: [
     CreateThreadHandler,
