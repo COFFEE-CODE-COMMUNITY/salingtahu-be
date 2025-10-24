@@ -4,27 +4,21 @@ import { CommonResponseDto } from "../../../common/dto/common-response.dto"
 import { CommandBus, QueryBus } from "@nestjs/cqrs"
 import { CreateThreadDto } from "../dtos/threads/create-thread.dto"
 import { CreateThreadCommand } from "../commands/create-thread.command"
-import { CreateThreadResponseDto } from "../dtos/threads/create-thread-response.dto"
+import { ThreadResponseDto } from "../dtos/threads/thread-response.dto"
 import { CreateReplyDto } from "../dtos/replies/create-reply.dto"
 import { CreateReplyBadRequestDto } from "../dtos/replies/create-reply-bad-request.dto"
 import { CreateThreadBadRequestDto } from "../dtos/threads/create-thread-bad-request.dto"
 import { CreateReplyCommand } from "../commands/create-reply.command"
-import { CreateReplyResponseDto } from "../dtos/replies/create-reply-response.dto"
+import { ReplyResponseDto } from "../dtos/replies/reply-response.dto"
 import { DeleteReplyCommand } from "../commands/delete-reply.command"
-import { DeleteReplyResponseDto } from "../dtos/replies/delete-reply-response.dto"
 import { DeleteReplyBadResponseDto } from "../dtos/replies/delete-reply-bad-response"
-import { ReplyResponse } from "../services/reply.service"
-import { ThreadResponse } from "../services/thread.service"
 import { DeleteThreadCommand } from "../commands/delete-thread.command"
-import { DeleteThreadResponseDto } from "../dtos/threads/delete-thread-response.dto"
 import { DeleteThreadBadResponseDto } from "../dtos/threads/delete-thread-bad-response.dto"
 import { UpdateThreadDto } from "../dtos/threads/update-thread.dto"
 import { UpdateThreadCommand } from "../commands/update-thread.command"
-import { UpdateThreadResponseDto } from "../dtos/threads/update-thread-response.dto"
 import { UpdateThreadBadRequestDto } from "../dtos/threads/update-thread-bad-request.dto"
 import { UpdateReplyCommand } from "../commands/update-reply.command"
 import { UpdateReplyDto } from "../dtos/replies/update-reply.dto"
-import { UpdateReplyResponseDto } from "../dtos/replies/update-reply-response.dto"
 import { UpdateReplyBadRequestDto } from "../dtos/replies/update-reply-bad-request.dto"
 import { GetAllThreadQuery } from "../queries/get-all-thread.query"
 import { GetAllThreadResponseDto } from "../dtos/threads/get-all-thread-response.dto"
@@ -61,10 +55,7 @@ export class ForumController {
     type: CreateThreadBadRequestDto,
   })
   @Authorized()
-  public async createThread(
-    @UserId() userId: string,
-    @Body() dto: CreateThreadDto,
-  ): Promise<ThreadResponse<CreateThreadResponseDto>> {
+  public async createThread(@UserId() userId: string, @Body() dto: CreateThreadDto): Promise<ThreadResponseDto> {
     return this.commandBus.execute(new CreateThreadCommand(userId, dto))
   }
 
@@ -75,17 +66,14 @@ export class ForumController {
   })
   @ApiOkResponse({
     description: "Thread successfully deleted",
-    type: DeleteThreadResponseDto,
+    type: CommonResponseDto,
   })
   @ApiBadRequestResponse({
     description: "Invalid input data or thread not found",
     type: DeleteThreadBadResponseDto,
   })
   @Authorized()
-  public async deleteThread(
-    @UserId() userId: string,
-    @Param("threadId") threadId: string,
-  ): Promise<ThreadResponse<DeleteThreadResponseDto>> {
+  public async deleteThread(@UserId() userId: string, @Param("threadId") threadId: string): Promise<CommonResponseDto> {
     return this.commandBus.execute(new DeleteThreadCommand(userId, threadId))
   }
 
@@ -96,7 +84,7 @@ export class ForumController {
   })
   @ApiOkResponse({
     description: "Thread successfully updated",
-    type: UpdateThreadResponseDto,
+    type: ThreadResponseDto,
   })
   @ApiBadRequestResponse({
     description: "Invalid input data or thread not found",
@@ -107,7 +95,7 @@ export class ForumController {
     @UserId() userId: string,
     @Param("threadId") threadId: string,
     @Body() dto: UpdateThreadDto,
-  ): Promise<ThreadResponse<UpdateThreadResponseDto>> {
+  ): Promise<ThreadResponseDto> {
     return this.commandBus.execute(new UpdateThreadCommand(userId, threadId, dto))
   }
 
@@ -118,7 +106,7 @@ export class ForumController {
   })
   @ApiOkResponse({
     description: "Reply successfully updated",
-    type: UpdateReplyResponseDto,
+    type: ThreadResponseDto,
   })
   @ApiBadRequestResponse({
     description: "Invalid input data or reply not found",
@@ -141,7 +129,7 @@ export class ForumController {
   })
   @ApiOkResponse({
     description: "Reply successfully updated",
-    type: UpdateReplyResponseDto,
+    type: ThreadResponseDto,
   })
   @ApiBadRequestResponse({
     description: "Invalid input data or reply not found",
@@ -165,7 +153,7 @@ export class ForumController {
   })
   @ApiOkResponse({
     description: "Reply successfully updated",
-    type: UpdateReplyResponseDto,
+    type: ThreadResponseDto,
   })
   @ApiBadRequestResponse({
     description: "Invalid input data or reply not found",
@@ -196,10 +184,7 @@ export class ForumController {
     type: CreateReplyBadRequestDto,
   })
   @Authorized()
-  public async createReply(
-    @UserId() userId: string,
-    @Body() dto: CreateReplyDto,
-  ): Promise<ReplyResponse<CreateReplyResponseDto>> {
+  public async createReply(@UserId() userId: string, @Body() dto: CreateReplyDto): Promise<ReplyResponseDto> {
     return this.commandBus.execute(new CreateReplyCommand(userId, dto))
   }
 
@@ -210,17 +195,14 @@ export class ForumController {
   })
   @ApiOkResponse({
     description: "Reply successfully deleted",
-    type: DeleteReplyResponseDto,
+    type: CommonResponseDto,
   })
   @ApiBadRequestResponse({
     description: "Invalid input data or reply not found",
     type: DeleteReplyBadResponseDto,
   })
   @Authorized()
-  public async deleteReply(
-    @UserId() userId: string,
-    @Param("replyId") replyId: string,
-  ): Promise<ReplyResponse<DeleteReplyResponseDto>> {
+  public async deleteReply(@UserId() userId: string, @Param("replyId") replyId: string): Promise<ReplyResponseDto> {
     return this.commandBus.execute(new DeleteReplyCommand(userId, replyId))
   }
 
@@ -231,7 +213,7 @@ export class ForumController {
   })
   @ApiOkResponse({
     description: "Reply successfully updated",
-    type: UpdateReplyResponseDto,
+    type: ReplyResponseDto,
   })
   @ApiBadRequestResponse({
     description: "Invalid input data or reply not found",
@@ -242,7 +224,7 @@ export class ForumController {
     @UserId() userId: string,
     @Param("replyId") replyId: string,
     @Body() dto: UpdateReplyDto,
-  ): Promise<ReplyResponse<UpdateReplyResponseDto>> {
+  ): Promise<ReplyResponseDto> {
     return this.commandBus.execute(new UpdateReplyCommand(userId, replyId, dto))
   }
 
@@ -253,7 +235,7 @@ export class ForumController {
   })
   @ApiOkResponse({
     description: "Reply successfully updated",
-    type: UpdateReplyResponseDto,
+    type: ReplyResponseDto,
   })
   @ApiBadRequestResponse({
     description: "Invalid input data or reply not found",
@@ -276,7 +258,7 @@ export class ForumController {
   })
   @ApiOkResponse({
     description: "Reply successfully updated",
-    type: UpdateReplyResponseDto,
+    type: ReplyResponseDto,
   })
   @ApiBadRequestResponse({
     description: "Invalid input data or reply not found",

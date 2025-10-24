@@ -1,9 +1,8 @@
 import { Command } from "@nestjs/cqrs"
-import { ReplyResponse } from "../services/reply.service"
-import { UpdateReplyResponseDto } from "../dtos/replies/update-reply-response.dto"
 import { UpdateReplyDto } from "../dtos/replies/update-reply.dto"
+import { ReplyResponseDto } from "../dtos/replies/reply-response.dto"
 
-export class UpdateReplyCommand extends Command<ReplyResponse<UpdateReplyResponseDto>> {
+export class UpdateReplyCommand extends Command<ReplyResponseDto> {
   public constructor(
     public readonly userId: string,
     public readonly replyId: string,

@@ -1,8 +1,7 @@
 import { Command } from "@nestjs/cqrs"
-import { DeleteReplyResponseDto } from "../dtos/replies/delete-reply-response.dto"
-import { ReplyResponse } from "../services/reply.service"
+import { ReplyResponseDto } from "../dtos/replies/reply-response.dto"
 
-export class DeleteReplyCommand extends Command<ReplyResponse<DeleteReplyResponseDto>> {
+export class DeleteReplyCommand extends Command<ReplyResponseDto> {
   public constructor(
     public readonly userId: string,
     public readonly replyId: string,

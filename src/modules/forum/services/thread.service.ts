@@ -1,53 +1,36 @@
 import { ThreadRepository } from "../repositories/thread.repository"
 import { Transactional } from "../../../infrastructure/database/unit-of-work/transactional.decorator"
-import { DeleteThreadResponseDto } from "../dtos/threads/delete-thread-response.dto"
 import { ForbiddenException, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common"
 import { CreateThreadDto } from "../dtos/threads/create-thread.dto"
-import { CreateThreadResponseDto } from "../dtos/threads/create-thread-response.dto"
+import { ThreadResponseDto } from "../dtos/threads/thread-response.dto"
 import { UserForumRepository } from "../repositories/user-forum.repository"
 import { UpdateThreadDto } from "../dtos/threads/update-thread.dto"
-import { UpdateThreadResponseDto } from "../dtos/threads/update-thread-response.dto"
 import { GetAllThreadByUserIdResponseDto } from "../dtos/threads/get-all-thread-by-user-id-response.dto"
 import { GetAllThreadByKeyResponseDto } from "../dtos/threads/get-all-thread-by-key-response.dto"
-
-export interface ThreadResponse<T> {
-  message: string
-  data?: T
-}
+import { Mapper } from "@automapper/core"
+import { Thread } from "../entities/thread.entity"
+import { User } from "../../user/entities/user.entity"
 
 @Injectable()
 export class ThreadService {
   public constructor(
     private readonly threadRepository: ThreadRepository,
     private readonly userForumRepository: UserForumRepository,
+    private readonly mapper: Mapper,
   ) {}
 
-  public async create(userId: string, dto: CreateThreadDto): Promise<ThreadResponse<CreateThreadResponseDto>> {
+  public async create(userId: string, dto: CreateThreadDto): Promise<ThreadResponseDto> {
     const thread = await this.threadRepository.create(userId, dto)
     const user = await this.userForumRepository.findByPublicId(userId)
 
     if (!user) throw new UnauthorizedException({ message: "User does not exist" })
 
-    return {
-      message: `Thread created successfully`,
-      data: {
-        id: thread.id,
-        title: thread.title,
-        content: thread.content,
-        category: thread.category,
-        repliesCount: thread.repliesCount,
-        user: user,
-        createdAt: thread.createdAt,
-        updatedAt: thread.updatedAt,
-      },
-    }
+    thread.user = user as unknown as User
+
+    return this.mapper.map(thread, Thread, ThreadResponseDto)
   }
 
-  public async update(
-    userId: string,
-    threadId: string,
-    dto: UpdateThreadDto,
-  ): Promise<ThreadResponse<UpdateThreadResponseDto>> {
+  public async update(userId: string, threadId: string, dto: UpdateThreadDto): Promise<ThreadResponseDto> {
     const entity = await this.threadRepository.findById(threadId)
 
     if (!entity) throw new NotFoundException({ message: "Thread not found" })
@@ -55,37 +38,20 @@ export class ThreadService {
 
     const user = await this.userForumRepository.findByPublicId(entity.userId)
     const thread = await this.threadRepository.updateById(dto, entity)
-    return {
-      message: `Thread updated successfully`,
-      data: {
-        id: thread.id,
-        title: thread.title,
-        content: thread.content,
-        category: thread.category,
-        repliesCount: thread.repliesCount,
-        user: user,
-        createdAt: thread.createdAt,
-        updatedAt: thread.updatedAt,
-      },
-    }
+
+    thread.user = user as unknown as User
+
+    return this.mapper.map(thread, Thread, ThreadResponseDto)
   }
 
   @Transactional()
-  public async delete(userId: string, threadId: string): Promise<ThreadResponse<DeleteThreadResponseDto>> {
+  public async delete(userId: string, threadId: string): Promise<void> {
     const thread = await this.threadRepository.findById(threadId)
 
     if (!thread) throw new NotFoundException({ message: "Thread not found" })
     if (thread.userId !== userId) throw new ForbiddenException({ message: "You can only delete your own thread" })
 
     await this.threadRepository.delete(threadId)
-
-    return {
-      message: "Thread has successfully deleted",
-      data: {
-        id: thread.id,
-        deletedAt: new Date(),
-      },
-    }
   }
 
   public async getAllThreads(page = 1, limit = 10, category?: string, sort?: "latest" | "popular"): Promise<any> {

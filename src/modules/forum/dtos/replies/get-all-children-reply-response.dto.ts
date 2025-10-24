@@ -26,7 +26,7 @@ class ChildReplyItemDto {
   public user!: UserForumDto | null
 
   @ApiProperty({ type: ParentReplyDto })
-  public parent!: ParentReplyDto
+  public parent!: ParentReplyDto | null
 
   @ApiProperty({ example: "2025-01-15T10:30:00.000Z" })
   public createdAt!: Date

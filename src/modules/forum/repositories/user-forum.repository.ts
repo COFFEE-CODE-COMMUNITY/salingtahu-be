@@ -3,29 +3,30 @@ import { DataSource, EntityManager } from "typeorm"
 import { TransactionContextService } from "../../../infrastructure/database/unit-of-work/transaction-context.service"
 import { Injectable } from "@nestjs/common"
 import { User } from "../../user/entities/user.entity"
+import { InjectMapper } from "@automapper/nestjs"
+import { Mapper } from "@automapper/core"
+import { UserForumDto } from "../dtos/user-forum.dto"
 
 @Injectable()
 export class UserForumRepository extends BaseRepository<User> {
-  public constructor(dataSource: DataSource, transactionContextService: TransactionContextService<EntityManager>) {
+  public constructor(
+    dataSource: DataSource,
+    transactionContextService: TransactionContextService<EntityManager>,
+    @InjectMapper() private readonly mapper: Mapper,
+  ) {
     super(dataSource, transactionContextService, User)
   }
 
-  public async findByPublicId(
-    id: string,
-  ): Promise<{ id: string; username: string; profilePicturePath: string | null } | null> {
+  public async findByPublicId(id: string): Promise<UserForumDto | null> {
     const user = await this.getRepository()
       .createQueryBuilder("user")
-      .select(["user.id", "user.firstname", "user.lastname", "user.profilePicturePath"])
+      .select(["user.id", "user.firstname", "user.profilePictures"])
       .where("user.id = :id", { id })
       .getOne()
 
     if (!user) return null
 
-    return {
-      id: user.id,
-      username: user.firstName + " " + user.lastName,
-      profilePicturePath: user.profilePicturePath ?? null,
-    }
+    return this.mapper.map<User, UserForumDto>(user, User, UserForumDto)
   }
 
   // public async findByPublicIds(ids: string[]): Promise<{ id: string; username: string; avatarUrl: string | null }[]> {

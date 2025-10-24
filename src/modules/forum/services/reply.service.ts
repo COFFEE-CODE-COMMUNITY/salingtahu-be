@@ -3,18 +3,14 @@ import { ThreadRepository } from "../repositories/thread.repository"
 import { CreateReplyDto } from "../dtos/replies/create-reply.dto"
 import { Transactional } from "../../../infrastructure/database/unit-of-work/transactional.decorator"
 import { ForbiddenException, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common"
-import { DeleteReplyResponseDto } from "../dtos/replies/delete-reply-response.dto"
-import { CreateReplyResponseDto } from "../dtos/replies/create-reply-response.dto"
+import { ReplyResponseDto } from "../dtos/replies/reply-response.dto"
 import { UserForumRepository } from "../repositories/user-forum.repository"
-import { UpdateReplyResponseDto } from "../dtos/replies/update-reply-response.dto"
 import { UpdateReplyDto } from "../dtos/replies/update-reply.dto"
 import { GetAllChildrenReplyResponseDto } from "../dtos/replies/get-all-children-reply-response.dto"
 import { GetAllReplyByThreadResponseDto } from "../dtos/replies/get-all-reply-by-thread-id-response.dto"
-
-export interface ReplyResponse<T> {
-  message: string
-  data?: T
-}
+import { Mapper } from "@automapper/core"
+import { Reply } from "../entities/reply.entity"
+import { User } from "../../user/entities/user.entity"
 
 @Injectable()
 export class ReplyService {
@@ -22,34 +18,22 @@ export class ReplyService {
     private readonly replyRepository: ReplyRepository,
     private readonly threadRepository: ThreadRepository,
     private readonly userForumRepository: UserForumRepository,
+    private readonly mapper: Mapper,
   ) {}
 
-  public async create(userId: string, dto: CreateReplyDto): Promise<ReplyResponse<CreateReplyResponseDto>> {
+  public async create(userId: string, dto: CreateReplyDto): Promise<ReplyResponseDto> {
     const reply = await this.replyRepository.create(userId, dto)
     const user = await this.userForumRepository.findByPublicId(userId)
 
     if (!user) throw new UnauthorizedException("User does not exist")
     await this.threadRepository.increment(reply.threadId)
 
-    return {
-      message: "Reply successfully created",
-      data: {
-        id: reply.id,
-        threadId: reply.threadId,
-        parentReplyId: reply.parentReplyId || null,
-        content: reply.content,
-        user: user,
-        createdAt: reply.createdAt,
-        updatedAt: reply.updatedAt,
-      },
-    }
+    reply.user = user as unknown as User
+
+    return this.mapper.map(reply, Reply, ReplyResponseDto)
   }
 
-  public async update(
-    userId: string,
-    replyId: string,
-    dto: UpdateReplyDto,
-  ): Promise<ReplyResponse<UpdateReplyResponseDto>> {
+  public async update(userId: string, replyId: string, dto: UpdateReplyDto): Promise<ReplyResponseDto> {
     const entity = await this.replyRepository.findById(replyId)
 
     if (!entity) throw new NotFoundException("Reply not found")
@@ -58,37 +42,25 @@ export class ReplyService {
     const user = await this.userForumRepository.findByPublicId(entity.userId)
     const reply = await this.replyRepository.updateById(dto, entity)
 
-    return {
-      message: "Reply successfully created",
-      data: {
-        id: reply.id,
-        threadId: reply.threadId,
-        parentReplyId: reply.parentReplyId || null,
-        content: reply.content,
-        user: user,
-        createdAt: reply.createdAt,
-        updatedAt: reply.updatedAt,
-      },
-    }
+    reply.user = user as unknown as User
+
+    return this.mapper.map(reply, Reply, ReplyResponseDto)
   }
 
   @Transactional()
-  public async delete(userId: string, replyId: string): Promise<ReplyResponse<DeleteReplyResponseDto>> {
-    const reply = await this.replyRepository.findById(replyId)
-    if (!reply) throw new NotFoundException("Reply not found")
+  public async delete(userId: string, replyId: string): Promise<ReplyResponseDto> {
+    const entity = await this.replyRepository.findById(replyId)
+    if (!entity) throw new NotFoundException("Reply not found")
 
-    if (reply.userId !== userId) throw new ForbiddenException("You can only delete your own replies")
+    if (entity.userId !== userId) throw new ForbiddenException("You can only delete your own replies")
 
-    await this.replyRepository.deleteById(replyId)
+    const reply = (await this.replyRepository.deleteById(entity.id)) as Reply
+    const user = await this.userForumRepository.findByPublicId(reply.userId)
     await this.threadRepository.decrement(reply.threadId)
 
-    return {
-      message: "Reply successfully deleted",
-      data: {
-        id: replyId,
-        deletedAt: new Date(),
-      },
-    }
+    reply.user = user as unknown as User
+
+    return this.mapper.map(reply, Reply, ReplyResponseDto)
   }
 
   public async getAllReplyByThreadId(

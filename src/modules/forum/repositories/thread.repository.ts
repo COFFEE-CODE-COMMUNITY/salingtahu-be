@@ -172,7 +172,7 @@ export class ThreadRepository extends BaseRepository<Thread> {
       user: {
         id: row.user_id,
         firstname: row.user_firstname,
-        profilePicturePath: row.user_profilePicturePath ?? null,
+        profilePictures: row.user_profilePictures ?? null,
       },
       createdAt: row.thread_created_at,
       updatedAt: row.thread_updated_at,
@@ -253,7 +253,7 @@ export class ThreadRepository extends BaseRepository<Thread> {
       user: {
         id: row.user_id,
         firstname: row.user_firstname,
-        profilePicturePath: row.user_profilePicturePath ?? null,
+        profilePictures: row.user_profilePictures ?? null,
       },
       createdAt: row.thread_created_at,
       updatedAt: row.thread_updated_at,
