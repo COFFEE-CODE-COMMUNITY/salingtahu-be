@@ -13,7 +13,7 @@ export abstract class HttpRequest<B = any> {
   public abstract get path(): string
   public abstract get query(): Map<string, string>
   public abstract get stream(): Readable
-  public abstract get userId(): string
+  public abstract get userId(): string | null
 
   public get correlationId(): string {
     return this._correlationId
