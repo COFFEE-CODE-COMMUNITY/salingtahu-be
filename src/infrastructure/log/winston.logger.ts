@@ -19,7 +19,7 @@ export class WinstonLogger extends Logger {
 
   public constructor(
     private readonly config: ConfigService,
-    @Inject(INQUIRER) parentClass: object,
+    @Inject(INQUIRER) parentClass: object = {},
   ) {
     super()
 
@@ -70,7 +70,9 @@ export class WinstonLogger extends Logger {
 
         // eslint-disable-next-line @typescript-eslint/no-base-to-string
         const stackStr = stack ? `\n${stack}` : ""
-        return `[${level}] [${parentClass.constructor.name}] ${timestamp} - ${message}${argsStr}${stackStr}`
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        const className = parentClass?.constructor.name || "Unknown"
+        return `[${level}] [${className}] ${timestamp} - ${message}${argsStr}${stackStr}`
       }),
     )
     const fileFormat = format.combine(

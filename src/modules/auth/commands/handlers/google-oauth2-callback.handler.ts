@@ -4,6 +4,7 @@ import { GoogleOAuth2Service } from "../../services/google-oauth2.service"
 import { RefreshTokenService } from "../../services/refresh-token.service"
 import { Transactional } from "../../../../infrastructure/database/unit-of-work/transactional.decorator"
 import { UserLoggedInEvent } from "../../events/user-logged-in.event"
+import { OAuth2Platform } from "../../services/oauth2-service"
 
 @CommandHandler(GoogleOAuth2CallbackCommand)
 export class GoogleOAuth2CallbackHandler implements ICommandHandler<GoogleOAuth2CallbackCommand> {
@@ -15,14 +16,14 @@ export class GoogleOAuth2CallbackHandler implements ICommandHandler<GoogleOAuth2
 
   @Transactional()
   public async execute(command: GoogleOAuth2CallbackCommand): Promise<GoogleOAuth2CallbackCommandResponse> {
-    const [user, platform] = await this.googleOAuth2Service.verify(command.state, command.code)
+    const [user] = await this.googleOAuth2Service.verify(command.state, command.code)
     const refreshToken = await this.refreshTokenService.create(user, command.userAgent, command.ipAddress)
+
     this.eventBus.publish(new UserLoggedInEvent(user))
-    console.log(platform)
 
     return {
-      platform: "web",
-      refreshToken: refreshToken.token,
+      platform: OAuth2Platform.WEB,
+      refreshToken: refreshToken,
     }
   }
 }

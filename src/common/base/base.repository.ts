@@ -1,4 +1,4 @@
-import { DataSource, EntityManager, Repository } from "typeorm"
+import { DataSource, DeepPartial, EntityManager, Repository } from "typeorm"
 import { BaseEntity, EntityId } from "./base.entity"
 import { TransactionContextService } from "../../infrastructure/database/unit-of-work/transaction-context.service"
 
@@ -52,7 +52,19 @@ export abstract class BaseRepository<E extends BaseEntity> {
     return this.getRepository().save(entity)
   }
 
-  public async update(id: EntityId, entity: E): Promise<void> {
-    await this.getRepository().update(id as any, entity as any)
+  public async update(id: EntityId, entity: Partial<E>): Promise<void>
+  public async update(entity: E): Promise<void>
+
+  public async update(idOrEntity: EntityId | E, entity?: Partial<E>): Promise<void> {
+    if (entity !== undefined) {
+      await this.getRepository().update(idOrEntity as any, entity as any)
+    } else {
+      const fullEntity = idOrEntity as E
+      await this.getRepository().update(fullEntity.id as any, fullEntity as any)
+    }
+  }
+
+  public async merge(entity: E, entityLike: DeepPartial<E>): Promise<E> {
+    return this.getRepository().merge(entity, entityLike)
   }
 }

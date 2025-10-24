@@ -1,22 +1,24 @@
 import { LogoutCommand } from "../logout.command"
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { CommonResponseDto } from "../../../../common/dto/common-response.dto"
-import { RefreshTokenRepository } from "../../repositories/refresh-token.repository"
 import { UnauthorizedException } from "@nestjs/common"
 import { plainToInstance } from "class-transformer"
+import { RefreshTokenService } from "../../services/refresh-token.service"
 
 @CommandHandler(LogoutCommand)
 export class LogoutHandler implements ICommandHandler<LogoutCommand> {
-  public constructor(private readonly refreshTokenRepository: RefreshTokenRepository) {}
+  public constructor(private readonly refreshTokenService: RefreshTokenService) {}
 
   public async execute(command: LogoutCommand): Promise<CommonResponseDto> {
-    const refreshToken = await this.refreshTokenRepository.findByToken(command.refreshToken)
-    if (refreshToken?.userAgent !== command.userAgent || refreshToken.ipAddress !== command.ipAddress) {
-      throw new UnauthorizedException({ message: "Token mismatch or from different device." })
-    }
+    const isValidRefreshToken = await this.refreshTokenService.verifyAndRevoke(command.refreshToken, command.userAgent)
 
-    refreshToken.revoke()
-    await this.refreshTokenRepository.save(refreshToken)
+    if (!isValidRefreshToken) {
+      throw new UnauthorizedException(
+        plainToInstance(CommonResponseDto, {
+          message: "Invalid refresh token.",
+        }),
+      )
+    }
 
     return plainToInstance(CommonResponseDto, {
       message: "Logout success.",

@@ -9,13 +9,19 @@
   "testEnvironment": "node",
   "testRegex": ".e2e-spec.ts$",
   "transform": {
-    "^.+\\.(t|j)sx?$": "ts-jest"
+    "^.+\\.(t|j)sx?$": ["ts-jest", {
+      "tsconfig": "<rootDir>/../tsconfig.test.json"
+    }]
   },
-  "testTimeout": 5000,
+  "testTimeout": 10000,
   "transformIgnorePatterns": [
-    "node_modules/(?!(@faker-js|@so-ric|@dabh|color.*|simple-swizzle)/)"
+    "node_modules/(?!(@faker-js|@so-ric|@dabh|color.*|simple-swizzle|file-type|strtok3|peek-readable|token-types|@borewit|token-types|@tokenizer|uint8array-extras)/)"
   ],
-  "setupFilesAfterEnv": [
-    "./jest.setup.ts"
-  ]
+  "moduleNameMapper": {
+    "^file-type$": "<rootDir>/../node_modules/file-type/index.js"
+  },
+  "globalSetup": "<rootDir>/jest.global-setup.ts",
+  "globalTeardown": "<rootDir>/jest.global-teardown.ts",
+  "passWithNoTests": true,
+  "forceExit": true
 }

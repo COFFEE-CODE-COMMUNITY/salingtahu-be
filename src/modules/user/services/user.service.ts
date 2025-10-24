@@ -1,23 +1,78 @@
+import { Injectable, PayloadTooLargeException, UnsupportedMediaTypeException } from "@nestjs/common"
+import { InjectQueue } from "@nestjs/bullmq"
+import { Queue } from "bullmq"
 import { Readable } from "stream"
-import { User } from "../entities/user.entity"
-import { CreateUserDto } from "../dtos/create-user.dto"
+import { FileStorage } from "../../../storage/file-storage.abstract"
+import {
+  SizeLimitingValidator,
+  StreamValidation,
+  FileTypeValidator,
+  StreamValidationException,
+} from "../../../common/io/stream-validation"
+import { ProfilePicturePath } from "../helpers/path.helper"
+import { plainToInstance } from "class-transformer"
+import { CommonResponseDto } from "../../../common/dto/common-response.dto"
+import {
+  IMAGE_PROCESSING_QUEUE,
+  ImageProcessingData,
+  ImageProcessingType,
+} from "../../../queue/image-processing.consumer"
+import { ALLOWED_IMAGE_MIMETYPES } from "../../../constants/mimetype.constant"
 
+@Injectable()
 export class UserService {
-  public async putUserAvatar(userId: string, avatarStream: Readable): Promise<User> {
-    // 1. Store image to storage (local, S3, or CDN)
-    // 2. Generate the public URL/path of the uploaded avatar
-    // 3. Update user.profile_picture_path with the new URL
-    // 4. Return the updated user
-    console.log(userId, avatarStream)
-    return new User()
-  }
+  private readonly MAX_PICTURE_SIZE = 5 * 1024 * 1024 // 5MB
 
-  public async createUser(dto: CreateUserDto): Promise<User> {
-    // 1. Validate email uniqueness
-    // 2. Map DTO -> entity fields (first_name, last_name, email, etc.)
-    // 3. Save new user to database
-    // 4. Return the created user
-    console.log(dto)
-    return new User()
+  public constructor(
+    @InjectQueue(IMAGE_PROCESSING_QUEUE) private readonly profilePictureQueue: Queue<ImageProcessingData>,
+    private readonly fileStorage: FileStorage,
+  ) {}
+
+  public async saveProfilePicture(userId: string, pictureStream: Readable): Promise<void> {
+    const abortController = new AbortController()
+    const sizeValidator = new SizeLimitingValidator(this.MAX_PICTURE_SIZE)
+    const fileTypeValidator = new FileTypeValidator(ALLOWED_IMAGE_MIMETYPES as unknown as string[])
+    const streamValidation = new StreamValidation(sizeValidator, fileTypeValidator)
+
+    try {
+      pictureStream.pipe(streamValidation)
+
+      const filePath = new ProfilePicturePath({
+        userId,
+        resolution: "original",
+        extension: "bin",
+      })
+      await this.fileStorage.uploadFile(
+        filePath.toString(),
+        streamValidation,
+        {
+          contentType: "application/octet-stream",
+        },
+        undefined,
+        abortController,
+      )
+
+      await this.profilePictureQueue.add(ImageProcessingType.PROFILE_PICTURE, { path: filePath.toString() })
+    } catch (error) {
+      abortController.abort()
+
+      if (error instanceof StreamValidationException) {
+        if (error.getValidator() instanceof SizeLimitingValidator) {
+          throw new PayloadTooLargeException(
+            plainToInstance(CommonResponseDto, {
+              message: `Profile picture exceeds the maximum allowed size of ${this.MAX_PICTURE_SIZE / (1024 * 1024)}MB.`,
+            }),
+          )
+        } else if (error.getValidator() instanceof FileTypeValidator) {
+          throw new UnsupportedMediaTypeException(
+            plainToInstance(CommonResponseDto, {
+              message: `Unsupported file type. Allowed types are: ${ALLOWED_IMAGE_MIMETYPES.join(", ")}.`,
+            }),
+          )
+        }
+      }
+
+      throw error
+    }
   }
 }
