@@ -1,8 +1,9 @@
 import { Injectable } from "@nestjs/common"
-import { DataSource, EntityManager } from "typeorm"
+import { DataSource, EntityManager, MoreThan } from "typeorm"
 import { BaseRepository } from "../../../common/base/base.repository"
 import { RefreshToken } from "../entities/refresh-token.entity"
 import { TransactionContextService } from "../../../infrastructure/database/unit-of-work/transaction-context.service"
+import { EntityId } from "../../../common/base/base.entity"
 
 @Injectable()
 export class RefreshTokenRepository extends BaseRepository<RefreshToken> {
@@ -14,6 +15,12 @@ export class RefreshTokenRepository extends BaseRepository<RefreshToken> {
     return this.getRepository().findOne({
       where: { token },
       relations: ["user"],
+    })
+  }
+
+  public async findActiveByUserId(userId: EntityId): Promise<RefreshToken[]> {
+    return this.getRepository().find({
+      where: { user: { id: userId }, revoked: false, expiresAt: MoreThan(new Date()) },
     })
   }
 

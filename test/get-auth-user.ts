@@ -18,16 +18,18 @@ export async function getAuthUser(app: INestApplication<App>): Promise<GetAuthUs
   loginDto.email = registerDto.email
   loginDto.password = registerDto.password
 
+  const userAgent = faker.internet.userAgent()
+
   await request(app.getHttpServer())
     .post("/api/v1/auth/register")
     .send(registerDto)
 
   const loginResponse = await request(app.getHttpServer())
     .post("/api/v1/auth/login")
-    .set("User-Agent", faker.internet.userAgent())
+    .set("User-Agent", userAgent)
     .send(loginDto)
 
-  const { accessToken } = loginResponse.body as LoginResponseDto
+  const { accessToken, refreshToken } = loginResponse.body as LoginResponseDto
 
   const getCurrentUserResponse = await request(app.getHttpServer())
     .get("/api/v1/users/me")
@@ -35,11 +37,17 @@ export async function getAuthUser(app: INestApplication<App>): Promise<GetAuthUs
 
   return {
     accessToken,
-    user: getCurrentUserResponse.body as UserDto
+    refreshToken,
+    user: getCurrentUserResponse.body as UserDto,
+    password: registerDto.password,
+    userAgent,
   }
 }
 
 export interface GetAuthUserResult {
   accessToken: string
+  refreshToken: string
   user: UserDto
+  password: string
+  userAgent: string
 }

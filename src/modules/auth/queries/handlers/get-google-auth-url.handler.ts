@@ -1,6 +1,6 @@
 import { IQueryHandler, QueryHandler } from "@nestjs/cqrs"
 import { GetGoogleAuthUrlQuery } from "../get-google-auth-url.query"
-import { GoogleAuthResponseDto } from "../../dtos/google-auth-response.dto"
+import { GoogleAuthResponseDto } from "../../dto/google-auth-response.dto"
 import { GoogleOAuth2Service } from "../../services/google-oauth2.service"
 import { OAuth2Platform } from "../../services/oauth2-service"
 

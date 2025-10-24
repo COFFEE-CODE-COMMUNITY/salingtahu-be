@@ -10,18 +10,26 @@ import { UserLoggedInHandler } from "./events/handlers/user-logged-in.handler"
 import { OAuth2UserRepository } from "./repositories/oauth2-user.repository"
 import { RefreshTokenRepository } from "./repositories/refresh-token.repository"
 import { RefreshTokenService } from "./services/refresh-token.service"
+import { GoogleOAuth2Service } from "./services/google-oauth2.service"
+import { GetGoogleAuthUrlHandler } from "./queries/handlers/get-google-auth-url.handler"
+import { UserService } from "../user/services/user.service"
+import { GoogleOAuth2CallbackHandler } from "./commands/handlers/google-oauth2-callback.handler"
+import { PasswordResetHandler } from "./commands/handlers/password-reset.handler"
+import { ChangePasswordHandler } from "./commands/handlers/change-password.handler"
+import { LogoutHandler } from "./commands/handlers/logout.handler"
+import { GetRefreshTokenHandler } from "./commands/handlers/get-refresh-token.handler"
+import { PasswordResetSessionRepository } from "./repositories/password-reset-session.repository"
+import { BullModule } from "@nestjs/bullmq"
+import { IMAGE_PROCESSING_QUEUE } from "../../queue/image-processing.consumer"
+import { NotSameAsCurrentPasswordConstraint } from "./validators/not-same-as-current-password.decorator"
 
 @Global()
 @Module({
   imports: [
-    ConfigModule,
-    CqrsModule,
-    HttpModule.register({
-      timeout: 10_000,
-      maxRedirects: 5,
+    BullModule.registerQueue({
+      name: IMAGE_PROCESSING_QUEUE,
     }),
     UserModule,
-    JwtModule.register({}),
   ],
   controllers: [AuthController],
   providers: [
@@ -41,16 +49,19 @@ import { RefreshTokenService } from "./services/refresh-token.service"
 
     // Repositories
     OAuth2UserRepository,
+    PasswordResetSessionRepository,
     RefreshTokenRepository,
 
     // Services
     AccessTokenService,
+    GoogleOAuth2Service,
     PasswordService,
     RefreshTokenService,
-    TokensService,
     GoogleOAuth2Service,
     UserService,
-    PasswordResetService,
+
+    // Validators
+    NotSameAsCurrentPasswordConstraint,
   ],
   exports: [AccessTokenService],
 })

@@ -2,7 +2,6 @@ import { Cache } from "../../../infrastructure/cache/cache"
 import { BadRequestException, NotImplementedException } from "@nestjs/common"
 import { plainToInstance } from "class-transformer"
 import { CommonResponseDto } from "../../../common/dto/common-response.dto"
-import { CreateUserDto } from "../../user/dtos/create-user.dto"
 import { createHash, randomBytes } from "crypto"
 import { UserService } from "../../user/services/user.service"
 import { HttpService } from "@nestjs/axios"
@@ -15,9 +14,10 @@ import { JwksClient, Options as JwksOptions } from "jwks-rsa"
 import * as jwt from "jsonwebtoken"
 
 export interface UserProfile {
-  name: string
+  firstName: string
+  lastName: string
   email: string
-  avatarUrl: string
+  profilePictureUrl: string
 }
 
 export interface OAuthSession {
@@ -104,7 +104,6 @@ export abstract class OAuth2Service {
 
   public async verify(state: string, code: string): Promise<[User, OAuth2Platform]> {
     const session = await this.getSession(state)
-    console.log("[OAuth2Service] Retrieved session: ", session)
 
     if (!session) {
       throw new BadRequestException(
@@ -118,17 +117,18 @@ export abstract class OAuth2Service {
     let user = await this.userRepository.findByEmail(userProfile.email)
 
     if (!user) {
-      const userAvatar$ = this.http.get<Readable>(userProfile.avatarUrl, {
+      const userAvatar$ = this.http.get<Readable>(userProfile.profilePictureUrl, {
         responseType: "stream",
       })
       const userAvatar = await firstValueFrom(userAvatar$).then(response => response.data)
 
-      const newUser = new CreateUserDto()
-      newUser.name = userProfile.name
+      const newUser = new User()
+      newUser.firstName = userProfile.firstName
+      newUser.lastName = userProfile.lastName
       newUser.email = userProfile.email
 
-      user = await this.userService.createUser(newUser)
-      await this.userService.putUserAvatar(user.id, userAvatar)
+      user = await this.userRepository.save(newUser)
+      await this.userService.saveProfilePicture(user.id, userAvatar)
     }
 
     await this.cache.delete(state)

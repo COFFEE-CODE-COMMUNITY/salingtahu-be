@@ -4,8 +4,17 @@
     "domain": "localhost",
     "cdnUrl": "http://localhost:8081"
   },
-  "refreshToken": {
-    "bytesLength": 64,
-    "expiresIn": "30d"
+  "client": {
+    "web": {
+      "oauth2Redirect": "http://localhost:5173/homepage",
+      "changePassword": "http://localhost:5173/change-password",
+      "url": "http://localhost:5173"
+    }
+  },
+  "email": {
+    "from": "SalingTau <onboarding@resend.dev>"
+  },
+  "log": {
+    "level": "trace"
   }
 }
