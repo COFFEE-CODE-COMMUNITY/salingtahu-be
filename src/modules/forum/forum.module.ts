@@ -1,7 +1,4 @@
 import { Module } from "@nestjs/common"
-import { ConfigModule } from "@nestjs/config"
-import { CqrsModule } from "@nestjs/cqrs"
-import { HttpModule } from "@nestjs/axios"
 import { UserModule } from "../user/user.module"
 import { JwtModule } from "@nestjs/jwt"
 import { CreateThreadHandler } from "./commands/handler/create-thread.handler"
@@ -24,12 +21,6 @@ import { GetAllChildrenReplyHandler } from "./commands/handler/get-all-children-
 
 @Module({
   imports: [
-    ConfigModule,
-    CqrsModule,
-    HttpModule.register({
-      timeout: 10_000,
-      maxRedirects: 5,
-    }),
     UserModule,
     JwtModule.register({}),
   ],

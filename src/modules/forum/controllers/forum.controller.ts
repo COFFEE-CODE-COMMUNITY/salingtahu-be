@@ -37,7 +37,7 @@ import { GetAllChildrenReplyCommand } from "../commands/get-all-children-reply.c
 import { GetAllReplyByThreadResponseDto } from "../dtos/replies/get-all-reply-by-thread-id-response.dto"
 import { GetAllChildrenReplyResponseDto } from "../dtos/replies/get-all-children-reply-response.dto"
 
-@ApiTags("Forums")
+@ApiTags("Forum")
 @Controller("forums")
 export class ForumController {
   public constructor(private readonly commandBus: CommandBus) {}
