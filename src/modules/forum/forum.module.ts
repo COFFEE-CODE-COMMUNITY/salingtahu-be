@@ -1,6 +1,5 @@
 import { Module } from "@nestjs/common"
 import { UserModule } from "../user/user.module"
-import { JwtModule } from "@nestjs/jwt"
 import { CreateThreadHandler } from "./commands/handler/create-thread.handler"
 import { CreateReplyHandler } from "./commands/handler/create-reply.handler"
 import { UpdateThreadHandler } from "./commands/handler/update-thread.handler"
@@ -20,10 +19,7 @@ import { GetAllReplyHandler } from "./commands/handler/get-all-reply.handler"
 import { GetAllChildrenReplyHandler } from "./commands/handler/get-all-children-reply.handler"
 
 @Module({
-  imports: [
-    UserModule,
-    JwtModule.register({}),
-  ],
+  imports: [UserModule],
   controllers: [ForumController],
   providers: [
     CreateThreadHandler,
