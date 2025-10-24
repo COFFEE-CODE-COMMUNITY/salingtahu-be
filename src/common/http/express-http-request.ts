@@ -50,7 +50,7 @@ export class ExpressHttpRequest<B> extends HttpRequest<B> {
     return this.request
   }
 
-  public get userId(): string {
-    return this.request.userId
+  public get userId(): string | null {
+    return this.request.userId || null
   }
 }
