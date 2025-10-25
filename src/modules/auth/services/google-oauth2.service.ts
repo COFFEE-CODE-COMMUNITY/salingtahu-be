@@ -95,10 +95,9 @@ export class GoogleOAuth2Service extends OAuth2Service {
     const userInfo = await this.verifyAndDecodeIdToken<GoogleJwtPayload>(tokenResponse.data.id_token, {
       audience: await this.config.getOrThrow("GOOGLE_CLIENT_ID"),
     })
-
     return {
       firstName: userInfo.given_name,
-      lastName: userInfo.family_name,
+      lastName: userInfo.family_name ? userInfo.family_name : "",
       email: userInfo.email,
       profilePictureUrl: userInfo.picture,
     }
