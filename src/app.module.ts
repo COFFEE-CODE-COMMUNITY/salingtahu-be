@@ -6,7 +6,6 @@ import { APP_GUARD, APP_INTERCEPTOR } from "@nestjs/core"
 import { HttpRequestContextInterceptor } from "./common/http/http-request-context.interceptor"
 import { HttpRequestContext } from "./common/http/http-request-context"
 import { ValidationModule } from "./common/validators/validation.module"
-import { ConfigModule } from "@nestjs/config"
 import { ForumModule } from "./modules/forum/forum.module"
 import { UserModule } from "./modules/user/user.module"
 import { QueueModule } from "./queue/queue.module"
@@ -15,6 +14,7 @@ import { InstructorModule } from "./modules/instructor/instructor.module"
 import { HttpModule } from "@nestjs/axios"
 import { BearerTokenGuard } from "./common/guards/bearer-token.guard"
 import { RolesGuard } from "./common/guards/roles.guard"
+import { ConfigModule } from "./config/config.module"
 
 @Global()
 @Module({
@@ -31,6 +31,7 @@ import { RolesGuard } from "./common/guards/roles.guard"
     ValidationModule,
     AuthModule,
     ForumModule,
+    ConfigModule,
   ],
   providers: [
     HttpRequestContext,

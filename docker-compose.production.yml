@@ -1,0 +1,164 @@
+name: salingtau-be-production
+
+services:
+  backend:
+    container_name: salingtau-backend-production
+    image: mhmtaufiq/salingtau-be:latest
+    ports:
+      - "8080"
+    environment:
+      - "INFISICAL_CLIENT_ID=${INFISICAL_CLIENT_ID}"
+      - "INFISICAL_CLIENT_SECRET=${INFISICAL_CLIENT_SECRET}"
+      - "INFISICAL_PROJECT_ID=${INFISICAL_PROJECT_ID}"
+      - "INFISICAL_URL=${INFISICAL_URL}"
+      - "DATABASE_HOST=postgres"
+      - "DATABASE_PORT=5432"
+      - "DATABASE_USER=root"
+      - "DATABASE_PASSWORD=admin123"
+      - "DATABASE_NAME=salingtau"
+      - "REDIS_HOST=redis"
+      - "REDIS_PORT=6379"
+      - "MINIO_ENDPOINT=minio"
+      - "MINIO_PORT=9000"
+      - "MINIO_ACCESS_KEY=minioadmin"
+      - "MINIO_SECRET_KEY=minioadmin"
+      - "MINIO_USE_SSL=false"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    networks:
+      - salingtau-network
+
+  frontend:
+    container_name: salingtau-frontend-production
+    image: mhmtaufiq/salingtau-fe:latest
+    ports:
+      - "80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - salingtau-network
+
+  postgres:
+    container_name: salingtau-postgres-production
+    image: postgres:16-alpine
+    ports:
+      - "5432"
+    volumes:
+      - salingtau_postgres_production_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=admin123
+      - POSTGRES_DB=salingtau
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U root -d salingtau"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - salingtau-network
+
+  redis:
+    container_name: salingtau-redis-production
+    image: redis:8.2.1-alpine
+    ports:
+      - "6379"
+    volumes:
+      - salingtau_redis_production_data:/data
+    command: redis-server --appendonly yes --requirepass redis_password
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - salingtau-network
+
+  minio:
+    container_name: salingtau-minio-production
+    image: minio/minio:RELEASE.2024-09-07T16-13-09Z
+    restart: unless-stopped
+    ports:
+      - "9000"  # API
+      - "9001"  # Console UI
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+      MINIO_BROWSER_REDIRECT_URL: http://localhost:9001
+    volumes:
+      - salingtau_minio_production_data:/data
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    networks:
+      - salingtau-network
+
+  nginx:
+    container_name: salingtau-nginx-production
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certbot/conf:/etc/nginx/ssl:ro
+      - ./certbot/www:/var/www/certbot:ro
+    depends_on:
+      backend:
+        condition: service_healthy
+      frontend:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - salingtau-network
+
+  certbot:
+    container_name: salingtau-certbot-production
+    image: certbot/certbot:latest
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+    restart: unless-stopped
+    networks:
+      - salingtau-network
+
+volumes:
+  salingtau_postgres_production_data:
+    driver: local
+  salingtau_redis_production_data:
+    driver: local
+  salingtau_minio_production_data:
+    driver: local
+
+networks:
+  salingtau-network:
+    driver: bridge

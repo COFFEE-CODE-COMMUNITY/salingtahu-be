@@ -1,0 +1,20 @@
+{
+  "app": {
+    "port": 8080,
+    "domain": "salingtau.com",
+    "cdnUrl": "https://cdn.salingtau.cthree.it.com"
+  },
+  "client": {
+    "web": {
+      "oauth2Redirect": "https://salingtau.cthree.it.com/homepage",
+      "changePassword": "https://salingtau.cthree.it.com/change-password",
+      "url": "https://salingtau.cthree.it.com"
+    }
+  },
+  "email": {
+    "from": "SalingTau <onboarding@resend.dev>"
+  },
+  "log": {
+    "level": "info"
+  }
+}

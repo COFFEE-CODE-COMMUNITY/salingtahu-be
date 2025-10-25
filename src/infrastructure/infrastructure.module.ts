@@ -1,9 +1,6 @@
 import { Global, Module } from "@nestjs/common"
-import { ConfigModule as NestConfigModule, ConfigService } from "@nestjs/config"
-import { existsSync, readFileSync } from "fs"
-import { resolve } from "path"
+import { ConfigService } from "@nestjs/config"
 import { TypeOrmModule } from "@nestjs/typeorm"
-import { NodeEnv } from "../common/enums/node-env"
 import { TransactionContextService } from "./database/unit-of-work/transaction-context.service"
 import { UnitOfWork } from "./database/unit-of-work/unit-of-work"
 import { Logger } from "./log/logger.abstract"
@@ -50,25 +47,6 @@ import { PasswordResetSession } from "../modules/auth/entities/password-reset-se
       name: EMAIL_QUEUE,
     }),
     CqrsModule.forRoot(),
-    NestConfigModule.forRoot({
-      isGlobal: true,
-      envFilePath: [".env"],
-      load: [
-        (): any => {
-          const env = process.env.NODE_ENV || "development"
-          const defaultConfigPath = resolve("app-config.json")
-          const envConfigPath = resolve(`app-config.${env}.json`)
-          let config = JSON.parse(readFileSync(defaultConfigPath, "utf-8"))
-
-          if (existsSync(envConfigPath)) {
-            const envConfig = JSON.parse(readFileSync(envConfigPath, "utf-8"))
-            config = _.merge(config, envConfig)
-          }
-
-          return config
-        },
-      ],
-    }),
     TypeOrmModule.forRootAsync({
       useFactory(config: ConfigService) {
         return {
@@ -78,7 +56,8 @@ import { PasswordResetSession } from "../modules/auth/entities/password-reset-se
           username: config.getOrThrow<string>("DATABASE_USERNAME"),
           password: config.getOrThrow<string>("DATABASE_PASSWORD"),
           database: config.getOrThrow<string>("DATABASE_NAME"),
-          synchronize: config.get<NodeEnv>("NODE_ENV", NodeEnv.DEVELOPMENT) != NodeEnv.PRODUCTION,
+          // synchronize: config.get<NodeEnv>("NODE_ENV", NodeEnv.DEVELOPMENT) != NodeEnv.PRODUCTION,
+          syncrhonize: true,
           entities: [OAuth2User, PasswordResetSession, RefreshToken, User, Instructor, Thread, Reply],
         }
       },
