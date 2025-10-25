@@ -6,8 +6,8 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install all dependencies (including devDependencies)
-RUN npm ci
+# Disable prepare scripts (husky, etc.) during install
+RUN npm ci --ignore-scripts
 
 # Copy source code
 COPY . .
@@ -20,11 +20,15 @@ FROM node:lts-alpine AS production
 
 WORKDIR /app
 
+# Set environment variable to skip prepare scripts
+ENV NODE_ENV=production
+ENV CI=true
+
 # Copy package files
 COPY package*.json ./
 
-# Install only production dependencies (updated syntax)
-RUN npm ci --omit=dev && npm cache clean --force
+# Install only production dependencies and ignore scripts (no husky in production)
+RUN npm ci --omit=dev --ignore-scripts && npm cache clean --force
 
 # Copy built application from builder stage
 COPY --from=builder /app/dist ./dist
