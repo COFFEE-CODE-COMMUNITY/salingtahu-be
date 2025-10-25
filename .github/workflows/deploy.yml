@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 env:
-  DOCKER_COMPOSE_FILE: docker compose.production.yml
+  DOCKER_COMPOSE_FILE: docker-compose.production.yml
   REGISTRY: docker.io
   BACKEND_IMAGE: mhmtaufiq/salingtau-be
   FRONTEND_IMAGE: mhmtaufiq/salingtau-fe
@@ -74,7 +74,7 @@ jobs:
           sshpass -p '${{ secrets.VM_PASSWORD }}' ssh -o StrictHostKeyChecking=no \
             ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} "mkdir -p ~/salingtau-production"
 
-      - name: Copy docker compose file to VM
+      - name: Copy docker-compose file to VM
         run: |
           sshpass -p '${{ secrets.VM_PASSWORD }}' scp -o StrictHostKeyChecking=no \
             ${{ env.DOCKER_COMPOSE_FILE }} \
