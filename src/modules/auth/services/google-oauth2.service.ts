@@ -74,9 +74,10 @@ export class GoogleOAuth2Service extends OAuth2Service {
   }
 
   protected async getUserProfile(code: string, codeVerifier?: string): Promise<UserProfile> {
-    const tokenUrl = new URLSearchParams("https://oauth2.googleapis.com/token")
+    const tokenUrl = new URLSearchParams()
     tokenUrl.set("code", code)
     tokenUrl.set("client_id", await this.config.getOrThrow("GOOGLE_CLIENT_ID"))
+    tokenUrl.set("client_secret", this.config.getOrThrow("GOOGLE_CLIENT_SECRET"))
     tokenUrl.set("redirect_uri", await this.config.getOrThrow("GOOGLE_CALLBACK_URL"))
     tokenUrl.set("grant_type", "authorization_code")
 
