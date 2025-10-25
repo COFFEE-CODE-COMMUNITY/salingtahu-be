@@ -92,19 +92,19 @@ jobs:
             cd ~/salingtau-production
 
             echo "Pulling latest Docker images..."
-            docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} pull
+            docker compose -f ${{ env.DOCKER_COMPOSE_FILE }} pull
 
             echo "Stopping existing containers..."
-            docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} down
+            docker compose -f ${{ env.DOCKER_COMPOSE_FILE }} down
 
             echo "Starting containers..."
-            docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} up -d
+            docker compose -f ${{ env.DOCKER_COMPOSE_FILE }} up -d
 
             echo "Waiting for services to be healthy..."
             sleep 10
 
             echo "Checking container status..."
-            docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} ps
+            docker compose -f ${{ env.DOCKER_COMPOSE_FILE }} ps
           EOF
 
       - name: Health check
