@@ -11,6 +11,7 @@ import { GetAllReplyByThreadResponseDto } from "../dtos/replies/get-all-reply-by
 import { Mapper } from "@automapper/core"
 import { Reply } from "../entities/reply.entity"
 import { User } from "../../user/entities/user.entity"
+import { InjectMapper } from "@automapper/nestjs"
 
 @Injectable()
 export class ReplyService {
@@ -18,7 +19,7 @@ export class ReplyService {
     private readonly replyRepository: ReplyRepository,
     private readonly threadRepository: ThreadRepository,
     private readonly userForumRepository: UserForumRepository,
-    private readonly mapper: Mapper,
+    @InjectMapper() private readonly mapper: Mapper,
   ) {}
 
   public async create(userId: string, dto: CreateReplyDto): Promise<ReplyResponseDto> {

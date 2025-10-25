@@ -20,7 +20,7 @@ export class UserForumRepository extends BaseRepository<User> {
   public async findByPublicId(id: string): Promise<UserForumDto | null> {
     const user = await this.getRepository()
       .createQueryBuilder("user")
-      .select(["user.id", "user.firstname", "user.profilePictures"])
+      .select(["user.id", "user.firstName", "user.profilePictures"])
       .where("user.id = :id", { id })
       .getOne()
 

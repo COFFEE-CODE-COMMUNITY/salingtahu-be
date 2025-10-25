@@ -51,6 +51,6 @@ export class ExpressHttpRequest<B> extends HttpRequest<B> {
   }
 
   public get userId(): string {
-    return this.request.userId
+    return this.request.userId ?? ""
   }
 }

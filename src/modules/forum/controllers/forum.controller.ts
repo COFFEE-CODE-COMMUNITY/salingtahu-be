@@ -119,7 +119,7 @@ export class ForumController {
     @QueryParam("category") category?: string,
     @QueryParam("sort") sort?: "latest" | "popular",
   ): Promise<GetAllThreadResponseDto> {
-    return await this.commandBus.execute(new GetAllThreadQuery(page, limit, category, sort))
+    return await this.queryBus.execute(new GetAllThreadQuery(page, limit, category, sort))
   }
 
   @Get("threads/:key")
@@ -146,7 +146,7 @@ export class ForumController {
     return await this.queryBus.execute(new GetAllThreadByKeyQuery(key, page, limit, category, sort))
   }
 
-  @Get("threads/my-threads")
+  @Get("threads/me")
   @ApiOperation({
     summary: "Update a reply",
     description: "Hard deletes a thread.",

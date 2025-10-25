@@ -6,7 +6,7 @@ import { UserForumDto } from "../dtos/user-forum.dto"
 import { ConfigService } from "@nestjs/config"
 
 @Injectable()
-export class UserForumProfile extends AutomapperProfile {
+export class UserForumMapper extends AutomapperProfile {
   public constructor(
     @InjectMapper() mapper: Mapper,
     private readonly config: ConfigService,

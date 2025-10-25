@@ -1,6 +1,5 @@
 import { Module } from "@nestjs/common"
 import { UserModule } from "../user/user.module"
-import { JwtModule } from "@nestjs/jwt"
 import { CreateThreadHandler } from "./commands/handler/create-thread.handler"
 import { CreateReplyHandler } from "./commands/handler/create-reply.handler"
 import { UpdateThreadHandler } from "./commands/handler/update-thread.handler"
@@ -18,9 +17,11 @@ import { GetAllThreadByKeyHandler } from "./queries/handlers/get-all-thread-by-k
 import { GetAllThreadByUserIdHandler } from "./queries/handlers/get-all-thread-by-user-id.handler"
 import { GetAllReplyHandler } from "./queries/handlers/get-all-reply.handler"
 import { GetAllChildrenReplyHandler } from "./queries/handlers/get-all-children-reply.handler"
+import { ForumMapper } from "./mappers/forum.mapper"
+import { UserForumMapper } from "./mappers/user-forum.mapper"
 
 @Module({
-  imports: [UserModule, JwtModule.register({})],
+  imports: [UserModule],
   controllers: [ForumController],
   providers: [
     CreateThreadHandler,
@@ -29,6 +30,7 @@ import { GetAllChildrenReplyHandler } from "./queries/handlers/get-all-children-
     UpdateReplyHandler,
     DeleteThreadHandler,
     DeleteReplyHandler,
+
     GetAllThreadHandler,
     GetAllThreadByKeyHandler,
     GetAllThreadByUserIdHandler,
@@ -37,6 +39,9 @@ import { GetAllChildrenReplyHandler } from "./queries/handlers/get-all-children-
 
     ThreadService,
     ReplyService,
+
+    ForumMapper,
+    UserForumMapper,
 
     UserForumRepository,
     ThreadRepository,

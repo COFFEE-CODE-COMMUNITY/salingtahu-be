@@ -10,13 +10,14 @@ import { GetAllThreadByKeyResponseDto } from "../dtos/threads/get-all-thread-by-
 import { Mapper } from "@automapper/core"
 import { Thread } from "../entities/thread.entity"
 import { User } from "../../user/entities/user.entity"
+import { InjectMapper } from "@automapper/nestjs"
 
 @Injectable()
 export class ThreadService {
   public constructor(
     private readonly threadRepository: ThreadRepository,
     private readonly userForumRepository: UserForumRepository,
-    private readonly mapper: Mapper,
+    @InjectMapper() private readonly mapper: Mapper,
   ) {}
 
   public async create(userId: string, dto: CreateThreadDto): Promise<ThreadResponseDto> {

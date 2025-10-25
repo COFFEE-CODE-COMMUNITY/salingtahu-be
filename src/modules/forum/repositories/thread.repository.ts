@@ -12,15 +12,19 @@ export class ThreadRepository extends BaseRepository<Thread> {
     super(dataSource, transactionContextService, Thread)
   }
 
-  public async create(userId: string, dto: CreateThreadDto): Promise<Thread> {
-    const entity = this.getRepository().create({
-      userId,
-      title: dto.title,
-      content: dto.content,
-      category: dto.category,
-      repliesCount: 0,
-    })
-    return await this.getRepository().save(entity)
+  public async create(userId: string, dto: CreateThreadDto): Promise<any> {
+    try {
+      const entity = this.getRepository().create({
+        userId,
+        title: dto.title,
+        content: dto.content,
+        category: dto.category,
+        repliesCount: 0,
+      })
+      return await this.getRepository().save(entity)
+    } catch (error) {
+      console.error(error)
+    }
   }
 
   public async updateById(dto: UpdateThreadDto, entity: Thread): Promise<Thread> {
@@ -64,7 +68,7 @@ export class ThreadRepository extends BaseRepository<Thread> {
         '"thread"."updated_at" AS "thread_updated_at"',
         '"user"."id" AS "user_id"',
         '"user"."first_name" AS "user_firstname"',
-        '"user"."profile_picture_path" AS "user_profilePicturePath"',
+        '"user"."profile_pictures" AS "user_profilePictures"',
       ])
       .addSelect(
         sub =>
@@ -137,7 +141,7 @@ export class ThreadRepository extends BaseRepository<Thread> {
         '"thread"."updated_at" AS "thread_updated_at"',
         '"user"."id" AS "user_id"',
         '"user"."first_name" AS "user_firstname"',
-        '"user"."profile_picture_path" AS "user_profilePicturePath"',
+        '"user"."profile_pictures" AS "user_profilePictures"',
       ])
       .addSelect(
         sub =>
@@ -213,7 +217,7 @@ export class ThreadRepository extends BaseRepository<Thread> {
         '"thread"."updated_at" AS "thread_updated_at"',
         '"user"."id" AS "user_id"',
         '"user"."first_name" AS "user_firstname"',
-        '"user"."profile_picture_path" AS "user_profilePicturePath"',
+        '"user"."profile_pictures" AS "user_profilePictures"',
       ])
       .addSelect(
         sub =>
@@ -225,7 +229,7 @@ export class ThreadRepository extends BaseRepository<Thread> {
         "reply_count",
       )
 
-    if (searchKey.trim()) {
+    if (searchKey && searchKey.trim()) {
       qb.where("(LOWER(thread.title) LIKE LOWER(:searchKey) OR LOWER(thread.content) LIKE LOWER(:searchKey))", {
         searchKey: `%${searchKey}%`,
       })
