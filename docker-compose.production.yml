@@ -93,7 +93,7 @@ services:
 
   minio:
     container_name: salingtau-minio-production
-    image: minio/minio:RELEASE.2024-09-07T16-13-09Z
+    image: minio/minio:RELEASE.2025-09-07T16-13-09Z
     restart: unless-stopped
     ports:
       - "9000"  # API
