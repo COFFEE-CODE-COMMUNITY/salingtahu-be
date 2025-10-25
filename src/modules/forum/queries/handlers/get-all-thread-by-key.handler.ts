@@ -1,13 +1,13 @@
-import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
-import { GetAllThreadByKeyCommand } from "../get-all-thread-by-key.command"
+import { IQueryHandler, QueryHandler } from "@nestjs/cqrs"
+import { GetAllThreadByKeyQuery } from "../get-all-thread-by-key.query"
 import { ThreadService } from "../../services/thread.service"
 import { GetAllThreadByKeyResponseDto } from "../../dtos/threads/get-all-thread-by-key-response.dto"
 
-@CommandHandler(GetAllThreadByKeyCommand)
-export class GetAllThreadByKeyHandler implements ICommandHandler<GetAllThreadByKeyCommand> {
+@QueryHandler(GetAllThreadByKeyQuery)
+export class GetAllThreadByKeyHandler implements IQueryHandler<GetAllThreadByKeyQuery> {
   public constructor(private readonly threadService: ThreadService) {}
 
-  public async execute(command: GetAllThreadByKeyCommand): Promise<GetAllThreadByKeyResponseDto> {
+  public async execute(command: GetAllThreadByKeyQuery): Promise<GetAllThreadByKeyResponseDto> {
     return await this.threadService.getAllThreadByKey(
       command.searchKey,
       command.page,

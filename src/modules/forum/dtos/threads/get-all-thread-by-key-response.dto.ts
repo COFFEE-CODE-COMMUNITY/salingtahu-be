@@ -1,55 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger"
-import { UserForumDto } from "../user-forum.dto"
-
-class ThreadItemDto {
-  @ApiProperty({
-    example: "thread-456",
-    description: "Thread ID",
-  })
-  public id!: string
-
-  @ApiProperty({
-    example: "How to learn TypeScript?",
-    description: "Thread title",
-  })
-  public title!: string
-
-  @ApiProperty({
-    example: "I want to learn TypeScript, any recommendations?",
-    description: "Thread content",
-  })
-  public content!: string
-
-  @ApiProperty({
-    example: "tech",
-    description: "Thread category",
-  })
-  public category!: string
-
-  @ApiProperty({
-    example: 5,
-    description: "Number of replies",
-  })
-  public repliesCount!: number
-
-  @ApiProperty({
-    type: UserForumDto,
-    description: "Thread author information",
-  })
-  public user!: UserForumDto
-
-  @ApiProperty({
-    example: "2025-01-15T10:30:00.000Z",
-    description: "Thread creation timestamp",
-  })
-  public createdAt!: Date
-
-  @ApiProperty({
-    example: "2025-01-15T10:30:00.000Z",
-    description: "Thread last update timestamp",
-  })
-  public updatedAt!: Date
-}
+import { ThreadResponseDto } from "./thread-response.dto"
 
 class PaginationMetaDto {
   @ApiProperty({
@@ -100,10 +50,10 @@ class PaginationMetaWithSearchDto extends PaginationMetaDto {
 
 export class GetAllThreadByKeyResponseDto {
   @ApiProperty({
-    type: [ThreadItemDto],
+    type: [ThreadResponseDto],
     description: "List of threads matching search criteria",
   })
-  public data!: ThreadItemDto[]
+  public data!: ThreadResponseDto[]
 
   @ApiProperty({
     type: PaginationMetaWithSearchDto,

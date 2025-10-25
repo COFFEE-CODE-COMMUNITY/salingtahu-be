@@ -1,7 +1,7 @@
-import { Command } from "@nestjs/cqrs"
+import { Query } from "@nestjs/cqrs"
 import { GetAllChildrenReplyResponseDto } from "../dtos/replies/get-all-children-reply-response.dto"
 
-export class GetAllChildrenReplyCommand extends Command<GetAllChildrenReplyResponseDto> {
+export class GetAllChildrenReplyQuery extends Query<GetAllChildrenReplyResponseDto> {
   public constructor(
     public readonly parentReplyId: string,
     public readonly page: number = 1,

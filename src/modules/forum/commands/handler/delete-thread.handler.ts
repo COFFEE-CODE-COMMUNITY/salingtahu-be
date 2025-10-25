@@ -1,13 +1,18 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { DeleteThreadCommand } from "../delete-thread.command"
-import { ThreadResponse, ThreadService } from "../../services/thread.service"
-import { DeleteThreadResponseDto } from "../../dtos/threads/delete-thread-response.dto"
+import { ThreadService } from "../../services/thread.service"
+import { CommonResponseDto } from "../../../../common/dto/common-response.dto"
+import { plainToInstance } from "class-transformer"
 
 @CommandHandler(DeleteThreadCommand)
 export class DeleteThreadHandler implements ICommandHandler<DeleteThreadCommand> {
   public constructor(private readonly threadService: ThreadService) {}
 
-  public async execute(command: DeleteThreadCommand): Promise<ThreadResponse<DeleteThreadResponseDto>> {
-    return await this.threadService.delete(command.userId, command.threadId)
+  public async execute(command: DeleteThreadCommand): Promise<CommonResponseDto> {
+    await this.threadService.delete(command.userId, command.threadId)
+
+    return plainToInstance(CommonResponseDto, {
+      message: "Thread successfully deleted",
+    })
   }
 }

@@ -1,6 +1,6 @@
 import { BaseRepository } from "../../../common/base/base.repository"
 import { Reply } from "../entities/reply.entity"
-import { DataSource, EntityManager } from "typeorm"
+import { DataSource, EntityManager, IsNull } from "typeorm"
 import { TransactionContextService } from "../../../infrastructure/database/unit-of-work/transaction-context.service"
 import { Injectable } from "@nestjs/common"
 import { CreateReplyDto } from "../dtos/replies/create-reply.dto"
@@ -32,15 +32,6 @@ export class ReplyRepository extends BaseRepository<Reply> {
     })
   }
 
-  public async isOwner(replyId: string, userId: string): Promise<boolean> {
-    const reply = await this.getRepository().findOne({
-      where: { id: replyId, userId },
-      withDeleted: true,
-    })
-
-    return !!reply
-  }
-
   public async updateById(dto: UpdateThreadDto, entity: Reply): Promise<Reply> {
     Object.assign(entity, dto)
     entity.updatedAt = new Date()
@@ -60,6 +51,7 @@ export class ReplyRepository extends BaseRepository<Reply> {
     return null
   }
 
+  // ✅ findPaginatedByThread
   public async findPaginatedByThread(
     threadId: string,
     page: number = 1,
@@ -69,7 +61,7 @@ export class ReplyRepository extends BaseRepository<Reply> {
     const validPage = Math.max(1, Math.floor(page))
     const validLimit = Math.min(20, Math.max(1, Math.floor(limit)))
 
-    const query = this.getRepository()
+    const qb = this.getRepository()
       .createQueryBuilder("reply")
       .leftJoinAndSelect("reply.user", "user")
       .select([
@@ -79,50 +71,55 @@ export class ReplyRepository extends BaseRepository<Reply> {
         "reply.createdAt",
         "reply.updatedAt",
         "user.id",
-        "user.username",
-        "user.avatarUrl",
+        "user.firstName",
+        "user.profilePictures",
       ])
+      .addSelect(subQuery => {
+        return subQuery
+          .select("COUNT(child.id)")
+          .from(Reply, "child")
+          .where("child.parentReplyId = reply.id")
+          .andWhere("child.deletedAt IS NULL")
+      }, "childCount")
       .where("reply.threadId = :threadId", { threadId })
-      .andWhere("reply.parentReplyId IS NULL") // Top-level replies only
+      .andWhere("reply.parentReplyId IS NULL")
 
-    // Sorting
-    if (sort === "oldest") {
-      query.orderBy("reply.createdAt", "ASC")
-    } else {
-      query.orderBy("reply.createdAt", "DESC")
-    }
+    qb.orderBy("reply.createdAt", sort === "oldest" ? "ASC" : "DESC")
+    qb.skip((validPage - 1) * validLimit).take(validLimit)
 
-    // Pagination
-    query.skip((validPage - 1) * validLimit).take(validLimit)
+    const rawReplies = await qb.getRawAndEntities()
 
-    // Execute query dengan count children
-    const [replies, total] = await query
-      .loadRelationCountAndMap("reply.childCount", "reply.children", "children", qb =>
-        qb.where("children.deletedAt IS NULL"),
-      )
-      .getManyAndCount()
+    const data = rawReplies.entities.map((reply, index) => {
+      const childCount = Number(rawReplies.raw[index]["childCount"]) || 0
 
-    // Transform data
-    const data = replies.map((reply: any) => ({
-      id: reply.id,
-      threadId: reply.threadId,
-      content: reply.content,
-      user: reply.user
-        ? {
-            id: reply.user.id,
-            username: reply.user.username,
-            avatarUrl: reply.user.avatarUrl || null,
-          }
-        : null,
-      childCount: reply.childCount || 0,
-      createdAt: reply.createdAt,
-      updatedAt: reply.updatedAt,
-    }))
+      return {
+        id: reply.id,
+        threadId: reply.threadId,
+        content: reply.content,
+        user: reply.user
+          ? {
+              id: reply.user.id,
+              firstname: reply.user.firstName,
+              profilePicture:
+                Array.isArray(reply.user.profilePictures) && reply.user.profilePictures.length > 0
+                  ? {
+                      url: reply.user.profilePictures[0]?.path ?? "",
+                      width: reply.user.profilePictures[0]?.width ?? 0,
+                      height: reply.user.profilePictures[0]?.height ?? 0,
+                    }
+                  : null,
+            }
+          : null,
+        childCount,
+        createdAt: reply.createdAt,
+        updatedAt: reply.updatedAt,
+      }
+    })
 
-    // Calculate pagination metadata
+    const total = await this.getRepository().count({
+      where: { threadId, parentReplyId: IsNull() },
+    })
     const totalPages = Math.ceil(total / validLimit)
-    const hasNextPage = validPage < totalPages
-    const hasPreviousPage = validPage > 1
 
     return {
       data,
@@ -131,13 +128,14 @@ export class ReplyRepository extends BaseRepository<Reply> {
         limit: validLimit,
         total,
         totalPages,
-        hasNextPage,
-        hasPreviousPage,
+        hasNextPage: validPage < totalPages,
+        hasPreviousPage: validPage > 1,
         threadId,
       },
     }
   }
 
+  // ✅ findAllChildrenReply
   public async findAllChildrenReply(
     parentReplyId: string,
     page: number = 1,
@@ -147,7 +145,7 @@ export class ReplyRepository extends BaseRepository<Reply> {
     const validPage = Math.max(1, Math.floor(page))
     const validLimit = Math.min(20, Math.max(1, Math.floor(limit)))
 
-    const query = this.getRepository()
+    const qb = this.getRepository()
       .createQueryBuilder("reply")
       .leftJoinAndSelect("reply.user", "user")
       .leftJoinAndSelect("reply.parent", "parent")
@@ -159,60 +157,64 @@ export class ReplyRepository extends BaseRepository<Reply> {
         "reply.createdAt",
         "reply.updatedAt",
         "user.id",
-        "user.username",
-        "user.avatarUrl",
+        "user.firstName",
+        "user.profilePictures",
         "parent.id",
         "parent.content",
         "parentUser.id",
-        "parentUser.username",
-        "parentUser.avatarUrl",
+        "parentUser.firstName",
+        "parentUser.profilePictures",
       ])
       .where("reply.parentReplyId = :parentReplyId", { parentReplyId })
+      .orderBy("reply.createdAt", sort === "latest" ? "DESC" : "ASC")
+      .skip((validPage - 1) * validLimit)
+      .take(validLimit)
 
-    // Sorting - Default oldest untuk nested replies (common UX)
-    if (sort === "latest") {
-      query.orderBy("reply.createdAt", "DESC")
-    } else {
-      query.orderBy("reply.createdAt", "ASC")
-    }
+    const [replies, total] = await qb.getManyAndCount()
 
-    // Pagination
-    query.skip((validPage - 1) * validLimit).take(validLimit)
-
-    const [replies, total] = await query.getManyAndCount()
-
-    // Transform data
-    const data = replies.map((reply: any) => ({
+    const data = replies.map(reply => ({
       id: reply.id,
       threadId: reply.threadId,
       content: reply.content,
       user: reply.user
         ? {
             id: reply.user.id,
-            username: reply.user.username,
-            avatarUrl: reply.user.avatarUrl || null,
+            firstname: reply.user.firstName,
+            profilePicture:
+              Array.isArray(reply.user.profilePictures) && reply.user.profilePictures.length > 0
+                ? {
+                    url: reply.user.profilePictures[0]?.path ?? "",
+                    width: reply.user.profilePictures[0]?.width ?? 0,
+                    height: reply.user.profilePictures[0]?.height ?? 0,
+                  }
+                : null,
           }
         : null,
-      parent: {
-        id: reply.parent.id,
-        content: reply.parent.content,
-        user: reply.parent.user
-          ? {
-              id: reply.parent.user.id,
-              username: reply.parent.user.username,
-              avatarUrl: reply.parent.user.avatarUrl || null,
-            }
-          : null,
-      },
+      parent: reply.parent
+        ? {
+            id: reply.parent.id,
+            content: reply.parent.content,
+            user: reply.parent.user
+              ? {
+                  id: reply.parent.user.id,
+                  firstname: reply.parent.user.firstName,
+                  profilePicture:
+                    Array.isArray(reply.parent.user.profilePictures) && reply.parent.user.profilePictures.length > 0
+                      ? {
+                          url: reply.parent.user.profilePictures[0]?.path ?? "",
+                          width: reply.parent.user.profilePictures[0]?.width ?? 0,
+                          height: reply.parent.user.profilePictures[0]?.height ?? 0,
+                        }
+                      : null,
+                }
+              : null,
+          }
+        : null,
       createdAt: reply.createdAt,
       updatedAt: reply.updatedAt,
     }))
 
-    // Calculate pagination metadata
     const totalPages = Math.ceil(total / validLimit)
-    const hasNextPage = validPage < totalPages
-    const hasPreviousPage = validPage > 1
-
     return {
       data,
       meta: {
@@ -220,8 +222,8 @@ export class ReplyRepository extends BaseRepository<Reply> {
         limit: validLimit,
         total,
         totalPages,
-        hasNextPage,
-        hasPreviousPage,
+        hasNextPage: validPage < totalPages,
+        hasPreviousPage: validPage > 1,
         parentReplyId,
       },
     }

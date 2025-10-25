@@ -1,22 +1,30 @@
 import { ApiProperty } from "@nestjs/swagger"
+import { AutoMap } from "@automapper/classes"
+import { ImageDto } from "../../../common/dto/image.dto"
 
 export class UserForumDto {
   @ApiProperty({
-    description: "Unique ID dari user yang membuat thread",
-    example: "8cfe8d3e-1b6a-4b4c-b7e9-4bbf37a5e7aa",
+    description: "Unique identifier of the user",
+    example: "d1d7b712-cc43-46de-a8c9-22b3f5b0f681",
   })
+  @AutoMap()
   public id!: string
 
   @ApiProperty({
-    description: "Nama atau username pembuat thread",
-    example: "Andi Pratama",
+    description: "First name of the user",
+    example: "Andi",
   })
-  public username!: string
+  @AutoMap()
+  public firstname!: string
 
   @ApiProperty({
-    description: "URL avatar user",
-    example: "https://cdn.example.com/avatars/andi.png",
-    nullable: true,
+    description: "Primary profile picture metadata or null",
+    example: {
+      url: "https://cdn.salingtau.com/avatar/andi.jpg",
+      width: 400,
+      height: 400,
+    },
   })
-  public avatarUrl?: string | null
+  @AutoMap(() => ImageDto)
+  public profilePicture!: ImageDto | null
 }

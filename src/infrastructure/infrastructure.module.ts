@@ -90,6 +90,7 @@ import { PasswordResetSession } from "../modules/auth/entities/password-reset-se
     EmailService,
     TransactionContextService,
     UnitOfWork,
+    Cache,
     {
       provide: Logger,
       useClass: WinstonLogger,
@@ -116,6 +117,6 @@ import { PasswordResetSession } from "../modules/auth/entities/password-reset-se
       useClass: Sha256TextHasher,
     },
   ],
-  exports: [Logger, UnitOfWork, TextHasher, EmailService, TransactionContextService],
+  exports: [Logger, UnitOfWork, TextHasher, EmailService, TransactionContextService, Cache],
 })
 export class InfrastructureModule {}
