@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 env:
-  DOCKER_COMPOSE_FILE: docker-compose.production.yml
+  DOCKER_COMPOSE_FILE: docker compose.production.yml
   REGISTRY: docker.io
   BACKEND_IMAGE: mhmtaufiq/salingtau-be
   FRONTEND_IMAGE: mhmtaufiq/salingtau-fe
@@ -74,7 +74,7 @@ jobs:
           sshpass -p '${{ secrets.VM_PASSWORD }}' ssh -o StrictHostKeyChecking=no \
             ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} "mkdir -p ~/salingtau-production"
 
-      - name: Copy docker-compose file to VM
+      - name: Copy docker compose file to VM
         run: |
           sshpass -p '${{ secrets.VM_PASSWORD }}' scp -o StrictHostKeyChecking=no \
             ${{ env.DOCKER_COMPOSE_FILE }} \
@@ -115,7 +115,7 @@ jobs:
 
             # Wait for services to be fully up
             for i in {1..30}; do
-              if docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} ps | grep -q "Up"; then
+              if docker compose -f ${{ env.DOCKER_COMPOSE_FILE }} ps | grep -q "Up"; then
                 echo "Services are running"
                 break
               fi
@@ -125,10 +125,10 @@ jobs:
 
             # Show container logs for debugging
             echo "Backend logs:"
-            docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} logs --tail=20 backend
+            docker compose -f ${{ env.DOCKER_COMPOSE_FILE }} logs --tail=20 backend
 
             echo "Frontend logs:"
-            docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} logs --tail=20 frontend
+            docker compose -f ${{ env.DOCKER_COMPOSE_FILE }} logs --tail=20 frontend
           EOF
 
       - name: Cleanup old images
