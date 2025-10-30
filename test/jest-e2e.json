@@ -21,5 +21,7 @@
     "^file-type$": "<rootDir>/../node_modules/file-type/index.js"
   },
   "globalSetup": "<rootDir>/jest.global-setup.ts",
-  "globalTeardown": "<rootDir>/jest.global-teardown.ts"
+  "globalTeardown": "<rootDir>/jest.global-teardown.ts",
+  "passWithNoTests": true,
+  "forceExit": true
 }

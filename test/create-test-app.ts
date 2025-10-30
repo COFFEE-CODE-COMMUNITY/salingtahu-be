@@ -31,7 +31,7 @@ class TestConfigService extends ConfigService {
 }
 
 export async function createTestApp(
-  builder?: (builder: TestingModuleBuilder) => TestingModuleBuilder,
+  builder?: (builder: TestingModuleBuilder) => void,
 ): Promise<INestApplication<App>> {
   const testBuilder = Test.createTestingModule({
     imports: [AppModule],

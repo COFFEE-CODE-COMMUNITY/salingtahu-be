@@ -11,8 +11,8 @@ import {
   Text,
   Font,
   Button,
-  Hr,
 } from "@react-email/components"
+import EmailFooter from "../components/email-footer.component"
 
 export interface PasswordResetTemplateProps {
   setPasswordUrl: string
@@ -35,15 +35,15 @@ function PasswordResetTemplate(props: PasswordResetTemplateProps): React.JSX.Ele
       </Head>
       <Body>
         <Tailwind>
-          <Preview>Reset your OurTransfer password</Preview>
+          <Preview>Reset your SalingTau password</Preview>
           <Container className="text-center text-black font-[Roboto]">
             <Heading className="text-center" style={{ fontFamily: "'times-new-roman', serif" }}>
-              OurTransfer
+              SalingTau
             </Heading>
             <Section>
               <Text className="text-xl font-semibold">You're almost there, just set a new password</Text>
               <Text>
-                We received a request to reset your OurTransfer password. No worries, it happens! Click the button below
+                We received a request to reset your SalingTau password. No worries, it happens! Click the button below
                 to set up a new one.
               </Text>
               <Button
@@ -58,22 +58,7 @@ function PasswordResetTemplate(props: PasswordResetTemplateProps): React.JSX.Ele
                 email, and your account will remain secure.
               </Text>
             </Section>
-            <Hr />
-            <Section className="mt-3 text-center text-sm text-gray-500 bg-gray-100">
-              <Text className="text-xs my-2">1234 Tanah Sareal Rd, Suite 500</Text>
-              <Text className="text-xs my-2">Ngawi, East Java, 6969, Indonesia</Text>
-              <Text className="text-xs my-2">Phone: +62 21 555 0123</Text>
-              <Text className="mt-2 text-xs">
-                If you have any questions, please{" "}
-                <a href="mailto:support@ourtransfer.com" className="text-indigo-600 underline">
-                  contact us
-                </a>
-                .
-              </Text>
-              <Text className="mt-4 text-xs text-gray-400">
-                Copyright © {new Date().getFullYear()} OurTransfer Inc. All rights reserved.
-              </Text>
-            </Section>
+            <EmailFooter />
           </Container>
         </Tailwind>
       </Body>

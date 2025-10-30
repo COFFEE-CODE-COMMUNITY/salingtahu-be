@@ -1,9 +1,6 @@
 import { Global, Module } from "@nestjs/common"
-import { ConfigModule as NestConfigModule, ConfigService } from "@nestjs/config"
-import { existsSync, readFileSync } from "fs"
-import { resolve } from "path"
+import { ConfigService } from "@nestjs/config"
 import { TypeOrmModule } from "@nestjs/typeorm"
-import { NodeEnv } from "../common/enums/node-env"
 import { TransactionContextService } from "./database/unit-of-work/transaction-context.service"
 import { UnitOfWork } from "./database/unit-of-work/unit-of-work"
 import { Logger } from "./log/logger.abstract"
@@ -22,6 +19,11 @@ import { RefreshToken } from "../modules/auth/entities/refresh-token.entity"
 import { OAuth2User } from "../modules/auth/entities/oauth2-user.entity"
 import { RedisService } from "./cache/redis.service"
 import _ from "lodash"
+import { Instructor } from "../modules/instructor/entities/instructor.entity"
+import { Cache } from "./cache/cache"
+import { Thread } from "../modules/forum/entities/thread.entity"
+import { Reply } from "../modules/forum/entities/reply.entity"
+import { PasswordResetSession } from "../modules/auth/entities/password-reset-session.entity"
 
 @Global()
 @Module({
@@ -45,25 +47,6 @@ import _ from "lodash"
       name: EMAIL_QUEUE,
     }),
     CqrsModule.forRoot(),
-    NestConfigModule.forRoot({
-      isGlobal: true,
-      envFilePath: [".env"],
-      load: [
-        (): any => {
-          const env = process.env.NODE_ENV || "development"
-          const defaultConfigPath = resolve("app-config.json")
-          const envConfigPath = resolve(`app-config.${env}.json`)
-          let config = JSON.parse(readFileSync(defaultConfigPath, "utf-8"))
-
-          if (existsSync(envConfigPath)) {
-            const envConfig = JSON.parse(readFileSync(envConfigPath, "utf-8"))
-            config = _.merge(config, envConfig)
-          }
-
-          return config
-        },
-      ],
-    }),
     TypeOrmModule.forRootAsync({
       useFactory(config: ConfigService) {
         return {
@@ -73,8 +56,9 @@ import _ from "lodash"
           username: config.getOrThrow<string>("DATABASE_USERNAME"),
           password: config.getOrThrow<string>("DATABASE_PASSWORD"),
           database: config.getOrThrow<string>("DATABASE_NAME"),
-          synchronize: config.get<NodeEnv>("NODE_ENV", NodeEnv.DEVELOPMENT) != NodeEnv.PRODUCTION,
-          entities: [OAuth2User, RefreshToken, User],
+          // synchronize: config.get<NodeEnv>("NODE_ENV", NodeEnv.DEVELOPMENT) != NodeEnv.PRODUCTION,
+          syncrhonize: true,
+          entities: [OAuth2User, PasswordResetSession, RefreshToken, User, Instructor, Thread, Reply],
         }
       },
       inject: [ConfigService],
@@ -85,6 +69,7 @@ import _ from "lodash"
     EmailService,
     TransactionContextService,
     UnitOfWork,
+    Cache,
     {
       provide: Logger,
       useClass: WinstonLogger,
@@ -111,6 +96,6 @@ import _ from "lodash"
       useClass: Sha256TextHasher,
     },
   ],
-  exports: [Logger, UnitOfWork, TextHasher, EmailService, TransactionContextService],
+  exports: [Logger, UnitOfWork, TextHasher, EmailService, TransactionContextService, Cache],
 })
 export class InfrastructureModule {}

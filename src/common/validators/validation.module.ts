@@ -1,7 +1,8 @@
 import { Module } from "@nestjs/common"
 import { UniqueValidator } from "./unique.decorator"
+import { ExistsValidator } from "./exists.decorator"
 
 @Module({
-  providers: [UniqueValidator],
+  providers: [ExistsValidator, UniqueValidator],
 })
 export class ValidationModule {}

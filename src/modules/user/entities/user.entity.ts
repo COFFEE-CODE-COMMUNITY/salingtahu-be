@@ -8,6 +8,7 @@ import { RefreshToken } from "../../auth/entities/refresh-token.entity"
 import { OAuth2User } from "../../auth/entities/oauth2-user.entity"
 import { ImageMetadata } from "../../../entities/image-metadata.entity"
 import { Instructor } from "../../instructor/entities/instructor.entity"
+import { PasswordResetSession } from "../../auth/entities/password-reset-session.entity"
 
 @Entity({ name: "users" })
 export class User extends BaseEntity {
@@ -88,6 +89,9 @@ export class User extends BaseEntity {
 
   @OneToOne(() => Instructor, instructor => instructor.user)
   public instructor!: Instructor
+
+  @OneToMany(() => PasswordResetSession, passwordResetSession => passwordResetSession.user)
+  public passwordResetSessions!: PasswordResetSession[]
 
   public updateLastLoggedIn(): void {
     this.lastLoggedInAt = new Date()
