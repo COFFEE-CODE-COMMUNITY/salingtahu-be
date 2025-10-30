@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger"
 
-export class VeInstructorResponseDto {
+export class ApplyAsInstructorResponseDto {
   @ApiProperty({ description: "The session ID of Veriff for the instructor verification." })
   public sessionId!: string
 

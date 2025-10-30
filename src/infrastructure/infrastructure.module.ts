@@ -19,11 +19,11 @@ import { RefreshToken } from "../modules/auth/entities/refresh-token.entity"
 import { OAuth2User } from "../modules/auth/entities/oauth2-user.entity"
 import { RedisService } from "./cache/redis.service"
 import _ from "lodash"
-import { Instructor } from "../modules/instructor/entities/instructor.entity"
 import { Cache } from "./cache/cache"
 import { Thread } from "../modules/forum/entities/thread.entity"
 import { Reply } from "../modules/forum/entities/reply.entity"
 import { PasswordResetSession } from "../modules/auth/entities/password-reset-session.entity"
+import { InstructorVerification } from "../modules/user/entities/instructor-verification.entity"
 
 @Global()
 @Module({
@@ -57,8 +57,8 @@ import { PasswordResetSession } from "../modules/auth/entities/password-reset-se
           password: config.getOrThrow<string>("DATABASE_PASSWORD"),
           database: config.getOrThrow<string>("DATABASE_NAME"),
           // synchronize: config.get<NodeEnv>("NODE_ENV", NodeEnv.DEVELOPMENT) != NodeEnv.PRODUCTION,
-          syncrhonize: true,
-          entities: [OAuth2User, PasswordResetSession, RefreshToken, User, Instructor, Thread, Reply],
+          synchronize: true,
+          entities: [OAuth2User, PasswordResetSession, RefreshToken, User, InstructorVerification, Thread, Reply],
         }
       },
       inject: [ConfigService],

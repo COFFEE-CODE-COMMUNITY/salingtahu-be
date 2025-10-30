@@ -16,9 +16,7 @@ describe("POST /api/v1/auth/google", () => {
 
   describe("200 OK", () => {
     it("should return Google OAuth2 URL", async () => {
-      const response = await request(app.getHttpServer())
-        .get("/api/v1/auth/google")
-        .expect(200)
+      const response = await request(app.getHttpServer()).get("/api/v1/auth/google").expect(200)
 
       expect(response.body.url).toContain("accounts.google.com")
     })

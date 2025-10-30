@@ -2,20 +2,20 @@ import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { ApplyAsInstructorCommand } from "../apply-as-instructor.command"
 import { CommonResponseDto } from "../../../../common/dto/common-response.dto"
 import { UserRepository } from "../../../user/repositories/user.repository"
-import { InstructorRepository } from "../../repositories/instructor.repository"
 import { BadRequestException, ConflictException, NotFoundException } from "@nestjs/common"
 import { plainToInstance } from "class-transformer"
 import { UserRole } from "../../../user/enums/user-role.enum"
-import { Instructor } from "../../entities/instructor.entity"
+import { VeriffService } from "../../../../services/veriff.service"
+import { ApplyAsInstructorResponseDto } from "../../../user/dto/apply-as-instructor-response.dto"
 
 @CommandHandler(ApplyAsInstructorCommand)
 export class ApplyAsInstructorHandler implements ICommandHandler<ApplyAsInstructorCommand> {
   public constructor(
-    private readonly instructorRepository: InstructorRepository,
+    private readonly veriffService: VeriffService,
     private readonly userRepository: UserRepository,
   ) {}
 
-  public async execute({ userId }: ApplyAsInstructorCommand): Promise<CommonResponseDto> {
+  public async execute({ userId }: ApplyAsInstructorCommand): Promise<ApplyAsInstructorResponseDto> {
     const user = await this.userRepository.findById(userId)
 
     if (!user) {
@@ -34,40 +34,19 @@ export class ApplyAsInstructorHandler implements ICommandHandler<ApplyAsInstruct
       )
     }
 
-    if (!user.headline) {
+    if (!user.headline || !user.biography || !user.profilePictures || user.profilePictures.length === 0) {
       throw new BadRequestException(
         plainToInstance(CommonResponseDto, {
-          message: "User must have a headline to apply as an instructor.",
+          message: "User must have a headline, biography, and profile picture to apply as an instructor.",
         }),
       )
     }
 
-    if (!user.biography) {
-      throw new BadRequestException(
-        plainToInstance(CommonResponseDto, {
-          message: "User must have a biography to apply as an instructor.",
-        }),
-      )
-    }
+    const { sessionId, url } = await this.veriffService.createVerificationSession(user)
+    const dto = new ApplyAsInstructorResponseDto()
+    dto.sessionId = sessionId
+    dto.url = url
 
-    if (!user.profilePictures || user.profilePictures.length === 0) {
-      throw new BadRequestException(
-        plainToInstance(CommonResponseDto, {
-          message: "User must have a profile picture to apply as an instructor.",
-        }),
-      )
-    }
-
-    const instructor = new Instructor()
-    instructor.user = user
-
-    await this.instructorRepository.insert(instructor)
-
-    user.roles.push(UserRole.INSTRUCTOR)
-    await this.userRepository.update(user.id, user)
-
-    return plainToInstance(CommonResponseDto, {
-      message: "Instructor application successful.",
-    })
+    return dto
   }
 }

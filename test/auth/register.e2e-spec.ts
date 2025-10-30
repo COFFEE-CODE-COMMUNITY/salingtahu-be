@@ -1,8 +1,8 @@
-import { INestApplication } from '@nestjs/common'
-import { App } from 'supertest/types'
-import { createTestApp } from '../create-test-app'
-import { faker } from '@faker-js/faker'
-import request from 'supertest'
+import { INestApplication } from "@nestjs/common"
+import { App } from "supertest/types"
+import { createTestApp } from "../create-test-app"
+import { faker } from "@faker-js/faker"
+import request from "supertest"
 
 describe("POST /api/v1/auth/register", () => {
   let app: INestApplication<App>

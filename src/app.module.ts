@@ -10,12 +10,12 @@ import { ForumModule } from "./modules/forum/forum.module"
 import { UserModule } from "./modules/user/user.module"
 import { QueueModule } from "./queue/queue.module"
 import { StorageModule } from "./storage/storage.module"
-import { InstructorModule } from "./modules/instructor/instructor.module"
 import { HttpModule } from "@nestjs/axios"
 import { BearerTokenGuard } from "./common/guards/bearer-token.guard"
 import { RolesGuard } from "./common/guards/roles.guard"
 import { ConfigModule } from "./config/config.module"
 import { ServiceModule } from "./services/service.module"
+import { WebhookModule } from "./modules/webhook/webhook.module"
 
 @Global()
 @Module({
@@ -25,7 +25,6 @@ import { ServiceModule } from "./services/service.module"
       global: true,
     }),
     InfrastructureModule,
-    InstructorModule,
     QueueModule,
     StorageModule,
     UserModule,
@@ -34,6 +33,7 @@ import { ServiceModule } from "./services/service.module"
     ForumModule,
     ConfigModule,
     ServiceModule,
+    WebhookModule,
   ],
   providers: [
     HttpRequestContext,

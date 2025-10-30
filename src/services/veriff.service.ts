@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from "@nestjs/common"
+import { Injectable } from "@nestjs/common"
 import { User } from "../modules/user/entities/user.entity"
 import { HttpService } from "@nestjs/axios"
 import { ConfigService } from "@nestjs/config"
@@ -6,8 +6,6 @@ import { lastValueFrom } from "rxjs"
 import { Logger } from "../infrastructure/log/logger.abstract"
 import { createHmac } from "crypto"
 import { DecisionWebhook, CreateVerificationSession } from "../types/veriff"
-import { plainToInstance } from "class-transformer"
-import { CommonResponseDto } from "../common/dto/common-response.dto"
 
 @Injectable()
 export class VeriffService {
@@ -23,7 +21,7 @@ export class VeriffService {
     this.VERIFF_API_KEY = this.config.getOrThrow<string>("VERIFF_API_KEY")
   }
 
-  public async createVerifySession(user: User): Promise<IdentityVerifySession> {
+  public async createVerificationSession(user: User): Promise<IdentityVerifySession> {
     try {
       const body: CreateVerificationSession.Request.Body = {
         verification: {
@@ -60,18 +58,8 @@ export class VeriffService {
     }
   }
 
-  public async verifyDecisionWebHook(payload: DecisionWebhook.Payload, headers: DecisionWebhookHeaders): Promise<void> {
-    const expectedHmac = this.getHmacSignature(payload)
-
-    if (headers.hmacSignature !== expectedHmac) {
-      this.logger.warn("Invalid HMAC signature in Veriff webhook")
-
-      throw new UnauthorizedException(
-        plainToInstance(CommonResponseDto, {
-          message: "Invalid HMAC signature",
-        }),
-      )
-    }
+  public verifyDecisionWebHook(payload: DecisionWebhook.Payload, headers: DecisionWebhookHeaders): boolean {
+    return headers.hmacSignature === this.getHmacSignature(payload)
   }
 
   private getHmacSignature(body: object): string {

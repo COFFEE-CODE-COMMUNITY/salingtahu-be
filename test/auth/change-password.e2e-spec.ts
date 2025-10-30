@@ -45,9 +45,7 @@ describe("POST /api/v1/auth/password-reset/change", () => {
       })
 
       // Get a password reset token
-      await request(app.getHttpServer())
-        .post("/api/v1/auth/password-reset")
-        .send({ email: user.email })
+      await request(app.getHttpServer()).post("/api/v1/auth/password-reset").send({ email: user.email })
 
       // Change to the known current password
       await request(app.getHttpServer())
@@ -56,9 +54,7 @@ describe("POST /api/v1/auth/password-reset/change", () => {
         .send({ password: currentPassword, confirmPassword: currentPassword, logoutAll: false })
 
       // Get a fresh token for the actual test
-      await request(app.getHttpServer())
-        .post("/api/v1/auth/password-reset")
-        .send({ email: user.email })
+      await request(app.getHttpServer()).post("/api/v1/auth/password-reset").send({ email: user.email })
     })
 
     it("should change the password successfully", async () => {
@@ -118,9 +114,7 @@ describe("POST /api/v1/auth/password-reset/change", () => {
         return Promise.resolve()
       })
 
-      await request(app.getHttpServer())
-        .post("/api/v1/auth/password-reset")
-        .send({ email: user.email })
+      await request(app.getHttpServer()).post("/api/v1/auth/password-reset").send({ email: user.email })
 
       // Change to the known current password
       await request(app.getHttpServer())
@@ -129,9 +123,7 @@ describe("POST /api/v1/auth/password-reset/change", () => {
         .send({ password: currentPassword, confirmPassword: currentPassword, logoutAll: false })
 
       // Get a fresh token for the actual test
-      await request(app.getHttpServer())
-        .post("/api/v1/auth/password-reset")
-        .send({ email: user.email })
+      await request(app.getHttpServer()).post("/api/v1/auth/password-reset").send({ email: user.email })
     })
 
     it("should return 400 if confirmPassword do not match", async () => {
@@ -141,7 +133,7 @@ describe("POST /api/v1/auth/password-reset/change", () => {
         .send({
           password: faker.internet.password({ length: 12 }),
           confirmPassword: faker.internet.password({ length: 12 }),
-          logoutAll: false
+          logoutAll: false,
         })
         .expect(400)
 

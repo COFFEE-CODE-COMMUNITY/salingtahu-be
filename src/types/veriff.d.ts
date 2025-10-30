@@ -279,31 +279,9 @@ export namespace DecisionWebhook {
    */
   export interface Payload {
     /**
-     * Unique identifier for the webhook event
-     * @example "d57cb7e0-9e08-11ed-8d85-43e6f2e4d1ea"
+     * Status of the response
      */
-    id: string
-
-    /**
-     * Feature that triggered the webhook
-     * @example "decision"
-     */
-    feature: string
-
-    /**
-     * Verification code/action
-     * @example 9001
-     */
-    code: number
-
-    /**
-     * Action performed
-     * @example "verification"
-     */
-    action: string
-
-    /** Vendor data passed during session creation */
-    vendorData: string | null
+    status: string
 
     /** Technical data about the verification */
     technicalData: TechnicalData
@@ -334,22 +312,28 @@ export namespace DecisionWebhook {
     id: string
 
     /**
-     * Verification code
-     * @example 9001
+     * UUID v4 of the attempt which received a status (as shown in verification.status field)
+     * @example "8a9f1e20-6d3e-11ed-a6f1-0de5c95af74d"
      */
-    code: number
+    attemptId: string
 
-    /** Person information extracted from the verification */
-    person: Person | null
+    /** Vendor data passed during session creation */
+    vendorData: string | null
 
-    /** Document information extracted from the verification */
-    document: Document | null
+    /** End-user ID passed during session creation */
+    endUserId: string | null
 
     /**
      * Verification status
      * @example "approved"
      */
-    status: "approved" | "declined" | "resubmission_requested" | "expired" | "abandoned"
+    status: "approved" | "declined" | "resubmission_requested" | "review" | "expired" | "abandoned"
+
+    /**
+     * Verification code/action
+     * @example 9001
+     */
+    code: number
 
     /**
      * Reason for the decision
@@ -362,16 +346,6 @@ export namespace DecisionWebhook {
     reasonCode: number | null
 
     /**
-     * Comments from the verification
-     */
-    comments: Comment[] | null
-
-    /**
-     * Additional verification data
-     */
-    additionalVerifiedData: AdditionalVerifiedData | null
-
-    /**
      * Timestamp when the decision was made
      * @example "2023-01-19T11:23:45.678Z"
      */
@@ -382,6 +356,29 @@ export namespace DecisionWebhook {
      * @example "2023-01-19T11:20:12.345Z"
      */
     acceptanceTime: string
+
+    /** Person information extracted from the verification */
+    person: Person | null
+
+    /** Document information extracted from the verification */
+    document: Document | null
+
+    /**
+     * Additional verification data
+     */
+    additionalVerifiedData: AdditionalVerifiedData | null
+
+    /**
+     * Comments from the verification
+     * @deprecated
+     */
+    comments: []
+
+    /**
+     * Marked is session was considered high risk
+     * @deprecated
+     */
+    highRisk: boolean
   }
 
   /**
@@ -437,77 +434,106 @@ export namespace DecisionWebhook {
     placeOfBirth: string | null
 
     /**
-     * Pepper ID (unique identifier)
-     * @example "abc123def456"
+     * Addresses associated with the person
      */
-    pepperID: string | null
-  }
-
-  /**
-   * Document information extracted from verification
-   */
-  interface Document {
-    /**
-     * Document number
-     * @example "B01234567"
-     */
-    number: string | null
+    addresses: Address[] | null
 
     /**
-     * Document type
-     * @example "PASSPORT"
+     * Occupation data from the document.
+     * Optional, depending on the integration
+     * @example "Software Engineer"
      */
-    type: string | null
+    occupation: string
 
     /**
-     * Document issuing country (ISO 3166-1 Alpha-3 country code)
-     * @example "USA"
+     * Employer's name from the document.
+     * Optional, depending on the integration
+     * @example "Tech Corp"
      */
-    country: string | null
+    employer: string
 
     /**
-     * Document valid from date in YYYY-MM-DD format
-     * @example "2020-01-01"
+     * Foreigner status field from the document.
+     * Optional, depending on the integration
+     * @example "Permanent Resident"
      */
-    validFrom: string | null
+    foreignerStatus: string
 
     /**
-     * Document valid until date in YYYY-MM-DD format
-     * @example "2030-01-01"
+     * Additional name from the document.
+     * Optional, depending on the integration
+     * @example "Marie"
      */
-    validUntil: string | null
-  }
-
-  /**
-   * Comment from verification
-   */
-  interface Comment {
-    /**
-     * Comment type
-     * @example "DOCUMENT_QUALITY"
-     */
-    type: string
+    extraNames: string
 
     /**
-     * Comment text
-     * @example "Document image quality is insufficient"
+     * Person's title extracted from the document.
+     * Optional, depending on the integration
+     * @example "Dr"
      */
-    text: string
-  }
-
-  /**
-   * Additional verified data
-   */
-  interface AdditionalVerifiedData {
-    /**
-     * Address information
-     */
-    address: Address | null
+    title: string
 
     /**
-     * Additional document data
+     * The voter's card identifier (OCR).
+     * Optional, only for Mexican registries verification
+     * @example "1234567890123"
      */
-    additionalDocumentData: AdditionalDocumentData | null
+    ifeIdentifier: string | null
+
+    /**
+     * The citizen's identifier (Identificador del Ciudadano).
+     * Optional, only for Mexican registries verification
+     * @example "ABCD123456XYZ789"
+     */
+    ineIdentifier: string | null
+
+    /**
+     * Legacy field, may return incorrect result, should be ignored
+     * @deprecated
+     */
+    pepSanctionMatch: string | null
+
+    /**
+     * Deprecated, always returns null
+     * @deprecated
+     */
+    citizenship: null
+
+    /**
+     * Person's electoral number.
+     * Optional, currently only for Mexican registry checks.
+     * Present only if the data was available on the document
+     * @example "ABC123456789"
+     */
+    electorNumber: string | null
+
+    /**
+     * Person's eye color as stated on the document.
+     * Optional, present only if the data was available on the document
+     * @example "BROWN"
+     */
+    eyeColor: string | null
+
+    /**
+     * Person's hair color as stated on the document.
+     * Optional, present only if the data was available on the document
+     * @example "BLACK"
+     */
+    hairColor: string | null
+
+    /**
+     * Person's height as stated on the document.
+     * Optional, present only if the data was available on the document
+     * @example "175 cm"
+     */
+    height: string | null
+
+    /**
+     * Person's weight as stated on the document.
+     * Optional, present only if the data was available on the document
+     * @example "70 kg"
+     */
+    weight: string | null
   }
 
   /**
@@ -520,6 +546,13 @@ export namespace DecisionWebhook {
      */
     fullAddress: string | null
 
+    /**
+     * Object containing parts of the fullAddress value as separate keys. Optional, depending on the integration
+     */
+    parsedAddress: ParsedAddress
+  }
+
+  interface ParsedAddress {
     /**
      * Street
      * @example "Main St"
@@ -542,13 +575,634 @@ export namespace DecisionWebhook {
      * Postal code
      * @example "12345"
      */
-    postalCode: string | null
+    postcode: string | null
 
     /**
      * Country (ISO 3166-1 Alpha-3 country code)
      * @example "USA"
      */
     country: string | null
+
+    /**
+     * An apartment, unit, office, lot, or other secondary unit designator
+     */
+    unit: string | null
+  }
+
+  export interface NameComponent {
+    /**
+     * Person's title extracted from the document, e.g., "MR", "MS".
+     * null when no title data present on the document
+     * @example "MR"
+     */
+    title: string | null
+
+    /**
+     * Person's middle name extracted from the document, from a dedicated field on the document or document barcode results.
+     * null when the first name has no suffix according to barcode data.
+     * The field is not sent when the document has no dedicated field or barcode
+     * @example "James"
+     */
+    middleName: string | null
+
+    /**
+     * Person's first name extracted from the document and stripped from all components like middleName or firstNameSuffix
+     * @example "John"
+     */
+    firstNameOnly: string | null
+
+    /**
+     * Person's first name suffix.
+     * null when the first name has no suffix according to barcode data.
+     * The field is not sent when the document has no barcode
+     * @example "Jr"
+     */
+    firstNameSuffix: string | null
+  }
+
+  /**
+   * Document information extracted from verification
+   */
+  interface Document {
+    /**
+     * Document number, [a-zA-Z0-9] characters only
+     * @example "B01234567"
+     */
+    number: string | null
+
+    /**
+     * Document type, one of PASSPORT, ID_CARD, RESIDENCE_PERMIT, DRIVERS_LICENSE, VISA, OTHER.
+     * For more info, see the Supported document types for IDV article
+     * @example "PASSPORT"
+     */
+    type: string | null
+
+    /**
+     * Document issuing country, represented as ISO 3166 alpha-2 code
+     * @example "US"
+     */
+    country: string | null
+
+    /**
+     * Document issuing state, represented as ISO 3166 alpha-2 or alpha-3 code
+     * @example "CA"
+     */
+    state: string | null
+
+    /**
+     * Data extracted from document's remarks field
+     * @example "Special conditions apply"
+     */
+    remarks: string
+
+    /**
+     * Document is valid until date, represented as YYYY-MM-DD.
+     * Optional, must be configured for your integration by the Solutions Engineer
+     * @example "2030-01-01"
+     */
+    validUntil: string | null
+
+    /**
+     * Document is valid from date, represented as YYYY-MM-DD.
+     * Optional, must be configured for your integration by the Solutions Engineer
+     * @example "2020-01-01"
+     */
+    validFrom: string | null
+
+    /**
+     * Place where document was issued.
+     * Optional, depending on the integration
+     * @example "New York"
+     */
+    placeOfIssue: string | null
+
+    /**
+     * Date of document first issue, represented as YYYY-MM-DD.
+     * Optional, depending on the integration
+     * @example "2015-01-01"
+     */
+    firstIssue: string | null
+
+    /**
+     * Document issue number.
+     * Optional, depending on the integration
+     * @example "001"
+     */
+    issueNumber: string | null
+
+    /**
+     * Document issuing authority.
+     * Optional, depending on the integration
+     * @example "Department of State"
+     */
+    issuedBy: string | null
+
+    /**
+     * Indicates if the biometric document data has been successfully decoded.
+     * Optional, only when NFC validation has been enabled for the integration
+     * @example true
+     */
+    nfcValidated: boolean
+
+    /**
+     * Type of the residence permit, as shown on the document.
+     * Optional, depending on the integration
+     * @example "Permanent"
+     */
+    residencePermitType: string
+
+    /**
+     * Indicates that the portrait image is visible in the session and its quality is sufficient to perform verification.
+     * Optional, depending on the integration
+     * @example true
+     */
+    portraitIsVisible: boolean
+
+    /**
+     * Indicates that the signature is present on the document and readable to perform the verification.
+     * Optional, depending on the integration
+     * @example true
+     */
+    signatureIsVisible: boolean
+
+    /**
+     * Person's INE (Mexican voter's registry) identifier number.
+     * Optional, present only if the data was available on the document
+     * @example "ABCD123456XYZ789"
+     */
+    ineIdentifier: string | null
+
+    /**
+     * Contains additional data about the particular document type.
+     * Optional, depending on integration
+     */
+    specimen: Specimen
+  }
+
+  export interface Specimen {
+    /**
+     * Indicates if the document contains a contactless chip (NFC)
+     * @example true
+     */
+    containsContactlessChip: boolean
+
+    /**
+     * Indicates the first issue date of the identity document template, as YYYY-MM-DD
+     * @example "2010-01-01"
+     */
+    firstIssuedDate: string
+
+    /**
+     * Indicates the last issue date of the identity document template, as YYYY-MM-DD
+     * @example "2020-12-31"
+     */
+    lastIssuedDate: string
+
+    /**
+     * Indicates the version of the US National Institute of Standards and Technology guidelines
+     * @example "2.0"
+     */
+    nistVersion: string
+
+    /**
+     * Indicates if the document is a digital template identity document
+     * @example false
+     */
+    digitalDocument: boolean
+
+    /**
+     * Indicates if the driving permit is different from the standard driver's licence
+     * (e.g. it is a learner's license, temporary driver's license, permit to drive boats)
+     * @example false
+     */
+    nonStandardDrivingLicense: boolean
+
+    /**
+     * Indicates if the document is issued to a military personnel/staff or personnel's family
+     * @example false
+     */
+    militaryDocument: boolean
+
+    /**
+     * Indicates if the document is a temporary identity document
+     * @example false
+     */
+    temporaryEmergencyDocument: boolean
+
+    /**
+     * Indicates if it is a document that is issued exclusively to asylum seekers or refugees
+     * @example false
+     */
+    asylumRefugeeDocument: boolean
+
+    /**
+     * Indicates if the document is under the standards of International Civil Aviation Organization
+     * @example true
+     */
+    ICAOStandardizedDocument: boolean
+
+    /**
+     * Indicates if the identity card is not a national ID card
+     * (e.g., social security card, tax ID, electoral ID)
+     * @example false
+     */
+    notNationalIdCard: boolean
+
+    /**
+     * Indicates the legal status of the identity document in the country of issuance.
+     * One of primary, secondary, tertiary, indicating to what extent the document is accepted as legal proof of identity
+     * @example "primary"
+     */
+    legalStatus: string | null
+
+    /**
+     * Indicates if the document has properties that can increase the chance of document tampering
+     * @example false
+     */
+    hasSecurityRisk: boolean
+  }
+
+  /**
+   * Additional verified data
+   * Data that has been optionally verified for the session.
+   * Optional, depending on the integration
+   */
+  interface AdditionalVerifiedData {
+    /**
+     * Address information
+     */
+    address: Address | null
+
+    /**
+     * Additional document data
+     */
+    additionalDocumentData: AdditionalDocumentData | null
+
+    /**
+     * Number of the driver's license.
+     * Optional, depending on the integration
+     * @example "D1234567"
+     */
+    driversLicenseNumber: string
+
+    /**
+     * Indicates the driver's licence category/ies.
+     * Optional, the presence of this property depends on drivers licence category extraction being enabled for the integration
+     */
+    driversLicenseCategory: DriversLicenseCategory
+
+    /**
+     * Date when the driving license category was obtained.
+     * Optional, depending on the integration
+     */
+    driversLicenseCategoryFrom: DriversLicenseCategoryFrom
+
+    /**
+     * Driving license category expiry date.
+     * Optional, depending on the integration
+     */
+    driversLicenseCategoryUntil: DriversLicenseCategoryUntil
+
+    /**
+     * List of category types visible on the driver's license
+     */
+    driversLicenseCategories: string[]
+
+    /**
+     * Estimated age.
+     * Optional, depending on the integration
+     * @example 30
+     */
+    estimatedAge: number
+
+    /**
+     * Estimated gender, values closer to 0.0 indicate 'male', values closer to 1.0 indicate 'female'.
+     * Optional, depending on the integration
+     * @example 0.95
+     */
+    estimatedGender: number
+
+    /**
+     * Array of UK DIATF checks results.
+     * Optional, only for customers with Veriff UK DIATF solution
+     */
+    UKTFCheckResult: UKTFCheckResult[]
+
+    /**
+     * Brazilian individual taxpayer registry (CPF) validation check object.
+     * Optional, only for customers with Brazilian registry checks
+     */
+    cpfValidation: CpfValidation | null
+
+    /**
+     * Process number (e.g., "Trámite №") from the document.
+     * Optional, depending on the integration
+     * @example "12345678"
+     */
+    processNumber: string
+
+    /**
+     * INE Biometric Database Verification check object.
+     * Optional, available only when the INE Biometric Validation check has been enabled for the integration
+     */
+    ineBiometricRegistryValidation: IneBiometricRegistryValidation
+
+    /**
+     * Registry validation check object.
+     * Optional, available only when the registry validation check has been enabled for the integration (currently available for Colombia registries)
+     */
+    registryValidation: RegistryValidation
+
+    /**
+     * Proof of address data.
+     * Optional, available only if the Proof of Address Verification has been enabled for your integration
+     */
+    proofOfAddress: ProofOfAddress
+
+    /**
+     * Data that has been optionally verified for the US Database Verification session, depending on the integration.
+     * Empty if no additional data was verified.
+     * Optional, depending on integration
+     */
+    validationResults: ValidationResult[]
+  }
+
+  /**
+   * Driver's license category
+   */
+  interface DriversLicenseCategory {
+    /**
+     * Category B
+     */
+    B: boolean | null
+  }
+
+  /**
+   * Driver's license category from date
+   */
+  interface DriversLicenseCategoryFrom {
+    /**
+     * Category is valid from date, represented as YYYY-MM-DD
+     * @example "2015-01-01"
+     */
+    B: string | null
+  }
+
+  /**
+   * Driver's license category until date
+   */
+  interface DriversLicenseCategoryUntil {
+    /**
+     * Category is valid until date, represented as YYYY-MM-DD
+     * @example "2030-01-01"
+     */
+    B: string | null
+  }
+
+  /**
+   * UK DIATF check result
+   */
+  interface UKTFCheckResult {
+    /**
+     * CIFAS registry check result
+     * @example "PASS"
+     */
+    CIFAS: string
+
+    /**
+     * UK Electoral roll and credit history check result
+     * @example "PASS"
+     */
+    "Electoral roll and Credit History UK": string
+
+    /**
+     * PEP check result
+     * @example "PASS"
+     */
+    PEP: string
+  }
+
+  /**
+   * Brazilian CPF validation
+   */
+  interface CpfValidation {
+    /**
+     * Status of the entry in the registry, one of CPF is validated, CPF is suspended,
+     * CPF holder is deceased, CPF is pending regularization, CPF is cancelled (was a duplicate),
+     * Cancelled craft (meaning that it was cancelled due to reasons other than being a duplicate)
+     * @example "CPF is validated"
+     */
+    status: string | null
+
+    /**
+     * Brazilian individual taxpayer registry (CPF) number of the person
+     * @example "12345678901"
+     */
+    cpfNumber: string | null
+
+    /**
+     * Person's name in the CPF
+     * @example "João Silva"
+     */
+    name: string | null
+
+    /**
+     * Person's date of birth in the CPF as YYYY-MM-DD
+     * @example "1990-01-01"
+     */
+    dateOfBirth: string | null
+
+    /**
+     * Person's year of death in the CPF as YYYY-MM-DD
+     * @example "2020-12-31"
+     */
+    yearOfDeath: string | null
+  }
+
+  /**
+   * INE Biometric Registry Validation
+   */
+  interface IneBiometricRegistryValidation {
+    /**
+     * Indicates if the person's selfie image is a match with their image in the registry.
+     * This decision is made based on the value returned in faceMatchPercentage (see below).
+     * null if the check could not be completed
+     * @example true
+     */
+    faceMatch: boolean | null
+
+    /**
+     * Indicates the level of similarity the system thinks the matched images have, in the range of 0-100.
+     * Values ≥85 indicate a match; values <85 indicate that images do not match.
+     * null if the check could not be completed
+     * @example 92
+     */
+    faceMatchPercentage: number | null
+
+    /**
+     * Indicates the response received from the service provider.
+     * One of success or failure; or null if the check could not be completed
+     * @example "success"
+     */
+    responseStatus: string | null
+  }
+
+  /**
+   * Registry validation
+   */
+  interface RegistryValidation {
+    /**
+     * Country of the registry
+     * @example "Colombia"
+     */
+    countryRegistry: string
+
+    /**
+     * Name of the registry
+     * @example "Registraduría Nacional del Estado Civil"
+     */
+    registryName: string
+
+    /**
+     * Similarity of the full name in the registry to the full name in the document
+     * @example 0.98
+     */
+    fullNameSimilarity: number
+
+    /**
+     * Indicates if the document is valid in the registry
+     * @example true
+     */
+    documentValid: boolean
+
+    /**
+     * Indicates if the person is alive in the registry
+     * @example true
+     */
+    personIsAlive: boolean
+  }
+
+  /**
+   * Proof of address
+   */
+  interface ProofOfAddress {
+    /**
+     * Indicates if the name on the proof of address document matches the name from the initial request data.
+     * null if the check could not be completed
+     * @example true
+     */
+    nameMatch: boolean
+
+    /**
+     * Indicates the level of similarity the matched names have, in the range of 0.00-100.00.
+     * null if the check could not be completed
+     * @example 95.5
+     */
+    nameMatchPercentage: number
+
+    /**
+     * Indicates the type of the proof of address document.
+     * null if the check could not be completed
+     * @example "Utility Bill"
+     */
+    documentType: string
+
+    /**
+     * Returns data about document integrity.
+     * Available only if the fraud validation check has been enabled for your Proof of Address integration
+     */
+    fraud: ProofOfAddressFraud
+  }
+
+  /**
+   * Proof of address fraud data
+   */
+  interface ProofOfAddressFraud {
+    /**
+     * Indicates the risk level, possible values LOW_RISK, MEDIUM_RISK, HIGH_RISK.
+     * null if the check was not executed or failed
+     * @example "LOW_RISK"
+     */
+    riskLevel: string | null
+
+    /**
+     * Short description indicating the reason behind the risk level.
+     * null if the check was not executed or failed
+     * @example "Document appears authentic"
+     */
+    reason: string | null
+
+    /**
+     * Human readable explanation of the data in the reason field.
+     * null if the check was not executed or failed
+     * @example "All security features are present and valid"
+     */
+    reasonDescription: string | null
+
+    /**
+     * Array of strings listing the factors that influenced the risk assessment.
+     * Empty if the check was not executed or failed
+     */
+    indicators: string[]
+  }
+
+  /**
+   * US Database Verification validation result
+   */
+  interface ValidationResult {
+    /**
+     * Name of the registry
+     * @example "SSN Registry"
+     */
+    registryName: string
+
+    /**
+     * Indicates the match level of person's first name data
+     * @example "MATCH"
+     */
+    firstName: string
+
+    /**
+     * Indicates the match level of person's last name data
+     * @example "MATCH"
+     */
+    lastName: string
+
+    /**
+     * Indicates the match level of person's date of birth data
+     * @example "MATCH"
+     */
+    dateOfBirth: string
+
+    /**
+     * Indicates the match level of person's address data
+     * @example "MATCH"
+     */
+    address: string
+
+    /**
+     * Indicates the match level of person's address data, specifically city
+     * @example "MATCH"
+     */
+    city: string
+
+    /**
+     * Indicates the match level of person's address data, specifically state
+     * @example "MATCH"
+     */
+    state: string
+
+    /**
+     * Indicates the match level of person's address data, specifically zip code (post code)
+     * @example "MATCH"
+     */
+    zip: string
+
+    /**
+     * Indicates the match level of person's identity number or SSN number data
+     * @example "MATCH"
+     */
+    idNumber: string
   }
 
   /**

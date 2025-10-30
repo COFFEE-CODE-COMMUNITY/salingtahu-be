@@ -1,8 +1,10 @@
-import { Body, Controller, Get, Patch, Put, Req, Param } from "@nestjs/common"
+import { Body, Controller, Get, Patch, Put, Req, Param, Post } from "@nestjs/common"
 import { UserDto } from "../dto/user.dto"
 import { CommonResponseDto } from "../../../common/dto/common-response.dto"
 import {
+  ApiBadRequestResponse,
   ApiBearerAuth,
+  ApiConflictResponse,
   ApiConsumes,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -22,6 +24,8 @@ import { GetCurrentUserQuery } from "../queries/get-current-user.query"
 import { GetUserQuery } from "../queries/get-user.query"
 import { ALLOWED_IMAGE_MIMETYPES } from "../../../constants/mimetype.constant"
 import { UpdateUserCommand } from "../commands/update-user.command"
+import { ApplyAsInstructorCommand } from "../commands/apply-as-instructor.command"
+import { ApplyAsInstructorResponseDto } from "../dto/apply-as-instructor-response.dto"
 
 @Controller("users")
 export class UserController {
@@ -66,6 +70,26 @@ export class UserController {
   })
   public async getUserById(@Param("userId") userId: string): Promise<UserPublicDto> {
     return this.queryBus.execute(new GetUserQuery(userId))
+  }
+
+  @Post("me/apply-as-instructor")
+  @ApiBearerAuth()
+  @ApiOperation({ summary: "Apply as an instructor." })
+  @ApiOkResponse({
+    description: "Instructor applied successfully.",
+    type: ApplyAsInstructorResponseDto,
+  })
+  @ApiBadRequestResponse({
+    description: "Instructor application failed due to incomplete user data.",
+    type: CommonResponseDto,
+  })
+  @ApiConflictResponse({
+    description: "User has become an instructor.",
+    type: CommonResponseDto,
+  })
+  @Authorized()
+  public async applyAsInstructor(@UserId() userId: string): Promise<ApplyAsInstructorResponseDto> {
+    return this.commandBus.execute(new ApplyAsInstructorCommand(userId))
   }
 
   @Patch("me")
