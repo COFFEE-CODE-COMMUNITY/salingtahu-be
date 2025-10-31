@@ -16,10 +16,15 @@ export class BearerTokenGuard implements CanActivate {
 
   public async canActivate(context: ExecutionContext): Promise<boolean> {
     const isRequiredAuthorized = this.reflector.get(Authorized, context.getHandler())
-
-    if (!isRequiredAuthorized) return true
-
     const request = context.switchToHttp().getRequest<Request>()
+
+    if (!isRequiredAuthorized) {
+      request.authorized = false
+      return true
+    }
+
+    request.authorized = true
+
     const authorizationHeader = request.headers.authorization
 
     try {

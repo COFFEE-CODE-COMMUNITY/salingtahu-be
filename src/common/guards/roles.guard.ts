@@ -24,11 +24,11 @@ export class RolesGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<Request>()
     const userId = request.userId
 
-    if (!userId) {
-      throw new UnauthorizedException(this.UNAUTHORIZED_RESPONSE)
+    if (!request.authorized) {
+      return true
     }
 
-    const userRoles = await this.userRepository.findRolesById(userId)
+    const userRoles = await this.userRepository.findRolesById(userId!)
 
     if (roles.some(role => userRoles.includes(role))) return true
 
