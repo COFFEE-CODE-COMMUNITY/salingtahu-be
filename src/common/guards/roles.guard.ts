@@ -24,7 +24,8 @@ export class RolesGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<Request>()
     const userId = request.userId
 
-    if (!request.authorized) {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    if (!request.authorized || !roles) {
       return true
     }
 
