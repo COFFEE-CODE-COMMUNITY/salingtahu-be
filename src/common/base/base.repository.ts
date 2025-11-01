@@ -64,7 +64,7 @@ export abstract class BaseRepository<E extends BaseEntity> {
     }
   }
 
-  public async merge(entity: E, entityLike: DeepPartial<E>): Promise<E> {
+  public merge(entity: E, entityLike: DeepPartial<E>): E {
     return this.getRepository().merge(entity, entityLike)
   }
 }

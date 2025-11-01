@@ -10,6 +10,7 @@ import { UserService } from "./services/user.service"
 import { IMAGE_PROCESSING_QUEUE } from "../../queue/image-processing.consumer"
 import { ApplyAsInstructorHandler } from "./commands/handlers/apply-as-instructor.handler"
 import { InstructorVerificationRepository } from "./repositories/instructor-verification.repository"
+import { UpdateUserHandler } from "./commands/handlers/update-user.handler"
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { InstructorVerificationRepository } from "./repositories/instructor-veri
     GetCurrentUserHandler,
     GetUserHandler,
     UpdateProfilePictureHandler,
+    UpdateUserHandler,
 
     // Mappers
     UserMapper,

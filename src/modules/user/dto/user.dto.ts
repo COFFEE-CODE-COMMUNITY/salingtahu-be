@@ -133,15 +133,8 @@ export class UserDto {
     description: "Roles assigned to the user",
     example: [UserRole.STUDENT, UserRole.ADMIN],
   })
-  @AutoMap()
+  @AutoMap(() => [String])
   public roles!: UserRole[]
-
-  @ApiProperty({
-    description: "Timestamp of the last login",
-    example: "2024-01-15T10:30:00Z",
-  })
-  @AutoMap()
-  public lastLoginAt!: Date
 
   @ApiProperty({
     description: "Timestamp when the user account was created",

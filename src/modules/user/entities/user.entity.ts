@@ -73,12 +73,14 @@ export class User extends BaseEntity {
   public youtubeUrl?: string
 
   @Column({ type: "enum", enum: UserStatus, default: UserStatus.ACTIVE })
+  @AutoMap()
   public status!: UserStatus
 
   @Column({ name: "last_logged_in_at", nullable: true })
   public lastLoggedInAt?: Date
 
   @Column({ type: "enum", enum: UserRole, array: true, default: [UserRole.STUDENT] })
+  @AutoMap(() => [String])
   public roles!: UserRole[]
 
   @OneToMany(() => RefreshToken, refreshToken => refreshToken.user)
