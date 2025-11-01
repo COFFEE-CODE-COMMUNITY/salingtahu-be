@@ -27,6 +27,6 @@ export class UpdateUserHandler implements ICommandHandler<UpdateUserCommand> {
       )
     }
 
-    return this.mapper.map(await this.userRepository.merge(user, dto), User, UserDto)
+    return this.mapper.map(await this.userRepository.save(this.userRepository.merge(user, dto)), User, UserDto)
   }
 }
