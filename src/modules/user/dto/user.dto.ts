@@ -133,7 +133,7 @@ export class UserDto {
     description: "Roles assigned to the user",
     example: [UserRole.STUDENT, UserRole.ADMIN]
   })
-  @AutoMap()
+  @AutoMap(() => [String])
   public roles!: UserRole[]
 
   @ApiProperty({
