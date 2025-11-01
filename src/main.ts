@@ -2,14 +2,14 @@ import { HttpAdapterHost, NestFactory } from "@nestjs/core"
 import { AppModule } from "./app.module"
 import { BadRequestException, HttpException, INestApplication, ValidationPipe, VersioningType } from "@nestjs/common"
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger"
-import { Logger } from "./infrastructure/log/logger.abstract"
+import { Logger } from "./log/logger.abstract"
 import { ConfigService } from "@nestjs/config"
 import { json } from "express"
-import { AllExceptionFilter } from "./common/filters/all-exception.filter"
+import { AllExceptionFilter } from "./filters/all-exception.filter"
 import cors from "cors"
 import cookieParser from "cookie-parser"
 import { useContainer } from "class-validator"
-import { NodeEnv } from "./common/enums/node-env"
+import { NodeEnv } from "./enums/node-env"
 
 export class Main {
   private static readonly isMain = require.main === module
@@ -18,8 +18,8 @@ export class Main {
     if (this.isMain) {
       const app = await this.initializeApp(
         await NestFactory.create(AppModule, {
-          bodyParser: false,
-        }),
+          bodyParser: false
+        })
       )
       const configService = app.get(ConfigService)
       const domain = configService.get<string>("app.domain")
@@ -42,8 +42,8 @@ export class Main {
     app.use(
       cors({
         origin: config.get<string>("client.web.url"),
-        credentials: true,
-      }),
+        credentials: true
+      })
     )
     app.use(cookieParser())
     app.useLogger(logger)
@@ -71,10 +71,10 @@ export class Main {
 
           return new BadRequestException({
             message: "Validation Failed",
-            errors: formattedErrors,
+            errors: formattedErrors
           })
-        },
-      }),
+        }
+      })
     )
     app.enableVersioning({ type: VersioningType.URI, defaultVersion: "1" })
     app.setGlobalPrefix("api")
@@ -83,7 +83,7 @@ export class Main {
     const swaggerConfig = new DocumentBuilder()
       .setTitle("SalingTahu API")
       .setDescription(
-        "API documentation for SalingTau. A platform where anyone can share and find knowledge about anything",
+        "API documentation for SalingTau. A platform where anyone can share and find knowledge about anything"
       )
       .setVersion("1.0.0")
       .addBearerAuth(
@@ -93,13 +93,13 @@ export class Main {
           bearerFormat: "JWT",
           name: "Authorization",
           description: "Enter JWT token",
-          in: "header",
+          in: "header"
         },
-        "bearer",
+        "bearer"
       )
       .addServer(
         `http://${config.get<string>("app.domain")}:${config.get<number>("app.port", 3000)}`,
-        config.get<NodeEnv>("app.nodeEnv") === NodeEnv.DEVELOPMENT ? "Development server" : "Production server",
+        config.get<NodeEnv>("app.nodeEnv") === NodeEnv.DEVELOPMENT ? "Development server" : "Production server"
       )
       .build()
     const document = SwaggerModule.createDocument(app, swaggerConfig)

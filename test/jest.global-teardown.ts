@@ -13,7 +13,7 @@ export default async function () {
         } catch (error) {
           console.error(`Failed to stop container ${container.getId()}:`, error)
         }
-      }),
+      })
     )
   }
 

@@ -4,6 +4,6 @@ import { VeriffService } from "./veriff.service"
 @Global()
 @Module({
   providers: [VeriffService],
-  exports: [VeriffService],
+  exports: [VeriffService]
 })
 export class ServiceModule {}

@@ -28,7 +28,7 @@ export class PasswordService {
       type: algorithmType,
       memoryCost: this.config.get<number>("password.argon2.memoryCost", 8192),
       timeCost: this.config.get<number>("password.argon2.timeCost", 2),
-      parallelism: this.config.get<number>("password.argon2.parallelism", 1),
+      parallelism: this.config.get<number>("password.argon2.parallelism", 1)
     })
   }
 

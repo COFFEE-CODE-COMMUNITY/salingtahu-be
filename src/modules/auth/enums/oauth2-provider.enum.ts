@@ -1,3 +1,3 @@
 export enum OAuth2Provider {
-  GOOGLE = "google",
+  GOOGLE = "google"
 }

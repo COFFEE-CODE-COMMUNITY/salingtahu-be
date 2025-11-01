@@ -1,6 +1,6 @@
 import { Entity, ManyToOne, Column } from "typeorm"
 import { User } from "../../user/entities/user.entity"
-import { BaseEntity } from "../../../common/base/base.entity"
+import { BaseEntity } from "../../../base/base.entity"
 
 @Entity({ name: "refresh_tokens" })
 export class RefreshToken extends BaseEntity {

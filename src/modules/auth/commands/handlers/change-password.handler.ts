@@ -1,14 +1,14 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { ChangePasswordCommand } from "../change-password.command"
-import { CommonResponseDto } from "../../../../common/dto/common-response.dto"
+import { CommonResponseDto } from "../../../../dto/common-response.dto"
 import { UnauthorizedException } from "@nestjs/common"
 import { plainToInstance } from "class-transformer"
 import { PasswordService } from "../../services/password.service"
 import { RefreshTokenRepository } from "../../repositories/refresh-token.repository"
 import { UserRepository } from "../../../user/repositories/user.repository"
 import { PasswordResetSessionRepository } from "../../repositories/password-reset-session.repository"
-import { TextHasher } from "../../../../infrastructure/security/cryptography/text-hasher"
-import { UnitOfWork } from "../../../../infrastructure/database/unit-of-work/unit-of-work"
+import { TextHasher } from "../../../../security/cryptography/text-hasher"
+import { UnitOfWork } from "../../../../database/unit-of-work/unit-of-work"
 
 @CommandHandler(ChangePasswordCommand)
 export class ChangePasswordHandler implements ICommandHandler<ChangePasswordCommand> {
@@ -18,19 +18,19 @@ export class ChangePasswordHandler implements ICommandHandler<ChangePasswordComm
     private readonly passwordService: PasswordService,
     private readonly refreshTokenRepository: RefreshTokenRepository,
     private readonly textHasher: TextHasher,
-    private readonly unitOfWork: UnitOfWork,
+    private readonly unitOfWork: UnitOfWork
   ) {}
 
   public async execute(command: ChangePasswordCommand): Promise<CommonResponseDto> {
     const passwordResetSession = await this.passwordResetSessionRepository.findByToken(
-      this.textHasher.hash(command.token),
+      this.textHasher.hash(command.token)
     )
 
     if (!passwordResetSession || passwordResetSession.isExpired()) {
       throw new UnauthorizedException(
         plainToInstance(CommonResponseDto, {
-          message: "Invalid or expired password reset token.",
-        }),
+          message: "Invalid or expired password reset token."
+        })
       )
     }
 
@@ -52,7 +52,7 @@ export class ChangePasswordHandler implements ICommandHandler<ChangePasswordComm
     })
 
     return plainToInstance(CommonResponseDto, {
-      message: "Password changed successfully.",
+      message: "Password changed successfully."
     })
   }
 }

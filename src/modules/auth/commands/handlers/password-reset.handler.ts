@@ -1,17 +1,17 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { PasswordResetCommand } from "../password-reset.command"
 import { UserRepository } from "../../../user/repositories/user.repository"
-import { CommonResponseDto } from "../../../../common/dto/common-response.dto"
+import { CommonResponseDto } from "../../../../dto/common-response.dto"
 import { plainToInstance } from "class-transformer"
 import { NotFoundException } from "@nestjs/common"
 import { PasswordResetSession } from "../../entities/password-reset-session.entity"
 import { randomBytes } from "crypto"
-import { Logger } from "../../../../infrastructure/log/logger.abstract"
+import { Logger } from "../../../../log/logger.abstract"
 import { PasswordResetSessionRepository } from "../../repositories/password-reset-session.repository"
 import ms from "ms"
-import { EmailService } from "../../../../infrastructure/email/email.service"
+import { EmailService } from "../../../../email/email.service"
 import { ConfigService } from "@nestjs/config"
-import { TextHasher } from "../../../../infrastructure/security/cryptography/text-hasher"
+import { TextHasher } from "../../../../security/cryptography/text-hasher"
 
 @CommandHandler(PasswordResetCommand)
 export class PasswordResetHandler implements ICommandHandler<PasswordResetCommand> {
@@ -24,7 +24,7 @@ export class PasswordResetHandler implements ICommandHandler<PasswordResetComman
     private readonly passwordResetSessionRepository: PasswordResetSessionRepository,
     private readonly userRepository: UserRepository,
     private readonly textHasher: TextHasher,
-    private readonly logger: Logger,
+    private readonly logger: Logger
   ) {}
 
   public async execute(command: PasswordResetCommand): Promise<CommonResponseDto> {
@@ -33,8 +33,8 @@ export class PasswordResetHandler implements ICommandHandler<PasswordResetComman
     if (!user) {
       throw new NotFoundException(
         plainToInstance(CommonResponseDto, {
-          message: "Email not found.",
-        }),
+          message: "Email not found."
+        })
       )
     }
 
@@ -53,12 +53,12 @@ export class PasswordResetHandler implements ICommandHandler<PasswordResetComman
       await this.emailService.send(user.email, "Password Reset Request", {
         name: "password-reset",
         payload: {
-          setPasswordUrl: setPasswordUrl.toString(),
-        },
+          setPasswordUrl: setPasswordUrl.toString()
+        }
       })
 
       return plainToInstance(CommonResponseDto, {
-        message: "A verification code has been sent to the email. Please check your inbox or spam mail.",
+        message: "A verification code has been sent to the email. Please check your inbox or spam mail."
       })
     } catch (error) {
       this.logger.error("Occurred error: ", error)

@@ -2,7 +2,7 @@ import { INestApplication } from "@nestjs/common"
 import { App } from "supertest/types"
 import { createTestApp } from "../create-test-app"
 import { mock, MockProxy } from "jest-mock-extended"
-import { EmailService } from "../../src/infrastructure/email/email.service"
+import { EmailService } from "@/email/email.service"
 import request from "supertest"
 import { UserDto } from "../../src/modules/user/dto/user.dto"
 import { getAuthUser } from "../get-auth-user"
@@ -66,7 +66,7 @@ describe("POST /api/v1/auth/password-reset/change", () => {
 
       expect(response.status).toBe(200)
       expect(response.body).toEqual({
-        message: "Password changed successfully.",
+        message: "Password changed successfully."
       })
     })
 
@@ -89,7 +89,7 @@ describe("POST /api/v1/auth/password-reset/change", () => {
         .send({ password, confirmPassword: password, logoutAll: true })
         .expect(200)
         .expect({
-          message: "Password changed successfully.",
+          message: "Password changed successfully."
         })
 
       const refreshTokenRepository = app.get(RefreshTokenRepository)
@@ -133,7 +133,7 @@ describe("POST /api/v1/auth/password-reset/change", () => {
         .send({
           password: faker.internet.password({ length: 12 }),
           confirmPassword: faker.internet.password({ length: 12 }),
-          logoutAll: false,
+          logoutAll: false
         })
         .expect(400)
 
@@ -160,7 +160,7 @@ describe("POST /api/v1/auth/password-reset/change", () => {
         .send({ password, confirmPassword: password, logoutAll: false })
         .expect(401)
         .expect({
-          message: "Invalid or expired password reset token.",
+          message: "Invalid or expired password reset token."
         })
     })
   })

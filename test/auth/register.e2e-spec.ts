@@ -23,7 +23,7 @@ describe("POST /api/v1/auth/register", () => {
           firstName: faker.person.firstName(),
           lastName: faker.person.lastName(),
           email: faker.internet.email(),
-          password: faker.internet.password({ length: 8 }),
+          password: faker.internet.password({ length: 8 })
         })
 
       expect(response.status).toBe(201)
@@ -39,7 +39,7 @@ describe("POST /api/v1/auth/register", () => {
           .send({
             lastName: faker.person.lastName(),
             email: faker.internet.email(),
-            password: faker.internet.password({ length: 8 }),
+            password: faker.internet.password({ length: 8 })
           })
           .expect(400)
           .expect(res => {
@@ -55,7 +55,7 @@ describe("POST /api/v1/auth/register", () => {
             firstName: 123,
             lastName: faker.person.lastName(),
             email: faker.internet.email(),
-            password: faker.internet.password({ length: 8 }),
+            password: faker.internet.password({ length: 8 })
           })
           .expect(400)
           .expect(res => {
@@ -71,7 +71,7 @@ describe("POST /api/v1/auth/register", () => {
             firstName: "J",
             lastName: faker.person.lastName(),
             email: faker.internet.email(),
-            password: faker.internet.password({ length: 8 }),
+            password: faker.internet.password({ length: 8 })
           })
           .expect(400)
           .expect(res => {
@@ -87,7 +87,7 @@ describe("POST /api/v1/auth/register", () => {
             firstName: "J".repeat(31),
             lastName: faker.person.lastName(),
             email: faker.internet.email(),
-            password: faker.internet.password({ length: 8 }),
+            password: faker.internet.password({ length: 8 })
           })
           .expect(400)
           .expect(res => {
@@ -104,7 +104,7 @@ describe("POST /api/v1/auth/register", () => {
           .send({
             firstName: faker.person.firstName(),
             email: faker.internet.email(),
-            password: faker.internet.password({ length: 8 }),
+            password: faker.internet.password({ length: 8 })
           })
           .expect(400)
           .expect(res => {
@@ -120,7 +120,7 @@ describe("POST /api/v1/auth/register", () => {
             firstName: faker.person.firstName(),
             lastName: 123,
             email: faker.internet.email(),
-            password: faker.internet.password({ length: 8 }),
+            password: faker.internet.password({ length: 8 })
           })
           .expect(400)
           .expect(res => {
@@ -136,7 +136,7 @@ describe("POST /api/v1/auth/register", () => {
             firstName: faker.person.firstName(),
             lastName: "D",
             email: faker.internet.email(),
-            password: faker.internet.password({ length: 8 }),
+            password: faker.internet.password({ length: 8 })
           })
           .expect(400)
           .expect(res => {
@@ -152,7 +152,7 @@ describe("POST /api/v1/auth/register", () => {
             firstName: faker.person.firstName(),
             lastName: "D".repeat(31),
             email: faker.internet.email(),
-            password: faker.internet.password({ length: 8 }),
+            password: faker.internet.password({ length: 8 })
           })
           .expect(400)
           .expect(res => {
@@ -169,7 +169,7 @@ describe("POST /api/v1/auth/register", () => {
           .send({
             firstName: faker.person.firstName(),
             lastName: faker.person.lastName(),
-            password: faker.internet.password({ length: 8 }),
+            password: faker.internet.password({ length: 8 })
           })
           .expect(400)
           .expect(res => {
@@ -185,7 +185,7 @@ describe("POST /api/v1/auth/register", () => {
             firstName: faker.person.firstName(),
             lastName: faker.person.lastName(),
             email: 12345,
-            password: faker.internet.password({ length: 8 }),
+            password: faker.internet.password({ length: 8 })
           })
           .expect(400)
           .expect(res => {
@@ -201,7 +201,7 @@ describe("POST /api/v1/auth/register", () => {
             firstName: faker.person.firstName(),
             lastName: faker.person.lastName(),
             email: "invalid-email",
-            password: faker.internet.password({ length: 8 }),
+            password: faker.internet.password({ length: 8 })
           })
           .expect(400)
           .expect(res => {
@@ -217,7 +217,7 @@ describe("POST /api/v1/auth/register", () => {
             firstName: faker.person.firstName(),
             lastName: faker.person.lastName(),
             email: "a".repeat(50) + "@example.com",
-            password: faker.internet.password({ length: 8 }),
+            password: faker.internet.password({ length: 8 })
           })
           .expect(400)
           .expect(res => {
@@ -236,7 +236,7 @@ describe("POST /api/v1/auth/register", () => {
             firstName: faker.person.firstName(),
             lastName: faker.person.lastName(),
             email: existingEmail,
-            password: faker.internet.password({ length: 8 }),
+            password: faker.internet.password({ length: 8 })
           })
           .expect(201)
 
@@ -247,7 +247,7 @@ describe("POST /api/v1/auth/register", () => {
             firstName: faker.person.firstName(),
             lastName: faker.person.lastName(),
             email: existingEmail,
-            password: faker.internet.password({ length: 8 }),
+            password: faker.internet.password({ length: 8 })
           })
           .expect(400)
           .expect(res => {
@@ -264,7 +264,7 @@ describe("POST /api/v1/auth/register", () => {
           .send({
             firstName: faker.person.firstName(),
             lastName: faker.person.lastName(),
-            email: faker.internet.email(),
+            email: faker.internet.email()
           })
           .expect(400)
           .expect(res => {
@@ -280,7 +280,7 @@ describe("POST /api/v1/auth/register", () => {
             firstName: faker.person.firstName(),
             lastName: faker.person.lastName(),
             email: faker.internet.email(),
-            password: 12345678,
+            password: 12345678
           })
           .expect(400)
           .expect(res => {
@@ -296,7 +296,7 @@ describe("POST /api/v1/auth/register", () => {
             firstName: faker.person.firstName(),
             lastName: faker.person.lastName(),
             email: faker.internet.email(),
-            password: "short",
+            password: "short"
           })
           .expect(400)
           .expect(res => {
@@ -312,7 +312,7 @@ describe("POST /api/v1/auth/register", () => {
             firstName: faker.person.firstName(),
             lastName: faker.person.lastName(),
             email: faker.internet.email(),
-            password: "p".repeat(101),
+            password: "p".repeat(101)
           })
           .expect(400)
           .expect(res => {
@@ -330,7 +330,7 @@ describe("POST /api/v1/auth/register", () => {
             firstName: "J",
             lastName: "D",
             email: "invalid-email",
-            password: "short",
+            password: "short"
           })
           .expect(400)
           .expect(res => {

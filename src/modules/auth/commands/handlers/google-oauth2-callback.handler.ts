@@ -2,7 +2,7 @@ import { CommandHandler, EventBus, ICommandHandler } from "@nestjs/cqrs"
 import { GoogleOAuth2CallbackCommand, GoogleOAuth2CallbackCommandResponse } from "../google-oauth2-callback.command"
 import { GoogleOAuth2Service } from "../../services/google-oauth2.service"
 import { RefreshTokenService } from "../../services/refresh-token.service"
-import { Transactional } from "../../../../infrastructure/database/unit-of-work/transactional.decorator"
+import { Transactional } from "../../../../database/unit-of-work/transactional.decorator"
 import { UserLoggedInEvent } from "../../events/user-logged-in.event"
 import { OAuth2Platform } from "../../services/oauth2-service"
 
@@ -11,7 +11,7 @@ export class GoogleOAuth2CallbackHandler implements ICommandHandler<GoogleOAuth2
   public constructor(
     private readonly googleOAuth2Service: GoogleOAuth2Service,
     private readonly refreshTokenService: RefreshTokenService,
-    private readonly eventBus: EventBus,
+    private readonly eventBus: EventBus
   ) {}
 
   @Transactional()
@@ -23,7 +23,7 @@ export class GoogleOAuth2CallbackHandler implements ICommandHandler<GoogleOAuth2
 
     return {
       platform: OAuth2Platform.WEB,
-      refreshToken: refreshToken,
+      refreshToken: refreshToken
     }
   }
 }

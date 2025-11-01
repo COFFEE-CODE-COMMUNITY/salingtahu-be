@@ -16,17 +16,17 @@ async function loadInfisicalSecret(): Promise<Record<string, any>> {
   }
 
   const infisical = new InfisicalSDK({
-    siteUrl: infisicalUrl,
+    siteUrl: infisicalUrl
   })
 
   await infisical.auth().universalAuth.login({
     clientId: infisicalClientId,
-    clientSecret: infisicalClientSecret,
+    clientSecret: infisicalClientSecret
   })
 
   const allSecrets = await infisical.secrets().listSecrets({
     environment: process.env.NODE_ENV || "development",
-    projectId: infisicalProjectId,
+    projectId: infisicalProjectId
   })
 
   return allSecrets.secrets.reduce(
@@ -34,7 +34,7 @@ async function loadInfisicalSecret(): Promise<Record<string, any>> {
       acc[secret.secretKey] = secret.secretValue
       return acc
     },
-    {} as Record<string, any>,
+    {} as Record<string, any>
   )
 }
 
@@ -59,9 +59,9 @@ async function loadInfisicalSecret(): Promise<Record<string, any>> {
           config = _.merge(config, await loadInfisicalSecret())
 
           return config
-        },
-      ],
-    }),
-  ],
+        }
+      ]
+    })
+  ]
 })
 export class ConfigModule {}

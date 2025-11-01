@@ -2,7 +2,7 @@ import { Processor, WorkerHost } from "@nestjs/bullmq"
 import { Job } from "bullmq"
 import { AllowedResolution, ProfilePicturePath } from "../modules/user/helpers/path.helper"
 import { FileStorage } from "../storage/file-storage.abstract"
-import { Logger } from "../infrastructure/log/logger.abstract"
+import { Logger } from "../log/logger.abstract"
 import { IllegalArgumentException } from "../exceptions/illegal-argument.exception"
 import { buffer } from "stream/consumers"
 import { Readable } from "stream"
@@ -21,7 +21,7 @@ export interface ImageProcessingData {
 }
 
 export enum ImageProcessingType {
-  PROFILE_PICTURE = "profile-picture",
+  PROFILE_PICTURE = "profile-picture"
 }
 
 @Processor(IMAGE_PROCESSING_QUEUE)
@@ -29,7 +29,7 @@ export class ImageProcessingConsumer extends WorkerHost {
   public constructor(
     private readonly userRepository: UserRepository,
     private readonly fileStorage: FileStorage,
-    private readonly logger: Logger,
+    private readonly logger: Logger
   ) {
     super()
   }
@@ -57,7 +57,7 @@ export class ImageProcessingConsumer extends WorkerHost {
     // Fetch original file
     const [imageFileProperties, streamImage] = await Promise.all([
       this.fileStorage.getFileProperties(originalFilePath.toString()),
-      this.fileStorage.getFile(originalFilePath.toString()),
+      this.fileStorage.getFile(originalFilePath.toString())
     ])
 
     if (!imageFileProperties || !streamImage) {
@@ -86,7 +86,7 @@ export class ImageProcessingConsumer extends WorkerHost {
       left: Math.floor((imageMetadata.width - size) / 2),
       top: Math.floor((imageMetadata.height - size) / 2),
       width: size,
-      height: size,
+      height: size
     })
 
     // Generate resized AVIF versions
@@ -95,7 +95,7 @@ export class ImageProcessingConsumer extends WorkerHost {
         const filePath = new ProfilePicturePath({
           userId,
           resolution: resolution.toString() as AllowedResolution,
-          extension: "avif",
+          extension: "avif"
         }).toString()
 
         const avifImageBuffer = await croppedImage
@@ -105,15 +105,15 @@ export class ImageProcessingConsumer extends WorkerHost {
           .toBuffer()
 
         await this.fileStorage.uploadFile(filePath, Readable.from(avifImageBuffer), {
-          contentType: "image/avif",
+          contentType: "image/avif"
         })
 
         return plainToInstance(ImageMetadata, {
           path: filePath,
           width: resolution,
-          height: resolution,
+          height: resolution
         })
-      }),
+      })
     )
 
     // Get existing user profile pictures to check for old original image
@@ -131,7 +131,7 @@ export class ImageProcessingConsumer extends WorkerHost {
     const newProfilePicturePath = new ProfilePicturePath({
       userId,
       resolution: "original",
-      extension: originalFileType.ext,
+      extension: originalFileType.ext
     }).toString()
 
     await this.fileStorage.deleteFile(originalFilePath.toString())
@@ -153,8 +153,8 @@ export class ImageProcessingConsumer extends WorkerHost {
       plainToInstance(ImageMetadata, {
         path: newProfilePicturePath,
         width: imageMetadata.width,
-        height: imageMetadata.height,
-      }),
+        height: imageMetadata.height
+      })
     ]
 
     await this.userRepository.update(userId, { profilePictures } as User)

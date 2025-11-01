@@ -1,6 +1,6 @@
 import { Column, Entity, ManyToMany, OneToMany } from "typeorm"
-import { BaseEntity } from "../../../common/base/base.entity"
-import { Language } from "../../../common/enums/language"
+import { BaseEntity } from "../../../base/base.entity"
+import { Language } from "../../../enums/language"
 import { AutoMap } from "@automapper/classes"
 import { UserStatus } from "../enums/user-status.enum"
 import { UserRole } from "../enums/user-role.enum"

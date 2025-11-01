@@ -4,7 +4,7 @@ import { App } from "supertest/types"
 import { getAuthUser } from "../get-auth-user"
 import { UserDto } from "../../src/modules/user/dto/user.dto"
 import { MockProxy, mock } from "jest-mock-extended"
-import { EmailService } from "../../src/infrastructure/email/email.service"
+import { EmailService } from "@/email/email.service"
 import { faker } from "@faker-js/faker"
 import request from "supertest"
 
@@ -32,7 +32,7 @@ describe("POST /api/v1/auth/password-reset", () => {
         .send({ email: user.email })
         .expect(200)
         .expect({
-          message: "A verification code has been sent to the email. Please check your inbox or spam mail.",
+          message: "A verification code has been sent to the email. Please check your inbox or spam mail."
         })
 
       expect(emailService.send).toHaveBeenCalledTimes(1)
@@ -42,9 +42,9 @@ describe("POST /api/v1/auth/password-reset", () => {
         expect.objectContaining({
           name: "password-reset",
           payload: expect.objectContaining({
-            setPasswordUrl: expect.any(String),
-          }),
-        }),
+            setPasswordUrl: expect.any(String)
+          })
+        })
       )
     })
   })

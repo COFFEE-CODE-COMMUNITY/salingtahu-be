@@ -1,7 +1,7 @@
 import { Global, Module } from "@nestjs/common"
 import { ConfigService } from "@nestjs/config"
 import { CreateBucketCommand, HeadBucketCommand, S3Client, S3ServiceException } from "@aws-sdk/client-s3"
-import { Logger } from "../infrastructure/log/logger.abstract"
+import { Logger } from "../log/logger.abstract"
 import { FileStorage } from "./file-storage.abstract"
 import { S3FileStorage } from "./s3-file-storage"
 
@@ -17,9 +17,9 @@ import { S3FileStorage } from "./s3-file-storage"
           endpoint: config.getOrThrow<string>("S3_ENDPOINT"),
           credentials: {
             accessKeyId: config.getOrThrow<string>("S3_ACCESS_KEY"),
-            secretAccessKey: config.getOrThrow<string>("S3_SECRET_KEY"),
+            secretAccessKey: config.getOrThrow<string>("S3_SECRET_KEY")
           },
-          forcePathStyle: true,
+          forcePathStyle: true
         })
 
         try {
@@ -56,13 +56,13 @@ import { S3FileStorage } from "./s3-file-storage"
 
         return s3Client
       },
-      inject: [ConfigService, Logger],
+      inject: [ConfigService, Logger]
     },
     {
       provide: FileStorage,
-      useClass: S3FileStorage,
-    },
+      useClass: S3FileStorage
+    }
   ],
-  exports: [FileStorage],
+  exports: [FileStorage]
 })
 export class StorageModule {}

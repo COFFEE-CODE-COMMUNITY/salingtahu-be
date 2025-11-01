@@ -15,8 +15,8 @@ import { UpdateUserHandler } from "./commands/handlers/update-user.handler"
 @Module({
   imports: [
     BullModule.registerQueue({
-      name: IMAGE_PROCESSING_QUEUE,
-    }),
+      name: IMAGE_PROCESSING_QUEUE
+    })
   ],
   controllers: [UserController],
   providers: [
@@ -35,8 +35,8 @@ import { UpdateUserHandler } from "./commands/handlers/update-user.handler"
 
     // Repositories
     InstructorVerificationRepository,
-    UserRepository,
+    UserRepository
   ],
-  exports: [UserRepository, UserService],
+  exports: [UserRepository, UserService]
 })
 export class UserModule {}

@@ -5,13 +5,13 @@ export abstract class FileStorage {
   public abstract initiateMultipartUpload(
     filePath: string,
     headers?: FileHeaders,
-    metadata?: FileMetadata,
+    metadata?: FileMetadata
   ): Promise<void>
   public abstract uploadFilePart(
     filePath: string,
     partNumber: number,
     fileStream: Readable,
-    abortController?: AbortController,
+    abortController?: AbortController
   ): Promise<void>
   public abstract completeMultipartUpload(filePath: string): Promise<boolean>
   public abstract abortMultipartUpload(filePath: string): Promise<boolean>
@@ -20,7 +20,7 @@ export abstract class FileStorage {
     fileStream: Readable,
     headers?: FileHeaders,
     metadata?: FileMetadata,
-    abortController?: AbortController,
+    abortController?: AbortController
   ): Promise<void>
   public abstract getFile(filePath: string): Promise<Readable | null>
   public abstract getFileProperties(filePath: string): Promise<FileProperties | null>

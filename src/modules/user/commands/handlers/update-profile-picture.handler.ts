@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { UpdateProfilePictureCommand } from "../update-profile-picture.command"
-import { CommonResponseDto } from "../../../../common/dto/common-response.dto"
+import { CommonResponseDto } from "../../../../dto/common-response.dto"
 import { plainToInstance } from "class-transformer"
 import { UserService } from "../../services/user.service"
 
@@ -12,7 +12,7 @@ export class UpdateProfilePictureHandler implements ICommandHandler<UpdateProfil
     await this.userService.saveProfilePicture(command.userId, command.fileStream)
 
     return plainToInstance(CommonResponseDto, {
-      message: "Profile picture updated successfully.",
+      message: "Profile picture updated successfully."
     })
   }
 }

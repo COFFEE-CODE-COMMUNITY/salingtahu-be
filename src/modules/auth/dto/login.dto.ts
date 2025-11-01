@@ -7,7 +7,7 @@ export class LoginDto {
     example: "johndoe@example.com",
     format: "email",
     maxLength: 50,
-    required: true,
+    required: true
   })
   @Allow()
   public email!: string
@@ -17,7 +17,7 @@ export class LoginDto {
     example: "SecurePass123!",
     minLength: 8,
     maxLength: 100,
-    required: true,
+    required: true
   })
   @Allow()
   public password!: string

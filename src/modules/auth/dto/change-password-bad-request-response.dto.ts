@@ -1,25 +1,25 @@
 import { ApiProperty } from "@nestjs/swagger"
-import { BadRequestResponseDto } from "../../../common/dto/bad-request-response.dto"
+import { BadRequestResponseDto } from "../../../dto/bad-request-response.dto"
 
 class ChangePasswordErrorMessage {
   @ApiProperty({
     type: [String],
     description: "List of validation error messages for the password field.",
-    example: ["Password is required.", "Password must be at least 8 characters."],
+    example: ["Password is required.", "Password must be at least 8 characters."]
   })
   public password!: string[]
 
   @ApiProperty({
     type: [String],
     description: "List of validation error messages for the confirmPassword field.",
-    example: ["Confirm password is required.", "Passwords do not match."],
+    example: ["Confirm password is required.", "Passwords do not match."]
   })
   public confirmPassword!: string[]
 
   @ApiProperty({
     type: [String],
     description: "List of validation error messages for the logoutAll.",
-    example: ["Logout all sessions is not a boolean value."],
+    example: ["Logout all sessions is not a boolean value."]
   })
   public logoutAll!: string[]
 }
@@ -31,8 +31,8 @@ export class ChangePasswordBadRequestResponseDto extends BadRequestResponseDto<C
     example: {
       password: ["Password is required.", "Password must be at least 8 characters."],
       confirmPassword: ["Confirm password is required.", "Passwords do not match."],
-      logoutAll: ["Logout all sessions is not a boolean value."],
-    },
+      logoutAll: ["Logout all sessions is not a boolean value."]
+    }
   })
   public errors!: ChangePasswordErrorMessage
 }

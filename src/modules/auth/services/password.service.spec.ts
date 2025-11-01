@@ -13,9 +13,9 @@ describe("PasswordService", () => {
         PasswordService,
         {
           provide: ConfigService,
-          useValue: mock<ConfigService>(),
-        },
-      ],
+          useValue: mock<ConfigService>()
+        }
+      ]
     }).compile()
 
     service = module.get<PasswordService>(PasswordService)

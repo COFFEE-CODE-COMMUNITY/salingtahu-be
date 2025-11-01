@@ -1,6 +1,6 @@
 import { LogoutCommand } from "../logout.command"
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
-import { CommonResponseDto } from "../../../../common/dto/common-response.dto"
+import { CommonResponseDto } from "../../../../dto/common-response.dto"
 import { UnauthorizedException } from "@nestjs/common"
 import { plainToInstance } from "class-transformer"
 import { RefreshTokenService } from "../../services/refresh-token.service"
@@ -15,13 +15,13 @@ export class LogoutHandler implements ICommandHandler<LogoutCommand> {
     if (!isValidRefreshToken) {
       throw new UnauthorizedException(
         plainToInstance(CommonResponseDto, {
-          message: "Invalid refresh token.",
-        }),
+          message: "Invalid refresh token."
+        })
       )
     }
 
     return plainToInstance(CommonResponseDto, {
-      message: "Logout success.",
+      message: "Logout success."
     })
   }
 }

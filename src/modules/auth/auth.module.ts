@@ -27,9 +27,9 @@ import { NotSameAsCurrentPasswordConstraint } from "./validators/not-same-as-cur
 @Module({
   imports: [
     BullModule.registerQueue({
-      name: IMAGE_PROCESSING_QUEUE,
+      name: IMAGE_PROCESSING_QUEUE
     }),
-    UserModule,
+    UserModule
   ],
   controllers: [AuthController],
   providers: [
@@ -61,8 +61,8 @@ import { NotSameAsCurrentPasswordConstraint } from "./validators/not-same-as-cur
     UserService,
 
     // Validators
-    NotSameAsCurrentPasswordConstraint,
+    NotSameAsCurrentPasswordConstraint
   ],
-  exports: [AccessTokenService],
+  exports: [AccessTokenService]
 })
 export class AuthModule {}

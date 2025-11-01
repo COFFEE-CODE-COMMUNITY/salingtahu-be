@@ -1,5 +1,5 @@
 import { Column, Entity, ManyToMany } from "typeorm"
-import { BaseEntity } from "../../../common/base/base.entity"
+import { BaseEntity } from "../../../base/base.entity"
 import { DecisionWebhook } from "../../../types/veriff"
 import { User } from "./user.entity"
 

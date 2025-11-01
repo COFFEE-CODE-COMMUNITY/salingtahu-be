@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { ApplyAsInstructorCommand } from "../apply-as-instructor.command"
-import { CommonResponseDto } from "../../../../common/dto/common-response.dto"
+import { CommonResponseDto } from "../../../../dto/common-response.dto"
 import { UserRepository } from "../../../user/repositories/user.repository"
 import { BadRequestException, ConflictException, NotFoundException } from "@nestjs/common"
 import { plainToInstance } from "class-transformer"
@@ -12,7 +12,7 @@ import { ApplyAsInstructorResponseDto } from "../../../user/dto/apply-as-instruc
 export class ApplyAsInstructorHandler implements ICommandHandler<ApplyAsInstructorCommand> {
   public constructor(
     private readonly veriffService: VeriffService,
-    private readonly userRepository: UserRepository,
+    private readonly userRepository: UserRepository
   ) {}
 
   public async execute({ userId }: ApplyAsInstructorCommand): Promise<ApplyAsInstructorResponseDto> {
@@ -21,24 +21,24 @@ export class ApplyAsInstructorHandler implements ICommandHandler<ApplyAsInstruct
     if (!user) {
       throw new NotFoundException(
         plainToInstance(CommonResponseDto, {
-          message: "User not found.",
-        }),
+          message: "User not found."
+        })
       )
     }
 
     if (user.roles.includes(UserRole.INSTRUCTOR)) {
       throw new ConflictException(
         plainToInstance(CommonResponseDto, {
-          message: "User is already an instructor.",
-        }),
+          message: "User is already an instructor."
+        })
       )
     }
 
     if (!user.headline || !user.biography || !user.profilePictures || user.profilePictures.length === 0) {
       throw new BadRequestException(
         plainToInstance(CommonResponseDto, {
-          message: "User must have a headline, biography, and profile picture to apply as an instructor.",
-        }),
+          message: "User must have a headline, biography, and profile picture to apply as an instructor."
+        })
       )
     }
 

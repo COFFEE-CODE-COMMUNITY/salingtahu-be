@@ -1,5 +1,5 @@
 import { Column, Entity, ManyToOne, Unique } from "typeorm"
-import { BaseEntity } from "../../../common/base/base.entity"
+import { BaseEntity } from "../../../base/base.entity"
 import { OAuth2Provider } from "../enums/oauth2-provider.enum"
 import { User } from "../../user/entities/user.entity"
 

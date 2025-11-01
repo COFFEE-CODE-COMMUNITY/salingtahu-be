@@ -3,7 +3,7 @@ import { User } from "../modules/user/entities/user.entity"
 import { HttpService } from "@nestjs/axios"
 import { ConfigService } from "@nestjs/config"
 import { lastValueFrom } from "rxjs"
-import { Logger } from "../infrastructure/log/logger.abstract"
+import { Logger } from "../log/logger.abstract"
 import { createHmac } from "crypto"
 import { DecisionWebhook, CreateVerificationSession } from "../types/veriff"
 
@@ -15,7 +15,7 @@ export class VeriffService {
   public constructor(
     private readonly http: HttpService,
     private readonly config: ConfigService,
-    private readonly logger: Logger,
+    private readonly logger: Logger
   ) {
     this.VERIFF_BASE_URL = this.config.getOrThrow<string>("VERIFF_BASE_URL")
     this.VERIFF_API_KEY = this.config.getOrThrow<string>("VERIFF_API_KEY")
@@ -29,10 +29,10 @@ export class VeriffService {
           person: {
             firstName: user.firstName,
             lastName: user.lastName,
-            email: user.email,
+            email: user.email
           },
-          vendorData: user.id,
-        },
+          vendorData: user.id
+        }
       }
       const { data } = await lastValueFrom(
         this.http.post<CreateVerificationSession.Response.Body, CreateVerificationSession.Request.Body>(
@@ -41,15 +41,15 @@ export class VeriffService {
           {
             headers: {
               "X-Auth-Client": this.VERIFF_API_KEY,
-              "X-Hmac-Signature": this.getHmacSignature(body),
-            },
-          },
-        ),
+              "X-Hmac-Signature": this.getHmacSignature(body)
+            }
+          }
+        )
       )
 
       return {
         sessionId: data.verification.id,
-        url: data.verification.url,
+        url: data.verification.url
       }
     } catch (error) {
       this.logger.error("Error when creating Veriff verification session", error)

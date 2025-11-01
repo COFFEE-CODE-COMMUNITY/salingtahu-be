@@ -5,7 +5,7 @@ import { DecisionWebhook } from "../../../types/veriff"
 export class ProcessVeriffDecisionCommand extends Command<void> {
   public constructor(
     public readonly payload: DecisionWebhook.Payload,
-    public readonly headers: DecisionWebhookHeaders,
+    public readonly headers: DecisionWebhookHeaders
   ) {
     super()
   }

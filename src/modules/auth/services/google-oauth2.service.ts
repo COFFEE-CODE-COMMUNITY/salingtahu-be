@@ -1,6 +1,6 @@
 import { OAuth2Service, UserProfile } from "./oauth2-service"
 import { Injectable } from "@nestjs/common"
-import { Cache } from "../../../infrastructure/cache/cache"
+import { Cache } from "../../../cache/cache"
 import { UserService } from "../../user/services/user.service"
 import { UserRepository } from "../../user/repositories/user.repository"
 import { HttpService } from "@nestjs/axios"
@@ -36,7 +36,7 @@ export class GoogleOAuth2Service extends OAuth2Service {
     userService: UserService,
     userRepository: UserRepository,
     http: HttpService,
-    private readonly config: ConfigService,
+    private readonly config: ConfigService
   ) {
     super(cache, userService, userRepository, http)
   }
@@ -51,7 +51,7 @@ export class GoogleOAuth2Service extends OAuth2Service {
 
   protected get jwksOptions(): Options | null {
     return {
-      jwksUri: "https://www.googleapis.com/oauth2/v3/certs",
+      jwksUri: "https://www.googleapis.com/oauth2/v3/certs"
     }
   }
 
@@ -88,18 +88,18 @@ export class GoogleOAuth2Service extends OAuth2Service {
     const tokenResponse = await lastValueFrom(
       this.http.post<GoogleGetTokenResponse>("https://oauth2.googleapis.com/token", tokenUrl.toString(), {
         headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-      }),
+          "Content-Type": "application/x-www-form-urlencoded"
+        }
+      })
     )
     const userInfo = await this.verifyAndDecodeIdToken<GoogleJwtPayload>(tokenResponse.data.id_token, {
-      audience: await this.config.getOrThrow("GOOGLE_CLIENT_ID"),
+      audience: await this.config.getOrThrow("GOOGLE_CLIENT_ID")
     })
     return {
       firstName: userInfo.given_name,
       lastName: userInfo.family_name ? userInfo.family_name : "",
       email: userInfo.email,
-      profilePictureUrl: userInfo.picture,
+      profilePictureUrl: userInfo.picture
     }
   }
 }

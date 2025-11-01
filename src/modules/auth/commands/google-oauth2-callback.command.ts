@@ -5,7 +5,7 @@ export class GoogleOAuth2CallbackCommand extends Command<GoogleOAuth2CallbackCom
     public readonly code: string,
     public readonly state: string,
     public readonly userAgent: string,
-    public readonly ipAddress: string,
+    public readonly ipAddress: string
   ) {
     super()
   }

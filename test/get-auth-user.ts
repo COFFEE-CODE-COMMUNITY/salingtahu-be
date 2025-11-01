@@ -38,7 +38,7 @@ export async function getAuthUser(app: INestApplication<App>): Promise<GetAuthUs
     refreshToken,
     user: getCurrentUserResponse.body as UserDto,
     password: registerDto.password,
-    userAgent,
+    userAgent
   }
 }
 

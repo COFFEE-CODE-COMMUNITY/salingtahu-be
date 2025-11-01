@@ -12,16 +12,16 @@ export default tseslint.config([
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     languageOptions: {
       ecmaVersion: 2020,
-      globals: globals.browser,
-    },
+      globals: globals.browser
+    }
   },
   {
     files: ["**/*.ts", "**/*.tsx"],
     extends: [...tseslint.configs.recommended],
     languageOptions: {
       parserOptions: {
-        projectService: true,
-      },
+        projectService: true
+      }
     },
     rules: {
       "@typescript-eslint/adjacent-overload-signatures": "error",
@@ -29,8 +29,8 @@ export default tseslint.config([
         "error",
         {
           default: "array-simple",
-          readonly: "array-simple",
-        },
+          readonly: "array-simple"
+        }
       ],
       "@typescript-eslint/ban-ts-comment": "off",
       "@typescript-eslint/ban-tslint-comment": "off",
@@ -43,8 +43,8 @@ export default tseslint.config([
         "error",
         {
           assertionStyle: "as",
-          objectLiteralTypeAssertions: "allow",
-        },
+          objectLiteralTypeAssertions: "allow"
+        }
       ],
       "@typescript-eslint/consistent-type-definitions": ["error", "interface"],
       "@typescript-eslint/consistent-type-exports": "error",
@@ -52,8 +52,8 @@ export default tseslint.config([
         "off",
         {
           prefer: "type-imports",
-          disallowTypeAnnotations: false,
-        },
+          disallowTypeAnnotations: false
+        }
       ],
       "default-param-last": "off",
       "@typescript-eslint/default-param-last": "error",
@@ -72,74 +72,74 @@ export default tseslint.config([
         "error",
         {
           selector: "class",
-          format: ["PascalCase"],
+          format: ["PascalCase"]
         },
         {
           selector: "classMethod",
           format: ["camelCase"],
-          leadingUnderscore: "allow",
+          leadingUnderscore: "allow"
         },
         {
           selector: "classProperty",
           format: ["camelCase", "UPPER_CASE"],
-          leadingUnderscore: "allow",
+          leadingUnderscore: "allow"
         },
         {
           selector: "enum",
-          format: ["PascalCase"],
+          format: ["PascalCase"]
         },
         {
           selector: "enumMember",
-          format: ["UPPER_CASE"],
+          format: ["UPPER_CASE"]
         },
         {
           selector: "function",
-          format: ["camelCase", "PascalCase"],
+          format: ["camelCase", "PascalCase"]
         },
         {
           selector: "interface",
-          format: ["PascalCase"],
+          format: ["PascalCase"]
         },
         {
           selector: "objectLiteralMethod",
-          format: ["camelCase"],
+          format: ["camelCase"]
         },
         {
           selector: "objectLiteralProperty",
           format: null,
-          modifiers: ["public"],
+          modifiers: ["public"]
         },
         {
           selector: "parameter",
           format: ["camelCase"],
-          leadingUnderscore: "allow",
+          leadingUnderscore: "allow"
         },
         {
           selector: "parameterProperty",
-          format: ["camelCase"],
+          format: ["camelCase"]
         },
         {
           selector: "typeAlias",
-          format: ["PascalCase"],
+          format: ["PascalCase"]
         },
         {
           selector: "typeMethod",
-          format: ["camelCase"],
+          format: ["camelCase"]
         },
         {
           selector: "typeParameter",
-          format: ["PascalCase"],
+          format: ["PascalCase"]
         },
         {
           selector: "typeProperty",
-          format: null,
+          format: null
         },
         {
           selector: "variable",
           format: ["camelCase", "UPPER_CASE", "PascalCase"],
           leadingUnderscore: "allow",
-          trailingUnderscore: "allow",
-        },
+          trailingUnderscore: "allow"
+        }
       ],
       "@typescript-eslint/no-array-constructor": "off",
       "@typescript-eslint/no-array-delete": "error",
@@ -156,8 +156,8 @@ export default tseslint.config([
       "@typescript-eslint/no-empty-object-type": [
         "error",
         {
-          allowInterfaces: "with-single-extends",
-        },
+          allowInterfaces: "with-single-extends"
+        }
       ],
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-extra-non-null-assertion": "error",
@@ -178,8 +178,8 @@ export default tseslint.config([
           ignoreArrayIndexes: true,
           ignoreDefaultValues: true,
           enforceConst: true,
-          detectObjects: false,
-        },
+          detectObjects: false
+        }
       ],
       "@typescript-eslint/no-meaningless-void-operator": "off",
       "@typescript-eslint/no-misused-new": "error",
@@ -230,8 +230,8 @@ export default tseslint.config([
           destructuredArrayIgnorePattern: "^_",
           ignoreRestSiblings: true,
           vars: "all",
-          varsIgnorePattern: "^_",
-        },
+          varsIgnorePattern: "^_"
+        }
       ],
       "@typescript-eslint/no-use-before-define": "off",
       "no-useless-constructor": "off",
@@ -275,12 +275,12 @@ export default tseslint.config([
       "@typescript-eslint/triple-slash-reference": [
         "error",
         {
-          lib: "always",
-        },
+          lib: "always"
+        }
       ],
       "@typescript-eslint/unbound-method": "off",
       "@typescript-eslint/unified-signatures": "off",
-      "@typescript-eslint/use-unknown-in-catch-callback-variable": "off",
-    },
-  },
+      "@typescript-eslint/use-unknown-in-catch-callback-variable": "off"
+    }
+  }
 ])
