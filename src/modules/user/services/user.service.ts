@@ -149,7 +149,8 @@ export class UserService {
           name: "instructor-declined",
           payload: {
             firstName: user.firstName,
-            dashboardUrl: `${this.config.get<string>("client.web.url")}/dashboard/instructor`
+            reason: payload.verification.reason,
+            reapplyUrl: `${this.config.get<string>("client.web.url")}/dashboard/student/apply-as-instructor`
           }
         })
 

@@ -1,11 +1,9 @@
-import React from "react"
 import { Processor, WorkerHost } from "@nestjs/bullmq"
 import { Job } from "bullmq"
 import { render } from "@react-email/render"
 import { Logger } from "../log/logger.abstract"
 import { Resend } from "resend"
 import { ConfigService } from "@nestjs/config"
-import PasswordResetTemplate from "../email/templates/password-reset.template"
 
 export const EMAIL_QUEUE = "email"
 
@@ -17,16 +15,12 @@ export interface EmailConsumerData {
 
 @Processor(EMAIL_QUEUE)
 export class EmailConsumer extends WorkerHost {
-  private readonly templates = new Map<string, (props: any) => React.ReactElement>()
-
   public constructor(
     private readonly logger: Logger,
     private readonly resend: Resend,
     private readonly config: ConfigService
   ) {
     super()
-
-    this.templates.set("password-reset", PasswordResetTemplate)
   }
 
   public async process(job: Job<EmailConsumerData>): Promise<void> {
@@ -41,7 +35,7 @@ export class EmailConsumer extends WorkerHost {
   }
 
   private async getHtmlTemplate(template: string, data: any): Promise<string> {
-    const Template = this.templates.get(template)
+    const Template = await import(`../email/templates/${template}.template.tsx`).then(m => m.default).catch(null)
 
     if (!Template) {
       this.logger.error(`Template not found: ${template}`)
