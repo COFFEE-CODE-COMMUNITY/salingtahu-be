@@ -24,6 +24,7 @@ import { CqrsModule } from "@nestjs/cqrs"
 import { EmailModule } from "./email/email.module"
 import { SecurityModule } from "./security/security.module"
 import { LogModule } from "./log/log.module"
+import { AppController } from "./app.controller"
 
 @Global()
 @Module({
@@ -61,6 +62,7 @@ import { LogModule } from "./log/log.module"
     ValidationModule,
     WebhookModule
   ],
+  controllers: [AppController],
   providers: [
     HttpRequestContext,
     ProviderUtil,

@@ -2,7 +2,7 @@
   "app": {
     "port": 8081,
     "domain": "localhost",
-    "cdnUrl": "http://localhost:8081"
+    "cdnUrl": "http://localhost:8081/api/v1/files"
   },
   "client": {
     "web": {
