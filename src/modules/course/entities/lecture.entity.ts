@@ -6,10 +6,10 @@ import { CourseSection } from "./course-section.entity"
 
 @Entity()
 export class Lecture extends BaseEntity {
-  @ManyToOne(() => User, user => user.id, {onDelete: "CASCADE"})
+  @ManyToOne(() => User, user => user.id, { onDelete: "CASCADE" })
   public user!: User
 
-  @ManyToOne(() => CourseSection, section => section.id, {onDelete: "CASCADE"})
+  @ManyToOne(() => CourseSection, section => section.id, { onDelete: "CASCADE" })
   public section!: CourseSection
 
   @Column()
@@ -19,12 +19,11 @@ export class Lecture extends BaseEntity {
   public description!: string
 
   @Column({
-    type: 'enum',
-    enum: CourseLectureType,
+    type: "enum",
+    enum: CourseLectureType
   })
   public type!: CourseLectureType
 
-  @Column({ name:"display_order" })
+  @Column({ name: "display_order" })
   public displayOrder!: number
-
 }

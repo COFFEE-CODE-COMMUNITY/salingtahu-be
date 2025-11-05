@@ -1,8 +1,8 @@
-import { Column, Entity, ManyToOne } from "typeorm";
-import { BaseEntity } from "../../../base/base.entity";
-import { Language } from "../../../enums/language";
-import { CourseStatus } from "../enums/course-status.enum";
-import { CourseSection } from "./course-section.entity";
+import { Column, Entity, ManyToOne } from "typeorm"
+import { BaseEntity } from "../../../base/base.entity"
+import { Language } from "../../../enums/language"
+import { CourseStatus } from "../enums/course-status.enum"
+import { CourseSection } from "./course-section.entity"
 
 @Entity()
 export class Course extends BaseEntity {

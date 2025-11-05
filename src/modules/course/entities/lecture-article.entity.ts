@@ -4,7 +4,7 @@ import { Lecture } from "./lecture.entity"
 
 @Entity()
 export class LectureArticle extends BaseEntity {
-  @OneToOne(() => Lecture, (lecture) => lecture.id, {onDelete: "CASCADE"})
+  @OneToOne(() => Lecture, lecture => lecture.id, { onDelete: "CASCADE" })
   public lecture!: Lecture
 
   @Column()

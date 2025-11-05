@@ -5,10 +5,10 @@ import { User } from "../../user/entities/user.entity"
 
 @Entity()
 export class LectureProgress extends BaseEntity {
-  @OneToMany(() => Lecture, lecture => lecture.id, {onDelete: "CASCADE"})
+  @OneToMany(() => Lecture, lecture => lecture.id, { onDelete: "CASCADE" })
   public lecture!: Lecture
 
-  @OneToMany(() => User, (user) => user.id, {onDelete: "CASCADE"})
+  @OneToMany(() => User, user => user.id, { onDelete: "CASCADE" })
   public user!: User
 
   @Column()

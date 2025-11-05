@@ -8,7 +8,7 @@ export class CourseReview extends BaseEntity {
   @ManyToOne(() => User, user => user.id, { onDelete: "CASCADE" })
   public user!: User
 
-  @ManyToOne(() => Course, course => course.id, {onDelete: "CASCADE"})
+  @ManyToOne(() => Course, course => course.id, { onDelete: "CASCADE" })
   public course!: Course
 
   @Column("smallint")
