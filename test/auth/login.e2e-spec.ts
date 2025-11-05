@@ -56,14 +56,14 @@ describe("POST /api/v1/auth/login", () => {
         .post("/api/v1/auth/login")
         .send({
           email,
-          password,
+          password
         })
         .set("User-Agent", faker.internet.userAgent())
 
       expect(response.status).toBe(200)
       expect(response.body).toEqual({
         refreshToken: expect.any(String),
-        accessToken: expect.any(String),
+        accessToken: expect.any(String)
       })
       expect(response.headers["set-cookie"]![0]).toMatch(/refreshToken=.+;/)
     })
@@ -75,12 +75,12 @@ describe("POST /api/v1/auth/login", () => {
         .post("/api/v1/auth/login")
         .send({
           email: faker.internet.email(),
-          password,
+          password
         })
         .set("User-Agent", faker.internet.userAgent())
         .expect(401)
         .expect({
-          message: "Invalid credentials.",
+          message: "Invalid credentials."
         })
     })
 
@@ -89,12 +89,12 @@ describe("POST /api/v1/auth/login", () => {
         .post("/api/v1/auth/login")
         .send({
           email,
-          password: faker.internet.password({ length: 8 }),
+          password: faker.internet.password({ length: 8 })
         })
         .set("User-Agent", faker.internet.userAgent())
         .expect(401)
         .expect({
-          message: "Invalid credentials.",
+          message: "Invalid credentials."
         })
     })
   })
@@ -117,12 +117,12 @@ describe("POST /api/v1/auth/login", () => {
         .post("/api/v1/auth/login")
         .send({
           email: user.email,
-          password: user.password,
+          password: user.password
         })
         .set("User-Agent", faker.internet.userAgent())
         .expect(422)
         .expect({
-          message: `Please logged in using ${user!.oauth2Users.map(oauth2User => _.startCase(oauth2User.provider.toLowerCase())).join(", ")}.`,
+          message: `Please logged in using ${user!.oauth2Users.map(oauth2User => _.startCase(oauth2User.provider.toLowerCase())).join(", ")}.`
         })
     })
   })

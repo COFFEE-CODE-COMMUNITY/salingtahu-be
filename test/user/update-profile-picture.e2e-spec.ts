@@ -24,24 +24,24 @@ describe("PUT /api/v1/users/me/profile-picture", () => {
     it.each([
       {
         sampleImagePath: "test/fixtures/images/image.jpg",
-        mimeType: "image/jpeg",
+        mimeType: "image/jpeg"
       },
       {
         sampleImagePath: "test/fixtures/images/image.png",
-        mimeType: "image/png",
+        mimeType: "image/png"
       },
       {
         sampleImagePath: "test/fixtures/images/image.webp",
-        mimeType: "image/webp",
+        mimeType: "image/webp"
       },
       {
         sampleImagePath: "test/fixtures/images/image.avif",
-        mimeType: "image/avif",
+        mimeType: "image/avif"
       },
       {
         sampleImagePath: "test/fixtures/images/image.heic",
-        mimeType: "image/heic",
-      },
+        mimeType: "image/heic"
+      }
     ])("should update profile picture with $mimeType image", async ({ sampleImagePath, mimeType }) => {
       const imageBuffer = await readFile(sampleImagePath)
       await request(app.getHttpServer())
@@ -51,7 +51,7 @@ describe("PUT /api/v1/users/me/profile-picture", () => {
         .send(imageBuffer)
         .expect(200)
         .expect({
-          message: "Profile picture updated successfully.",
+          message: "Profile picture updated successfully."
         })
     })
   })

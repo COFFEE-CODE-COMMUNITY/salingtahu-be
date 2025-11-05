@@ -14,10 +14,10 @@ export interface ProfilePicturePathFormat {
 export class ProfilePicturePath {
   private readonly ALLOWED_RESOLUTIONS: AllowedResolution[] = ["128", "512", "1024", "original"]
   private readonly ALLOWED_EXTENSIONS = [...ALLOWED_IMAGE_MIMETYPES, "application/octet-stream"].flatMap(
-    mime => extensions[mime] || [],
+    mime => extensions[mime] || []
   )
   private readonly PATH_REGEX = new RegExp(
-    `^users/(${UUID_V4_PATTERN})/profile-picture-(${this.ALLOWED_RESOLUTIONS.join("|")})\\.(${this.ALLOWED_EXTENSIONS.join("|")})$`,
+    `^users/(${UUID_V4_PATTERN})/profile-picture-(${this.ALLOWED_RESOLUTIONS.join("|")})\\.(${this.ALLOWED_EXTENSIONS.join("|")})$`
   )
   private userId: string
   private resolution: AllowedResolution

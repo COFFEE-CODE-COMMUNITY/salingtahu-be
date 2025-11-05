@@ -22,17 +22,17 @@ describe("RegisterHandler", () => {
         RegisterHandler,
         {
           provide: getMapperToken(),
-          useValue: mock<Mapper>(),
+          useValue: mock<Mapper>()
         },
         {
           provide: PasswordService,
-          useValue: mock<PasswordService>(),
+          useValue: mock<PasswordService>()
         },
         {
           provide: UserRepository,
-          useValue: mock<UserRepository>(),
-        },
-      ],
+          useValue: mock<UserRepository>()
+        }
+      ]
     }).compile()
 
     handler = module.get<RegisterHandler>(RegisterHandler)
@@ -77,11 +77,11 @@ describe("RegisterHandler", () => {
           firstName: dto.firstName,
           lastName: dto.lastName,
           email: dto.email,
-          password: "hashedPassword",
-        }),
+          password: "hashedPassword"
+        })
       )
       expect(result).toEqual({
-        message: "User successfully registered.",
+        message: "User successfully registered."
       })
     })
   })

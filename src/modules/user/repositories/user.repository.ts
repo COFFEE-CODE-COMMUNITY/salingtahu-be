@@ -1,9 +1,9 @@
 import { Injectable } from "@nestjs/common"
-import { BaseRepository } from "../../../common/base/base.repository"
+import { BaseRepository } from "../../../base/base.repository"
 import { User } from "../entities/user.entity"
 import { DataSource, EntityManager } from "typeorm"
-import { TransactionContextService } from "../../../infrastructure/database/unit-of-work/transaction-context.service"
-import { EntityId } from "../../../common/base/base.entity"
+import { TransactionContextService } from "../../../database/unit-of-work/transaction-context.service"
+import { EntityId } from "../../../base/base.entity"
 import { UserRole } from "../enums/user-role.enum"
 
 @Injectable()
@@ -16,8 +16,11 @@ export class UserRepository extends BaseRepository<User> {
     return this.getRepository().findOne({ where: { email }, relations: { oauth2Users: true } })
   }
 
-  public async findRolesById(userId: EntityId): Promise<UserRole[]> {
-    const user = await this.getRepository().findOne({ where: { id: userId }, select: { roles: true } })
+  public async findRolesById(id: EntityId): Promise<UserRole[]> {
+    const user = await this.getRepository().findOne({
+      where: { id },
+      select: { roles: true }
+    })
 
     return user ? user.roles : []
   }

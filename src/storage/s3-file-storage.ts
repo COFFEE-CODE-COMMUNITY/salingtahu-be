@@ -6,18 +6,18 @@ import {
   DeleteObjectCommand,
   GetObjectCommand,
   HeadObjectCommand,
-  S3Client,
+  S3Client
 } from "@aws-sdk/client-s3"
 import { Options, Upload } from "@aws-sdk/lib-storage"
 import { ConfigService } from "@nestjs/config"
-import { Logger } from "../infrastructure/log/logger.abstract"
+import { Logger } from "../log/logger.abstract"
 
 @Injectable()
 export class S3FileStorage extends FileStorage {
   public constructor(
     private readonly s3Client: S3Client,
     private readonly config: ConfigService,
-    private readonly logger: Logger,
+    private readonly logger: Logger
   ) {
     super()
   }
@@ -34,7 +34,7 @@ export class S3FileStorage extends FileStorage {
     filePath: string,
     partNumber: number,
     fileStream: Readable,
-    abortController?: AbortController,
+    abortController?: AbortController
   ): Promise<void> {
     throw new Error("Method not implemented.")
   }
@@ -52,7 +52,7 @@ export class S3FileStorage extends FileStorage {
     fileStream: Readable,
     headers?: FileHeaders,
     metadata?: FileMetadata,
-    abortController?: AbortController,
+    abortController?: AbortController
   ): Promise<void> {
     const uploadOptions: Options = {
       client: this.s3Client,
@@ -65,11 +65,11 @@ export class S3FileStorage extends FileStorage {
         ContentEncoding: headers?.contentEncoding,
         CacheControl: headers?.cacheControl,
         ContentDisposition: headers?.contentDisposition,
-        ContentLanguage: headers?.contentLanguage,
+        ContentLanguage: headers?.contentLanguage
       },
       queueSize: 4,
       partSize: 5 * 1024 * 1024,
-      leavePartsOnError: false,
+      leavePartsOnError: false
     }
 
     if (abortController) {
@@ -84,7 +84,7 @@ export class S3FileStorage extends FileStorage {
     try {
       const command = new GetObjectCommand({
         Bucket: this.config.get<string>("S3_BUCKET_NAME"),
-        Key: filePath,
+        Key: filePath
       })
 
       const response = await this.s3Client.send(command)
@@ -104,7 +104,7 @@ export class S3FileStorage extends FileStorage {
     try {
       const command = new HeadObjectCommand({
         Bucket: this.config.get<string>("S3_BUCKET_NAME"),
-        Key: filePath,
+        Key: filePath
       })
 
       const response = await this.s3Client.send(command)
@@ -118,7 +118,7 @@ export class S3FileStorage extends FileStorage {
         contentDisposition: response.ContentDisposition,
         size: response.ContentLength,
         lastModifiedAt: response.LastModified,
-        metadata: response.Metadata,
+        metadata: response.Metadata
       }
     } catch (error) {
       this.logger.error(`Error getting file properties from S3: ${filePath}`, error as Error)
@@ -137,11 +137,11 @@ export class S3FileStorage extends FileStorage {
       ContentDisposition: headers?.contentDisposition,
       ContentEncoding: headers?.contentEncoding,
       ContentLanguage: headers?.contentLanguage,
-      ContentType: headers?.contentType,
+      ContentType: headers?.contentType
     })
     const deleteCommand = new DeleteObjectCommand({
       Bucket: bucketName,
-      Key: sourcePath,
+      Key: sourcePath
     })
 
     try {
@@ -158,7 +158,7 @@ export class S3FileStorage extends FileStorage {
     try {
       const command = new DeleteObjectCommand({
         Bucket: this.config.get<string>("S3_BUCKET_NAME"),
-        Key: filePath,
+        Key: filePath
       })
 
       await this.s3Client.send(command)

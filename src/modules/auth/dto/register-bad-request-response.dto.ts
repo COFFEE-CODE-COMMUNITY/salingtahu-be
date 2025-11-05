@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger"
-import { BadRequestResponseDto } from "../../../common/dto/bad-request-response.dto"
+import { BadRequestResponseDto } from "../../../dto/bad-request-response.dto"
 
 class RegisterBadRequestErrorMessages {
   @ApiProperty({
@@ -8,10 +8,10 @@ class RegisterBadRequestErrorMessages {
       "First name must be at most 30 characters long",
       "First name must be at least 2 characters long",
       "First name should not be empty",
-      "First name must be a string",
+      "First name must be a string"
     ],
     type: [String],
-    required: false,
+    required: false
   })
   public firstName!: string[]
 
@@ -21,10 +21,10 @@ class RegisterBadRequestErrorMessages {
       "Last name must be at most 30 characters long",
       "Last name must be at least 2 characters long",
       "Last name should not be empty",
-      "Last name must be a string",
+      "Last name must be a string"
     ],
     type: [String],
-    required: false,
+    required: false
   })
   public lastName!: string[]
 
@@ -34,10 +34,10 @@ class RegisterBadRequestErrorMessages {
       "Invalid email format",
       "Email must be at most 50 characters long",
       "Email should not be empty",
-      "Email must be a string",
+      "Email must be a string"
     ],
     type: [String],
-    required: false,
+    required: false
   })
   public email!: string[]
 
@@ -47,10 +47,10 @@ class RegisterBadRequestErrorMessages {
       "Password must be at least 8 characters long",
       "Password must be at most 100 characters long",
       "Password should not be empty",
-      "Password must be a string",
+      "Password must be a string"
     ],
     type: [String],
-    required: false,
+    required: false
   })
   public password!: string[]
 }
@@ -62,8 +62,8 @@ export class RegisterBadRequestResponseDto extends BadRequestResponseDto<Registe
     example: {
       username: ["Username must be at least 4 characters long"],
       email: ["Invalid email format"],
-      password: ["Password must be at least 8 characters long"],
-    },
+      password: ["Password must be at least 8 characters long"]
+    }
   })
   public errors!: RegisterBadRequestErrorMessages
 }

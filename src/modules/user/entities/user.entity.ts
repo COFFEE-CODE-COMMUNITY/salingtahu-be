@@ -1,14 +1,14 @@
-import { Column, Entity, OneToMany, OneToOne } from "typeorm"
-import { BaseEntity } from "../../../common/base/base.entity"
-import { Language } from "../../../common/enums/language"
+import { Column, Entity, ManyToMany, OneToMany } from "typeorm"
+import { BaseEntity } from "../../../base/base.entity"
+import { Language } from "../../../enums/language"
 import { AutoMap } from "@automapper/classes"
 import { UserStatus } from "../enums/user-status.enum"
 import { UserRole } from "../enums/user-role.enum"
 import { RefreshToken } from "../../auth/entities/refresh-token.entity"
 import { OAuth2User } from "../../auth/entities/oauth2-user.entity"
 import { ImageMetadata } from "../../../entities/image-metadata.entity"
-import { Instructor } from "../../instructor/entities/instructor.entity"
 import { PasswordResetSession } from "../../auth/entities/password-reset-session.entity"
+import { InstructorVerification } from "./instructor-verification.entity"
 
 @Entity({ name: "users" })
 export class User extends BaseEntity {
@@ -73,12 +73,14 @@ export class User extends BaseEntity {
   public youtubeUrl?: string
 
   @Column({ type: "enum", enum: UserStatus, default: UserStatus.ACTIVE })
+  @AutoMap()
   public status!: UserStatus
 
   @Column({ name: "last_logged_in_at", nullable: true })
   public lastLoggedInAt?: Date
 
   @Column({ type: "enum", enum: UserRole, array: true, default: [UserRole.STUDENT] })
+  @AutoMap(() => [String])
   public roles!: UserRole[]
 
   @OneToMany(() => RefreshToken, refreshToken => refreshToken.user)
@@ -87,11 +89,11 @@ export class User extends BaseEntity {
   @OneToMany(() => OAuth2User, oauth2User => oauth2User.user, { cascade: true })
   public oauth2Users!: OAuth2User[]
 
-  @OneToOne(() => Instructor, instructor => instructor.user)
-  public instructor!: Instructor
-
   @OneToMany(() => PasswordResetSession, passwordResetSession => passwordResetSession.user)
   public passwordResetSessions!: PasswordResetSession[]
+
+  @ManyToMany(() => InstructorVerification, instructorVerifications => instructorVerifications.users)
+  public instructorVerifications!: InstructorVerification[]
 
   public updateLastLoggedIn(): void {
     this.lastLoggedInAt = new Date()

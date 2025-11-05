@@ -1,6 +1,6 @@
 import { CommandHandler, EventBus, ICommandHandler } from "@nestjs/cqrs"
 import { LoginCommand } from "../login.command"
-import { CommonResponseDto } from "../../../../common/dto/common-response.dto"
+import { CommonResponseDto } from "../../../../dto/common-response.dto"
 import { TokensDto } from "../../dto/tokens.dto"
 import { UserRepository } from "../../../user/repositories/user.repository"
 import { AccessTokenService } from "../../services/access-token.service"
@@ -18,7 +18,7 @@ export class LoginHandler implements ICommandHandler<LoginCommand> {
     private readonly refreshTokenService: RefreshTokenService,
     private readonly passwordService: PasswordService,
     private readonly userRepository: UserRepository,
-    private readonly eventBus: EventBus,
+    private readonly eventBus: EventBus
   ) {}
 
   public async execute({ dto, userAgent, ipAddress }: LoginCommand): Promise<TokensDto> {
@@ -27,8 +27,8 @@ export class LoginHandler implements ICommandHandler<LoginCommand> {
     if (!user) {
       throw new UnauthorizedException(
         plainToInstance(CommonResponseDto, {
-          message: "Invalid credentials.",
-        }),
+          message: "Invalid credentials."
+        })
       )
     }
 
@@ -38,15 +38,15 @@ export class LoginHandler implements ICommandHandler<LoginCommand> {
       if (!isValid) {
         throw new UnauthorizedException(
           plainToInstance(CommonResponseDto, {
-            message: "Invalid credentials.",
-          }),
+            message: "Invalid credentials."
+          })
         )
       }
     } else {
       throw new UnprocessableEntityException(
         plainToInstance(CommonResponseDto, {
-          message: `Please logged in using ${user.oauth2Users.map(oauth2User => _.startCase(oauth2User.provider.toLowerCase())).join(", ")}.`,
-        }),
+          message: `Please logged in using ${user.oauth2Users.map(oauth2User => _.startCase(oauth2User.provider.toLowerCase())).join(", ")}.`
+        })
       )
     }
 
@@ -57,7 +57,7 @@ export class LoginHandler implements ICommandHandler<LoginCommand> {
 
     return plainToInstance(TokensDto, {
       accessToken: accessToken,
-      refreshToken: refreshToken,
+      refreshToken: refreshToken
     })
   }
 }

@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger"
 import { IsEmail, IsNotEmpty, IsString, Length } from "class-validator"
-import { Exists } from "../../../common/validators/exists.decorator"
+import { Exists } from "../../../validators/exists.decorator"
 import { User } from "../../user/entities/user.entity"
 
 export class PasswordResetDto {
@@ -9,7 +9,7 @@ export class PasswordResetDto {
     example: "user@example.com",
     minLength: 1,
     maxLength: 100,
-    required: true,
+    required: true
   })
   @Exists(User, "email", { message: "Email does not exists" })
   @Length(1, 100, { message: "Email length must be between 1 and 100 characters" })

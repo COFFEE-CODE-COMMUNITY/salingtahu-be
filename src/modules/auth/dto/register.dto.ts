@@ -1,12 +1,12 @@
 import { IsEmail, IsString, MinLength, IsNotEmpty, MaxLength } from "class-validator"
 import { ApiProperty } from "@nestjs/swagger"
 import { AutoMap } from "@automapper/classes"
-import { Unique } from "../../../common/validators/unique.decorator"
+import { Unique } from "../../../validators/unique.decorator"
 import { User } from "../../user/entities/user.entity"
 
 export class RegisterDto {
   @MaxLength(30, { message: "First name must be at most 30 characters long" })
-  @MinLength(2, { message: "First name must be at least 2 characters long" })
+  @MinLength(1, { message: "First name must be at least 1 character long" })
   @IsNotEmpty({ message: "First name should not be empty" })
   @IsString({ message: "First name must be a string" })
   @ApiProperty({
@@ -14,13 +14,13 @@ export class RegisterDto {
     example: "John",
     minLength: 2,
     maxLength: 30,
-    required: true,
+    required: true
   })
   @AutoMap()
   public firstName!: string
 
   @MaxLength(30, { message: "Last name must be at most 30 characters long" })
-  @MinLength(2, { message: "Last name must be at least 2 characters long" })
+  @MinLength(1, { message: "Last name must be at least 1 character long" })
   @IsNotEmpty({ message: "Last name should not be empty" })
   @IsString({ message: "Last name must be a string" })
   @ApiProperty({
@@ -28,7 +28,7 @@ export class RegisterDto {
     example: "Doe",
     minLength: 2,
     maxLength: 30,
-    required: true,
+    required: true
   })
   @AutoMap()
   public lastName!: string
@@ -43,7 +43,7 @@ export class RegisterDto {
     example: "johndoe@example.com",
     format: "email",
     maxLength: 50,
-    required: true,
+    required: true
   })
   @AutoMap()
   public email!: string
@@ -57,7 +57,7 @@ export class RegisterDto {
     example: "SecurePass123!",
     minLength: 8,
     maxLength: 100,
-    required: true,
+    required: true
   })
   @AutoMap()
   public password!: string

@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger"
 import { IsNotEmpty, IsBoolean, IsString, MinLength, MaxLength } from "class-validator"
-import { Match } from "../../../common/validators/match.decorator"
+import { Match } from "../../../validators/match.decorator"
 import { NotSameAsCurrentPassword } from "../validators/not-same-as-current-password.decorator"
 
 export class ChangePasswordDto {
@@ -9,7 +9,7 @@ export class ChangePasswordDto {
     example: "P@ssw0rd!",
     minLength: 1,
     maxLength: 100,
-    required: true,
+    required: true
   })
   @NotSameAsCurrentPassword()
   @MaxLength(100, { message: "Password must be at most 100 characters long" })
@@ -23,7 +23,7 @@ export class ChangePasswordDto {
     example: "P@ssw0rd!",
     minLength: 1,
     maxLength: 100,
-    required: true,
+    required: true
   })
   @Match("password", { message: "Confirm password must match password" })
   @MaxLength(100, { message: "Confirm password must be at most 100 characters long" })
@@ -36,7 +36,7 @@ export class ChangePasswordDto {
     description: "If true, the user will be logged out from all login session after password reset.",
     example: true,
     required: false,
-    default: false,
+    default: false
   })
   @IsBoolean({ message: "Logout all must be a boolean value" })
   public logoutAll: boolean = false

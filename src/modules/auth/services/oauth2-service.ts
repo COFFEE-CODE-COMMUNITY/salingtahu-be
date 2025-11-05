@@ -1,7 +1,7 @@
-import { Cache } from "../../../infrastructure/cache/cache"
+import { Cache } from "../../../cache/cache"
 import { BadRequestException, NotImplementedException } from "@nestjs/common"
 import { plainToInstance } from "class-transformer"
-import { CommonResponseDto } from "../../../common/dto/common-response.dto"
+import { CommonResponseDto } from "../../../dto/common-response.dto"
 import { createHash, randomBytes } from "crypto"
 import { UserService } from "../../user/services/user.service"
 import { HttpService } from "@nestjs/axios"
@@ -28,7 +28,7 @@ export interface OAuthSession {
 }
 
 export enum OAuth2Platform {
-  WEB = "web",
+  WEB = "web"
 }
 
 export abstract class OAuth2Service {
@@ -39,7 +39,7 @@ export abstract class OAuth2Service {
     protected readonly cache: Cache,
     protected readonly userService: UserService,
     protected readonly userRepository: UserRepository,
-    protected readonly http: HttpService,
+    protected readonly http: HttpService
   ) {}
 
   protected abstract get provider(): OAuth2Provider
@@ -71,8 +71,8 @@ export abstract class OAuth2Service {
     if (![OAuth2Platform.WEB].includes(platform)) {
       throw new NotImplementedException(
         plainToInstance(CommonResponseDto, {
-          message: `${platform} OAuth2 platform currently not supported.`,
-        }),
+          message: `${platform} OAuth2 platform currently not supported.`
+        })
       )
     }
 
@@ -93,7 +93,7 @@ export abstract class OAuth2Service {
       state,
       provider: this.provider,
       platform,
-      ...(codeVerifier && { codeVerifier }),
+      ...(codeVerifier && { codeVerifier })
     }
 
     await this.setSession(state, session)
@@ -108,8 +108,8 @@ export abstract class OAuth2Service {
     if (!session) {
       throw new BadRequestException(
         plainToInstance(CommonResponseDto, {
-          message: "Invalid OAuth session state.",
-        }),
+          message: "Invalid OAuth session state."
+        })
       )
     }
 
@@ -118,7 +118,7 @@ export abstract class OAuth2Service {
 
     if (!user) {
       const userAvatar$ = this.http.get<Readable>(userProfile.profilePictureUrl, {
-        responseType: "stream",
+        responseType: "stream"
       })
       const userAvatar = await firstValueFrom(userAvatar$).then(response => response.data)
 

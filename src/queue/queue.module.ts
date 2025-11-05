@@ -1,15 +1,10 @@
-import { BullModule } from "@nestjs/bullmq"
 import { Module } from "@nestjs/common"
-import { IMAGE_PROCESSING_QUEUE, ImageProcessingConsumer } from "./image-processing.consumer"
+import { ImageProcessingConsumer } from "./image-processing.consumer"
 import { UserModule } from "../modules/user/user.module"
+import { EmailConsumer } from "./email.consumer"
 
 @Module({
-  imports: [
-    BullModule.registerQueue({
-      name: IMAGE_PROCESSING_QUEUE,
-    }),
-    UserModule,
-  ],
-  providers: [ImageProcessingConsumer],
+  imports: [UserModule],
+  providers: [EmailConsumer, ImageProcessingConsumer]
 })
 export class QueueModule {}

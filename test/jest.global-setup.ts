@@ -43,8 +43,8 @@ export default async function () {
         MINIO_HOST: minioContainer.getHost(),
         MINIO_PORT: minioContainer.getPort(),
         MINIO_ROOT_USER: minioRootUser,
-        MINIO_ROOT_PASSWORD: minioRootPassword,
-      },
+        MINIO_ROOT_PASSWORD: minioRootPassword
+      }
     }
     await writeFile(GLOBAL_CONFIG_PATH, JSON.stringify(globalConfig, null, 2))
 

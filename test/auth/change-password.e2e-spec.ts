@@ -2,7 +2,7 @@ import { INestApplication } from "@nestjs/common"
 import { App } from "supertest/types"
 import { createTestApp } from "../create-test-app"
 import { mock, MockProxy } from "jest-mock-extended"
-import { EmailService } from "../../src/infrastructure/email/email.service"
+import { EmailService } from "@/email/email.service"
 import request from "supertest"
 import { UserDto } from "../../src/modules/user/dto/user.dto"
 import { getAuthUser } from "../get-auth-user"
@@ -45,9 +45,7 @@ describe("POST /api/v1/auth/password-reset/change", () => {
       })
 
       // Get a password reset token
-      await request(app.getHttpServer())
-        .post("/api/v1/auth/password-reset")
-        .send({ email: user.email })
+      await request(app.getHttpServer()).post("/api/v1/auth/password-reset").send({ email: user.email })
 
       // Change to the known current password
       await request(app.getHttpServer())
@@ -56,9 +54,7 @@ describe("POST /api/v1/auth/password-reset/change", () => {
         .send({ password: currentPassword, confirmPassword: currentPassword, logoutAll: false })
 
       // Get a fresh token for the actual test
-      await request(app.getHttpServer())
-        .post("/api/v1/auth/password-reset")
-        .send({ email: user.email })
+      await request(app.getHttpServer()).post("/api/v1/auth/password-reset").send({ email: user.email })
     })
 
     it("should change the password successfully", async () => {
@@ -70,7 +66,7 @@ describe("POST /api/v1/auth/password-reset/change", () => {
 
       expect(response.status).toBe(200)
       expect(response.body).toEqual({
-        message: "Password changed successfully.",
+        message: "Password changed successfully."
       })
     })
 
@@ -93,7 +89,7 @@ describe("POST /api/v1/auth/password-reset/change", () => {
         .send({ password, confirmPassword: password, logoutAll: true })
         .expect(200)
         .expect({
-          message: "Password changed successfully.",
+          message: "Password changed successfully."
         })
 
       const refreshTokenRepository = app.get(RefreshTokenRepository)
@@ -118,9 +114,7 @@ describe("POST /api/v1/auth/password-reset/change", () => {
         return Promise.resolve()
       })
 
-      await request(app.getHttpServer())
-        .post("/api/v1/auth/password-reset")
-        .send({ email: user.email })
+      await request(app.getHttpServer()).post("/api/v1/auth/password-reset").send({ email: user.email })
 
       // Change to the known current password
       await request(app.getHttpServer())
@@ -129,9 +123,7 @@ describe("POST /api/v1/auth/password-reset/change", () => {
         .send({ password: currentPassword, confirmPassword: currentPassword, logoutAll: false })
 
       // Get a fresh token for the actual test
-      await request(app.getHttpServer())
-        .post("/api/v1/auth/password-reset")
-        .send({ email: user.email })
+      await request(app.getHttpServer()).post("/api/v1/auth/password-reset").send({ email: user.email })
     })
 
     it("should return 400 if confirmPassword do not match", async () => {
@@ -168,7 +160,7 @@ describe("POST /api/v1/auth/password-reset/change", () => {
         .send({ password, confirmPassword: password, logoutAll: false })
         .expect(401)
         .expect({
-          message: "Invalid or expired password reset token.",
+          message: "Invalid or expired password reset token."
         })
     })
   })

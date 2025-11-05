@@ -15,7 +15,7 @@ export class TokensService {
       algorithm: "HS256",
       issuer: this.config.get("app.domain"),
       audience: this.JWT_AUDIENCE,
-      expiresIn: "1h",
+      expiresIn: "1h"
     }
 
     return new Promise((resolve, reject) => {
@@ -38,7 +38,7 @@ export class TokensService {
       algorithm: "HS256",
       issuer: this.config.get("app.domain"),
       audience: this.JWT_AUDIENCE,
-      expiresIn,
+      expiresIn
     }
 
     const token = sign({ sub: userId }, secret, options)

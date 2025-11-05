@@ -2,11 +2,11 @@
   "app": {
     "port": 8081,
     "domain": "localhost",
-    "cdnUrl": "http://localhost:8081"
+    "cdnUrl": "http://localhost:8081/api/v1/files"
   },
   "client": {
     "web": {
-      "oauth2Redirect": "http://localhost:5173/homepage",
+      "oauth2Redirect": "http://localhost:5173/login",
       "changePassword": "http://localhost:5173/change-password",
       "url": "http://localhost:5173"
     }

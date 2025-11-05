@@ -4,7 +4,7 @@ import { UserPublicDto } from "../../dto/user-public.dto"
 import { UserRepository } from "../../repositories/user.repository"
 import { NotFoundException } from "@nestjs/common"
 import { plainToInstance } from "class-transformer"
-import { CommonResponseDto } from "../../../../common/dto/common-response.dto"
+import { CommonResponseDto } from "../../../../dto/common-response.dto"
 import { InjectMapper } from "@automapper/nestjs"
 import { Mapper } from "@automapper/core"
 import { User } from "../../entities/user.entity"
@@ -13,7 +13,7 @@ import { User } from "../../entities/user.entity"
 export class GetUserHandler implements IQueryHandler<GetUserQuery> {
   public constructor(
     @InjectMapper() private readonly mapper: Mapper,
-    private readonly userRepository: UserRepository,
+    private readonly userRepository: UserRepository
   ) {}
 
   public async execute(query: GetUserQuery): Promise<UserPublicDto> {
@@ -22,8 +22,8 @@ export class GetUserHandler implements IQueryHandler<GetUserQuery> {
     if (!user) {
       throw new NotFoundException(
         plainToInstance(CommonResponseDto, {
-          message: "User not found.",
-        }),
+          message: "User not found."
+        })
       )
     }
 

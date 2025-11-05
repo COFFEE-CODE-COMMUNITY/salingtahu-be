@@ -4,13 +4,13 @@ import {
   ValidationArguments,
   ValidationOptions,
   ValidatorConstraint,
-  ValidatorConstraintInterface,
+  ValidatorConstraintInterface
 } from "class-validator"
 import { PasswordService } from "../services/password.service"
 import { PasswordResetSessionRepository } from "../repositories/password-reset-session.repository"
-import { HttpRequestContext } from "../../../common/http/http-request-context"
-import { TextHasher } from "../../../infrastructure/security/cryptography/text-hasher"
-import { Logger } from "../../../infrastructure/log/logger.abstract"
+import { HttpRequestContext } from "../../../http/http-request-context"
+import { TextHasher } from "../../../security/cryptography/text-hasher"
+import { Logger } from "../../../log/logger.abstract"
 
 @ValidatorConstraint({ name: "NotSameAsCurrentPassword", async: true })
 @Injectable()
@@ -20,13 +20,13 @@ export class NotSameAsCurrentPasswordConstraint implements ValidatorConstraintIn
     private readonly passwordService: PasswordService,
     private readonly httpRequestContext: HttpRequestContext,
     private readonly textHasher: TextHasher,
-    private readonly logger: Logger,
+    private readonly logger: Logger
   ) {}
 
   public async validate(value: string, _validationArguments?: ValidationArguments): Promise<boolean> {
     const sessionToken = this.httpRequestContext.get()!.query.get("token") || ""
     const passwordResetSession = await this.passwordResetSessionRepository.findByToken(
-      this.textHasher.hash(sessionToken),
+      this.textHasher.hash(sessionToken)
     )
 
     // Because we will handle the password reset session in handler, we just return true here
@@ -56,7 +56,7 @@ export function NotSameAsCurrentPassword(validationOptions?: ValidationOptions):
       propertyName: propertyName.toString(),
       options: validationOptions || {},
       constraints: [],
-      validator: NotSameAsCurrentPasswordConstraint,
+      validator: NotSameAsCurrentPasswordConstraint
     })
   }
 }

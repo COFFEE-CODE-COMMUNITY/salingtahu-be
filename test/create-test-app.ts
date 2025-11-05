@@ -25,16 +25,14 @@ class TestConfigService extends ConfigService {
       S3_ENDPOINT: `http://${globalConfig.environment.MINIO_HOST}:${globalConfig.environment.MINIO_PORT}`,
       S3_BUCKET_NAME: "salingtau",
       S3_ACCESS_KEY: MINIO_ROOT_USER,
-      S3_SECRET_KEY: MINIO_ROOT_PASSWORD,
+      S3_SECRET_KEY: MINIO_ROOT_PASSWORD
     })
   }
 }
 
-export async function createTestApp(
-  builder?: (builder: TestingModuleBuilder) => void,
-): Promise<INestApplication<App>> {
+export async function createTestApp(builder?: (builder: TestingModuleBuilder) => void): Promise<INestApplication<App>> {
   const testBuilder = Test.createTestingModule({
-    imports: [AppModule],
+    imports: [AppModule]
   })
     .overrideProvider(ConfigService)
     .useClass(TestConfigService)
@@ -46,8 +44,8 @@ export async function createTestApp(
   const moduleRef = await testBuilder.compile()
   const app = await Main.initializeApp(
     moduleRef.createNestApplication({
-      bodyParser: false,
-    }),
+      bodyParser: false
+    })
   )
 
   // Enable graceful shutdown for proper cleanup

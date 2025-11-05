@@ -12,7 +12,6 @@ import { RefreshTokenRepository } from "./repositories/refresh-token.repository"
 import { RefreshTokenService } from "./services/refresh-token.service"
 import { GoogleOAuth2Service } from "./services/google-oauth2.service"
 import { GetGoogleAuthUrlHandler } from "./queries/handlers/get-google-auth-url.handler"
-import { UserService } from "../user/services/user.service"
 import { GoogleOAuth2CallbackHandler } from "./commands/handlers/google-oauth2-callback.handler"
 import { PasswordResetHandler } from "./commands/handlers/password-reset.handler"
 import { ChangePasswordHandler } from "./commands/handlers/change-password.handler"
@@ -27,9 +26,9 @@ import { NotSameAsCurrentPasswordConstraint } from "./validators/not-same-as-cur
 @Module({
   imports: [
     BullModule.registerQueue({
-      name: IMAGE_PROCESSING_QUEUE,
+      name: IMAGE_PROCESSING_QUEUE
     }),
-    UserModule,
+    UserModule
   ],
   controllers: [AuthController],
   providers: [
@@ -58,11 +57,10 @@ import { NotSameAsCurrentPasswordConstraint } from "./validators/not-same-as-cur
     PasswordService,
     RefreshTokenService,
     GoogleOAuth2Service,
-    UserService,
 
     // Validators
-    NotSameAsCurrentPasswordConstraint,
+    NotSameAsCurrentPasswordConstraint
   ],
-  exports: [AccessTokenService],
+  exports: [AccessTokenService]
 })
 export class AuthModule {}

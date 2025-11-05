@@ -15,7 +15,7 @@ export class AccessTokenService {
       algorithm: "HS256",
       issuer: this.config.get("app.domain"),
       audience: this.JWT_ISSUER,
-      expiresIn: "1h",
+      expiresIn: "1h"
     })
   }
 
@@ -24,7 +24,7 @@ export class AccessTokenService {
       const payload = verify(token, await this.config.getOrThrow("ACCESS_TOKEN_SECRET"), {
         algorithms: ["HS256"],
         issuer: this.config.get("app.domain"),
-        audience: this.JWT_ISSUER,
+        audience: this.JWT_ISSUER
       })
 
       if (typeof payload === "string") {

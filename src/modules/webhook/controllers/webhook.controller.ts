@@ -1,0 +1,23 @@
+import { Body, Controller, Post } from "@nestjs/common"
+import { UserService } from "../../user/services/user.service"
+import { DecisionWebhook } from "../../../types/veriff"
+import { RequiredHeader } from "../../../http/required-header.decorator"
+import { randomUUID } from "crypto"
+
+@Controller("webhook")
+export class WebhookController {
+  public constructor(private readonly userService: UserService) {}
+
+  @Post("veriff/decision")
+  public async handleVeriffDecision(
+    @Body() body: DecisionWebhook.Payload,
+    @RequiredHeader("X-Auth-Client") authClient: string,
+    @RequiredHeader("X-Hmac-Signature") hmacSignature: string
+  ): Promise<void> {
+    await this.userService.verifyInstructor(body, {
+      authClient,
+      hmacSignature,
+      integrationId: randomUUID()
+    })
+  }
+}

@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { RegisterCommand } from "../register.command"
-import { CommonResponseDto } from "../../../../common/dto/common-response.dto"
+import { CommonResponseDto } from "../../../../dto/common-response.dto"
 import { Mapper } from "@automapper/core"
 import { InjectMapper } from "@automapper/nestjs"
 import { UserRepository } from "../../../user/repositories/user.repository"
@@ -14,7 +14,7 @@ export class RegisterHandler implements ICommandHandler<RegisterCommand> {
   public constructor(
     @InjectMapper() private readonly mapper: Mapper,
     private readonly passwordService: PasswordService,
-    private readonly userRepository: UserRepository,
+    private readonly userRepository: UserRepository
   ) {}
 
   public async execute(command: RegisterCommand): Promise<CommonResponseDto> {
@@ -24,7 +24,7 @@ export class RegisterHandler implements ICommandHandler<RegisterCommand> {
     await this.userRepository.insert(user)
 
     return plainToInstance(CommonResponseDto, {
-      message: "User successfully registered.",
+      message: "User successfully registered."
     })
   }
 }

@@ -5,9 +5,9 @@ import { RefreshTokenRepository } from "../../repositories/refresh-token.reposit
 import { TokensDto } from "../../dto/tokens.dto"
 import { UnauthorizedException } from "@nestjs/common"
 import { AccessTokenService } from "../../services/access-token.service"
-import { UnitOfWork } from "../../../../infrastructure/database/unit-of-work/unit-of-work"
-import { Logger } from "../../../../infrastructure/log/logger.abstract"
-import { TextHasher } from "../../../../infrastructure/security/cryptography/text-hasher"
+import { UnitOfWork } from "../../../../database/unit-of-work/unit-of-work"
+import { Logger } from "../../../../log/logger.abstract"
+import { TextHasher } from "../../../../security/cryptography/text-hasher"
 
 @CommandHandler(GetRefreshTokenCommand)
 export class GetRefreshTokenHandler implements ICommandHandler<GetRefreshTokenCommand> {
@@ -17,14 +17,14 @@ export class GetRefreshTokenHandler implements ICommandHandler<GetRefreshTokenCo
     private readonly refreshTokenRepository: RefreshTokenRepository,
     private readonly unitOfWork: UnitOfWork,
     private readonly logger: Logger,
-    private readonly textHasher: TextHasher,
+    private readonly textHasher: TextHasher
   ) {}
 
   public async execute(command: GetRefreshTokenCommand): Promise<TokensDto> {
     const [tokens, isVerify] = await this.unitOfWork.transaction<[TokensDto | null, boolean]>(async () => {
       const isRefreshTokenValid = await this.refreshTokenService.verifyAndRevoke(
         command.refreshToken,
-        command.userAgent,
+        command.userAgent
       )
 
       this.logger.debug(`Refresh token valid: ${isRefreshTokenValid}`)
@@ -38,7 +38,7 @@ export class GetRefreshTokenHandler implements ICommandHandler<GetRefreshTokenCo
       const refreshToken = await this.refreshTokenService.create(
         oldRefreshToken.user,
         command.userAgent,
-        command.ipAddress,
+        command.ipAddress
       )
       const accessToken = await this.accessTokenService.sign(oldRefreshToken.user.id)
       const tokensDto = new TokensDto()
@@ -50,7 +50,7 @@ export class GetRefreshTokenHandler implements ICommandHandler<GetRefreshTokenCo
 
     if (!isVerify || !tokens) {
       throw new UnauthorizedException({
-        message: "Invalid refresh token.",
+        message: "Invalid refresh token."
       })
     }
 

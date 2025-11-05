@@ -5,7 +5,7 @@ import { RefreshToken } from "../entities/refresh-token.entity"
 import { parse } from "useragent"
 import { REFRESH_TOKEN_EXPIRES_MS } from "../constants/auth.constant"
 import { randomBytes } from "crypto"
-import { TextHasher } from "../../../infrastructure/security/cryptography/text-hasher"
+import { TextHasher } from "../../../security/cryptography/text-hasher"
 
 @Injectable()
 export class RefreshTokenService {
@@ -13,7 +13,7 @@ export class RefreshTokenService {
 
   public constructor(
     private readonly textHasher: TextHasher,
-    private readonly refreshTokenRepository: RefreshTokenRepository,
+    private readonly refreshTokenRepository: RefreshTokenRepository
   ) {}
 
   public async create(user: User, userAgent: string, ipAddress: string): Promise<string> {

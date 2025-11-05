@@ -4,7 +4,7 @@ import { UserDto } from "../../dto/user.dto"
 import { UserRepository } from "../../repositories/user.repository"
 import { NotFoundException } from "@nestjs/common"
 import { plainToInstance } from "class-transformer"
-import { CommonResponseDto } from "../../../../common/dto/common-response.dto"
+import { CommonResponseDto } from "../../../../dto/common-response.dto"
 import { InjectMapper } from "@automapper/nestjs"
 import { Mapper } from "@automapper/core"
 import { User } from "../../entities/user.entity"
@@ -13,7 +13,7 @@ import { User } from "../../entities/user.entity"
 export class UpdateUserHandler implements ICommandHandler<UpdateUserCommand> {
   public constructor(
     @InjectMapper() private readonly mapper: Mapper,
-    private readonly userRepository: UserRepository,
+    private readonly userRepository: UserRepository
   ) {}
 
   public async execute({ userId, dto }: UpdateUserCommand): Promise<UserDto> {
@@ -22,11 +22,11 @@ export class UpdateUserHandler implements ICommandHandler<UpdateUserCommand> {
     if (!user) {
       throw new NotFoundException(
         plainToInstance(CommonResponseDto, {
-          message: "User not found.",
-        }),
+          message: "User not found."
+        })
       )
     }
 
-    return this.mapper.map(await this.userRepository.merge(user, dto), User, UserDto)
+    return this.mapper.map(await this.userRepository.save(this.userRepository.merge(user, dto)), User, UserDto)
   }
 }
