@@ -16,6 +16,10 @@ COPY package*.json ./
 RUN npm ci --only=production && npm cache clean --force
 
 COPY --from=builder /app/dist ./dist
+COPY app-config.json ./
+COPY app-config.production.json ./
+
+ENV NODE_ENV=production
 
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nestjs -u 1001
