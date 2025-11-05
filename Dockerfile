@@ -22,8 +22,6 @@ WORKDIR /app
 
 # Set environment variable to skip prepare scripts
 ENV NODE_ENV=production
-ENV CI=true
-ENV PORT=8080
 
 # Copy package files
 COPY package*.json ./
@@ -33,6 +31,10 @@ RUN npm ci --omit=dev --ignore-scripts && npm cache clean --force
 
 # Copy built application from builder stage
 COPY --from=builder /app/dist ./dist
+COPY app-config.json ./
+COPY app-config.production.json ./
+
+ENV NODE_ENV=production
 
 # Create a non-root user
 RUN addgroup -g 1001 -S nodejs && \
@@ -47,9 +49,4 @@ USER nestjs
 # Expose the application port
 EXPOSE 8080
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=40s \
-  CMD node -e "require('http').get('http://localhost:8080/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
-
-# Start the application
-CMD ["npm", "start"]
+CMD ["node", "dist/main.js"]
