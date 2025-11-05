@@ -11,18 +11,6 @@ services:
       - "INFISICAL_CLIENT_SECRET=${INFISICAL_CLIENT_SECRET}"
       - "INFISICAL_PROJECT_ID=${INFISICAL_PROJECT_ID}"
       - "INFISICAL_URL=${INFISICAL_URL}"
-      - "DATABASE_HOST=postgres"
-      - "DATABASE_PORT=5432"
-      - "DATABASE_USER=root"
-      - "DATABASE_PASSWORD=admin123"
-      - "DATABASE_NAME=salingtau"
-      - "REDIS_HOST=redis"
-      - "REDIS_PORT=6379"
-      - "MINIO_ENDPOINT=minio"
-      - "MINIO_PORT=9000"
-      - "MINIO_ACCESS_KEY=minioadmin"
-      - "MINIO_SECRET_KEY=minioadmin"
-      - "MINIO_USE_SSL=false"
     depends_on:
       postgres:
         condition: service_healthy
