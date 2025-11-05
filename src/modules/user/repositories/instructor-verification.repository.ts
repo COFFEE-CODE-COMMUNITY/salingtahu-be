@@ -9,4 +9,8 @@ export class InstructorVerificationRepository extends BaseRepository<InstructorV
   public constructor(dataSource: DataSource, transactionContextService: TransactionContextService<EntityManager>) {
     super(dataSource, transactionContextService, InstructorVerification)
   }
+
+  public async existsByVerificationId(verificationId: string): Promise<boolean> {
+    return this.getRepository().existsBy({ verificationId })
+  }
 }

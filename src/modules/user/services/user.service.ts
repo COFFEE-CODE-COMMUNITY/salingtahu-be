@@ -32,6 +32,8 @@ import { UserRole } from "../enums/user-role.enum"
 import { EmailService } from "../../../email/email.service"
 import { ConfigService } from "@nestjs/config"
 import { InstructorVerification } from "../entities/instructor-verification.entity"
+import { TextHasher } from "../../../security/cryptography/text-hasher"
+import { InstructorVerificationRepository } from "../repositories/instructor-verification.repository"
 
 @Injectable()
 export class UserService {
@@ -39,11 +41,13 @@ export class UserService {
 
   public constructor(
     @InjectQueue(IMAGE_PROCESSING_QUEUE) private readonly profilePictureQueue: Queue<ImageProcessingData>,
+    private readonly instructorVerificationRepository: InstructorVerificationRepository,
     private readonly userRepository: UserRepository,
     private readonly veriffService: VeriffService,
     private readonly emailService: EmailService,
     private readonly config: ConfigService,
     private readonly fileStorage: FileStorage,
+    private readonly textHasher: TextHasher,
     private readonly logger: Logger
   ) {}
 
@@ -96,6 +100,14 @@ export class UserService {
   }
 
   public async verifyInstructor(payload: DecisionWebhook.Payload, headers: DecisionWebhookHeaders): Promise<void> {
+    // TODO: handle webhook retry here
+    // const verificationId = this.textHasher.hash(JSON.stringify(payload))
+    // // const isDuplicate = await this.instructorVerificationRepository.existsByVerificationId(verificationId)
+
+    // // if (isDuplicate) {
+    // //   return
+    // // }
+
     if (!this.veriffService.verifyDecisionWebHook(payload, headers)) {
       this.logger.warn("Invalid HMAC signature in Veriff webhook")
 
@@ -164,6 +176,7 @@ export class UserService {
 
     const instructorVerification = new InstructorVerification()
     instructorVerification.verificationData = payload
+    instructorVerification.verificationId = headers.integrationId
 
     user.instructorVerifications.push(instructorVerification)
     await this.userRepository.update(user)

@@ -6,7 +6,7 @@
   },
   "client": {
     "web": {
-      "oauth2Redirect": "http://localhost:5173/homepage",
+      "oauth2Redirect": "http://localhost:5173/login",
       "changePassword": "http://localhost:5173/change-password",
       "url": "http://localhost:5173"
     }

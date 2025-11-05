@@ -8,6 +8,9 @@ export class InstructorVerification extends BaseEntity {
   @Column({ name: "verification_data", type: "jsonb" })
   public verificationData!: DecisionWebhook.Payload
 
+  @Column({ name: "verification_id", unique: true })
+  public verificationId!: string
+
   @ManyToMany(() => User, user => user.instructorVerifications)
   public users!: User[]
 }

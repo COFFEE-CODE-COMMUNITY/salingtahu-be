@@ -12,7 +12,6 @@ import { RefreshTokenRepository } from "./repositories/refresh-token.repository"
 import { RefreshTokenService } from "./services/refresh-token.service"
 import { GoogleOAuth2Service } from "./services/google-oauth2.service"
 import { GetGoogleAuthUrlHandler } from "./queries/handlers/get-google-auth-url.handler"
-import { UserService } from "../user/services/user.service"
 import { GoogleOAuth2CallbackHandler } from "./commands/handlers/google-oauth2-callback.handler"
 import { PasswordResetHandler } from "./commands/handlers/password-reset.handler"
 import { ChangePasswordHandler } from "./commands/handlers/change-password.handler"
@@ -58,7 +57,6 @@ import { NotSameAsCurrentPasswordConstraint } from "./validators/not-same-as-cur
     PasswordService,
     RefreshTokenService,
     GoogleOAuth2Service,
-    UserService,
 
     // Validators
     NotSameAsCurrentPasswordConstraint
