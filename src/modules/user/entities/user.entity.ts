@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToMany, OneToMany } from "typeorm"
+import { Column, Entity, OneToMany } from "typeorm"
 import { BaseEntity } from "../../../base/base.entity"
 import { Language } from "../../../enums/language"
 import { AutoMap } from "@automapper/classes"
@@ -92,7 +92,7 @@ export class User extends BaseEntity {
   @OneToMany(() => PasswordResetSession, passwordResetSession => passwordResetSession.user)
   public passwordResetSessions!: PasswordResetSession[]
 
-  @ManyToMany(() => InstructorVerification, instructorVerifications => instructorVerifications.users)
+  @OneToMany(() => InstructorVerification, instructorVerification => instructorVerification.user)
   public instructorVerifications!: InstructorVerification[]
 
   public updateLastLoggedIn(): void {
