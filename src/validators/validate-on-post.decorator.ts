@@ -1,11 +1,11 @@
 import { RequestMethod } from "@nestjs/common"
 import { getMetadataStorage, ValidationOptions, ValidationTypes } from "class-validator"
-import { ValidationMetadata } from "class-validator/types/metadata/ValidationMetadata"
 import { HttpRequestContext } from "../http/http-request-context"
-import { ValidationMetadataArgs } from "class-validator/types/metadata/ValidationMetadataArgs"
+import type { ValidationMetadataArgs } from "class-validator/types/metadata/ValidationMetadataArgs"
 import { ProviderUtil } from "../utils/provider.util"
+const { ValidationMetadata } = require("class-validator/cjs/metadata/ValidationMetadata")
 
-export function ValidateOnPost(options: ValidationOptions): PropertyDecorator {
+export function ValidateOnPost(options?: ValidationOptions): PropertyDecorator {
   return function (target: object, propertyKey: string | symbol): void {
     const args: ValidationMetadataArgs = {
       type: ValidationTypes.CONDITIONAL_VALIDATION,
@@ -20,7 +20,7 @@ export function ValidateOnPost(options: ValidationOptions): PropertyDecorator {
           else return false
         }
       ],
-      validationOptions: options
+      validationOptions: options || {}
     }
 
     getMetadataStorage().addValidationMetadata(new ValidationMetadata(args))

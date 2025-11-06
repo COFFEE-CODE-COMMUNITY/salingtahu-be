@@ -9,6 +9,7 @@ import { OAuth2User } from "../../auth/entities/oauth2-user.entity"
 import { ImageMetadata } from "../../../entities/image-metadata.entity"
 import { PasswordResetSession } from "../../auth/entities/password-reset-session.entity"
 import { InstructorVerification } from "./instructor-verification.entity"
+import { Course } from "../../course/entities/course.entity"
 
 @Entity({ name: "users" })
 export class User extends BaseEntity {
@@ -91,6 +92,9 @@ export class User extends BaseEntity {
 
   @OneToMany(() => PasswordResetSession, passwordResetSession => passwordResetSession.user)
   public passwordResetSessions!: PasswordResetSession[]
+
+  @OneToMany(() => Course, course => course.instructor)
+  public courses!: Course[]
 
   @ManyToMany(() => InstructorVerification, instructorVerifications => instructorVerifications.users)
   public instructorVerifications!: InstructorVerification[]

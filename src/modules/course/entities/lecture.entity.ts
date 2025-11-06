@@ -4,7 +4,7 @@ import { User } from "../../user/entities/user.entity"
 import { CourseLectureType } from "../enums/course-lecture-type.enum"
 import { CourseSection } from "./course-section.entity"
 
-@Entity()
+@Entity({ name: "lectures" })
 export class Lecture extends BaseEntity {
   @ManyToOne(() => User, user => user.id, { onDelete: "CASCADE" })
   public user!: User

@@ -8,6 +8,16 @@ import { User } from "../modules/user/entities/user.entity"
 import { InstructorVerification } from "../modules/user/entities/instructor-verification.entity"
 import { TransactionContextService } from "./unit-of-work/transaction-context.service"
 import { UnitOfWork } from "./unit-of-work/unit-of-work"
+import { Course } from "../modules/course/entities/course.entity"
+import { CourseCategory } from "../modules/course/entities/course-category.entity"
+import { CourseReview } from "../modules/course/entities/course-review.entity"
+import { CourseSection } from "../modules/course/entities/course-section.entity"
+import { Lecture } from "../modules/course/entities/lecture.entity"
+import { LectureArticle } from "../modules/course/entities/lecture-article.entity"
+import { LectureExternal } from "../modules/course/entities/lecture-external.entity"
+import { LectureFile } from "../modules/course/entities/lecture-file.entity"
+import { LectureProgress } from "../modules/course/entities/lecture-progress.entity"
+import { LectureVideo } from "../modules/course/entities/lecture-video.entity"
 
 @Global()
 @Module({
@@ -23,7 +33,23 @@ import { UnitOfWork } from "./unit-of-work/unit-of-work"
           database: config.getOrThrow<string>("DATABASE_NAME"),
           // synchronize: config.get<NodeEnv>("NODE_ENV", NodeEnv.DEVELOPMENT) != NodeEnv.PRODUCTION,
           synchronize: true,
-          entities: [OAuth2User, PasswordResetSession, RefreshToken, User, InstructorVerification]
+          entities: [
+            OAuth2User,
+            PasswordResetSession,
+            RefreshToken,
+            User,
+            InstructorVerification,
+            Course,
+            CourseCategory,
+            CourseReview,
+            CourseSection,
+            Lecture,
+            LectureArticle,
+            LectureExternal,
+            LectureFile,
+            LectureProgress,
+            LectureVideo
+          ]
         }
       },
       inject: [ConfigService]

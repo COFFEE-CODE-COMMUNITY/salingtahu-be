@@ -1,8 +1,8 @@
-import { Column, Entity, OneToMany } from "typeorm"
+import { Column, Entity, ManyToOne } from "typeorm"
 import { BaseEntity } from "../../../base/base.entity"
 import { Course } from "./course.entity"
 
-@Entity()
+@Entity({ name: "course_sections" })
 export class CourseSection extends BaseEntity {
   @Column()
   public title!: string
@@ -10,6 +10,6 @@ export class CourseSection extends BaseEntity {
   @Column({ name: "display_order" })
   public displayOrder!: number
 
-  @OneToMany(() => Course, course => course.section)
-  public courses!: Course[]
+  @ManyToOne(() => Course, course => course.section)
+  public courses!: Course
 }

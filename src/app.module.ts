@@ -25,6 +25,7 @@ import { EmailModule } from "./email/email.module"
 import { SecurityModule } from "./security/security.module"
 import { LogModule } from "./log/log.module"
 import { AppController } from "./app.controller"
+import { CourseModule } from "./modules/course/course.module"
 
 @Global()
 @Module({
@@ -47,6 +48,7 @@ import { AppController } from "./app.controller"
     }),
     CacheModule,
     ConfigModule,
+    CourseModule,
     CqrsModule.forRoot(),
     DatabaseModule,
     EmailModule,
