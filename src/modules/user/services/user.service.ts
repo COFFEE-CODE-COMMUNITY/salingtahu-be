@@ -32,8 +32,8 @@ import { UserRole } from "../enums/user-role.enum"
 import { EmailService } from "../../../email/email.service"
 import { ConfigService } from "@nestjs/config"
 import { InstructorVerification } from "../entities/instructor-verification.entity"
-import { TextHasher } from "../../../security/cryptography/text-hasher"
 import { InstructorVerificationRepository } from "../repositories/instructor-verification.repository"
+import { UnitOfWork } from "../../../database/unit-of-work/unit-of-work"
 
 @Injectable()
 export class UserService {
@@ -47,8 +47,8 @@ export class UserService {
     private readonly emailService: EmailService,
     private readonly config: ConfigService,
     private readonly fileStorage: FileStorage,
-    private readonly textHasher: TextHasher,
-    private readonly logger: Logger
+    private readonly logger: Logger,
+    private readonly unitOfWork: UnitOfWork
   ) {}
 
   public async saveProfilePicture(userId: string, pictureStream: Readable): Promise<void> {
@@ -100,13 +100,12 @@ export class UserService {
   }
 
   public async verifyInstructor(payload: DecisionWebhook.Payload, headers: DecisionWebhookHeaders): Promise<void> {
-    // TODO: handle webhook retry here
-    // const verificationId = this.textHasher.hash(JSON.stringify(payload))
-    // // const isDuplicate = await this.instructorVerificationRepository.existsByVerificationId(verificationId)
+    const verificationId = headers.hmacSignature
+    const isDuplicate = await this.instructorVerificationRepository.existsByVerificationId(verificationId)
 
-    // // if (isDuplicate) {
-    // //   return
-    // // }
+    if (isDuplicate) {
+      return
+    }
 
     if (!this.veriffService.verifyDecisionWebHook(payload, headers)) {
       this.logger.warn("Invalid HMAC signature in Veriff webhook")
@@ -176,9 +175,12 @@ export class UserService {
 
     const instructorVerification = new InstructorVerification()
     instructorVerification.verificationData = payload
-    instructorVerification.verificationId = headers.integrationId
+    instructorVerification.verificationId = verificationId
+    instructorVerification.user = user
 
-    user.instructorVerifications.push(instructorVerification)
-    await this.userRepository.update(user)
+    await this.unitOfWork.transaction(async () => {
+      await this.instructorVerificationRepository.save(instructorVerification)
+      await this.userRepository.save(user)
+    })
   }
 }

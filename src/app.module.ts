@@ -16,8 +16,6 @@ import { ServiceModule } from "./services/service.module"
 import { WebhookModule } from "./modules/webhook/webhook.module"
 import { DatabaseModule } from "./database/database.module"
 import { CacheModule } from "./cache/cache.module"
-import { AutomapperModule } from "@automapper/nestjs"
-import { classes } from "@automapper/classes"
 import { BullModule } from "@nestjs/bullmq"
 import { ConfigService } from "@nestjs/config"
 import { CqrsModule } from "@nestjs/cqrs"
@@ -26,14 +24,12 @@ import { SecurityModule } from "./security/security.module"
 import { LogModule } from "./log/log.module"
 import { AppController } from "./app.controller"
 import { CourseModule } from "./modules/course/course.module"
+import { MapperModule } from "./mappers/mapper.module"
 
 @Global()
 @Module({
   imports: [
     AuthModule,
-    AutomapperModule.forRoot({
-      strategyInitializer: classes()
-    }),
     BullModule.forRootAsync({
       useFactory(config: ConfigService) {
         return {
@@ -56,6 +52,7 @@ import { CourseModule } from "./modules/course/course.module"
       global: true
     }),
     LogModule,
+    MapperModule,
     QueueModule,
     SecurityModule,
     ServiceModule,

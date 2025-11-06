@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToMany, OneToMany } from "typeorm"
+import { Column, Entity, OneToMany } from "typeorm"
 import { BaseEntity } from "../../../base/base.entity"
 import { Language } from "../../../enums/language"
 import { AutoMap } from "@automapper/classes"
@@ -42,7 +42,7 @@ export class User extends BaseEntity {
   public language!: Language
 
   @Column({ name: "profile_pictures", type: "jsonb", nullable: true })
-  @AutoMap()
+  @AutoMap(() => [ImageMetadata])
   public profilePictures?: ImageMetadata[]
 
   @Column({ name: "website_url", nullable: true })
@@ -93,11 +93,11 @@ export class User extends BaseEntity {
   @OneToMany(() => PasswordResetSession, passwordResetSession => passwordResetSession.user)
   public passwordResetSessions!: PasswordResetSession[]
 
+  @OneToMany(() => InstructorVerification, instructorVerification => instructorVerification.user)
+  public instructorVerifications!: InstructorVerification[]
+
   @OneToMany(() => Course, course => course.instructor)
   public courses!: Course[]
-
-  @ManyToMany(() => InstructorVerification, instructorVerifications => instructorVerifications.users)
-  public instructorVerifications!: InstructorVerification[]
 
   public updateLastLoggedIn(): void {
     this.lastLoggedInAt = new Date()

@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToMany } from "typeorm"
+import { Column, Entity, ManyToOne } from "typeorm"
 import { BaseEntity } from "../../../base/base.entity"
 import { DecisionWebhook } from "../../../types/veriff"
 import { User } from "./user.entity"
@@ -11,6 +11,6 @@ export class InstructorVerification extends BaseEntity {
   @Column({ name: "verification_id", unique: true })
   public verificationId!: string
 
-  @ManyToMany(() => User, user => user.instructorVerifications)
-  public users!: User[]
+  @ManyToOne(() => User, user => user.instructorVerifications)
+  public user!: User
 }

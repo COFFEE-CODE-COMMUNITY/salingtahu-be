@@ -1,4 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger"
+import { AutoMap } from "@automapper/classes"
 
 export class ImageDto {
   @ApiProperty({
@@ -6,6 +7,7 @@ export class ImageDto {
     example: "https://example.com/images/photo.jpg",
     type: String
   })
+  @AutoMap()
   public url!: string
 
   @ApiProperty({
@@ -14,6 +16,7 @@ export class ImageDto {
     type: Number,
     minimum: 1
   })
+  @AutoMap()
   public width!: number
 
   @ApiProperty({
@@ -22,5 +25,6 @@ export class ImageDto {
     type: Number,
     minimum: 1
   })
+  @AutoMap()
   public height!: number
 }
