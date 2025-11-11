@@ -1,12 +1,31 @@
 import { Injectable } from "@nestjs/common"
 import { BaseRepository } from "../../../base/base.repository"
 import { Course } from "../entities/course.entity"
-import { DataSource, EntityManager } from "typeorm"
+import { DataSource, EntityManager, FindOptionsWhere } from "typeorm"
 import { TransactionContextService } from "../../../database/unit-of-work/transaction-context.service"
+import { isUUID } from "class-validator"
 
 @Injectable()
 export class CourseRepository extends BaseRepository<Course> {
   public constructor(dataSource: DataSource, transactionContextService: TransactionContextService<EntityManager>) {
     super(dataSource, transactionContextService, Course)
+  }
+
+  public async findByIdOrSlug(idOrSlug: string): Promise<Course | null> {
+    let where: FindOptionsWhere<Course>
+
+    if (isUUID(idOrSlug)) {
+      where = { id: idOrSlug }
+    } else {
+      where = { slug: idOrSlug }
+    }
+
+    return this.getRepository().findOne({
+      where,
+      relations: {
+        instructor: true,
+        category: true
+      }
+    })
   }
 }

@@ -8,6 +8,7 @@ import { ValidateOnPost } from "../../../validators/validate-on-post.decorator"
 import { CourseCategoryDto } from "./course-category.dto"
 import { Type } from "class-transformer"
 import { ImageDto } from "../../../dto/image.dto"
+import { UserPublicDto } from "../../user/dto/user-public.dto"
 
 export class CourseDto {
   @ApiProperty({
@@ -85,8 +86,7 @@ export class CourseDto {
 
   @ApiProperty({
     description: "File path or URL to the course thumbnail image",
-    example: "/uploads/courses/thumbnails/course-123.jpg",
-    type: String,
+    type: ImageDto,
     readOnly: true
   })
   @ReadOnly()
@@ -133,6 +133,13 @@ export class CourseDto {
   @Type(() => CourseCategoryDto)
   @AutoMap(() => CourseCategoryDto)
   public category!: CourseCategoryDto
+
+  @ApiProperty({
+    readOnly: true
+  })
+  @ReadOnly()
+  @AutoMap(() => UserPublicDto)
+  public instructor!: UserPublicDto
 
   @ApiProperty({
     description: "Timestamp when the course was created",

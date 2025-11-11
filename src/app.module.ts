@@ -1,6 +1,5 @@
 import { Global, Module } from "@nestjs/common"
 import { AuthModule } from "./modules/auth/auth.module"
-import { ProviderUtil } from "./utils/provider.util"
 import { APP_GUARD, APP_INTERCEPTOR } from "@nestjs/core"
 import { HttpRequestContextInterceptor } from "./http/http-request-context.interceptor"
 import { HttpRequestContext } from "./http/http-request-context"
@@ -25,6 +24,8 @@ import { LogModule } from "./log/log.module"
 import { AppController } from "./app.controller"
 import { CourseModule } from "./modules/course/course.module"
 import { MapperModule } from "./mappers/mapper.module"
+import { UtilModule } from "./utils/util.module"
+import { FactoryModule } from "./factories/factory.module"
 
 @Global()
 @Module({
@@ -48,6 +49,7 @@ import { MapperModule } from "./mappers/mapper.module"
     CqrsModule.forRoot(),
     DatabaseModule,
     EmailModule,
+    FactoryModule,
     HttpModule.register({
       global: true
     }),
@@ -58,13 +60,13 @@ import { MapperModule } from "./mappers/mapper.module"
     ServiceModule,
     StorageModule,
     UserModule,
+    UtilModule,
     ValidationModule,
     WebhookModule
   ],
   controllers: [AppController],
   providers: [
     HttpRequestContext,
-    ProviderUtil,
     {
       provide: APP_INTERCEPTOR,
       useClass: HttpRequestContextInterceptor

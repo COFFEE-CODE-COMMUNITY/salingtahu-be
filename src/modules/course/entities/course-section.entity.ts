@@ -10,6 +10,6 @@ export class CourseSection extends BaseEntity {
   @Column({ name: "display_order" })
   public displayOrder!: number
 
-  @ManyToOne(() => Course, course => course.section)
-  public courses!: Course
+  @ManyToOne(() => Course, course => course.sections)
+  public course!: Course
 }

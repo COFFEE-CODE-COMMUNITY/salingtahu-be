@@ -40,24 +40,28 @@ export class Course extends BaseEntity {
   public thumbnail?: ImageMetadata
 
   @VirtualColumn({
-    query: alias => `SELECT AVG(cr.rating) FROM course_reviews cr WHERE cr.courseId = ${alias}.id`
+    query: alias => `SELECT COALESCE(AVG(cr.rating), 0) FROM course_reviews cr WHERE cr."courseId" = ${alias}.id`
   })
+  @AutoMap()
   public averageRating!: number
 
   @VirtualColumn({
-    query: alias => `SELECT COUNT(cr.id) FROM course_reviews cr WHERE cr.courseId = ${alias}.id`
+    query: alias => `SELECT COUNT(cr.id) FROM course_reviews cr WHERE cr."courseId" = ${alias}.id`
   })
+  @AutoMap()
   public totalReviews!: number
 
-  @OneToMany(() => CourseSection, section => section.courses)
-  public section!: CourseSection[]
+  @OneToMany(() => CourseSection, section => section.course)
+  public sections!: CourseSection[]
 
-  @OneToMany(() => CourseCategory, category => category.courses)
-  public category!: CourseCategory[]
+  @ManyToOne(() => CourseCategory, category => category.courses)
+  @AutoMap(() => CourseCategory)
+  public category!: CourseCategory
 
   @OneToMany(() => CourseReview, courseReview => courseReview.course)
   public reviews!: CourseReview[]
 
   @ManyToOne(() => User, user => user.courses)
+  @AutoMap(() => User)
   public instructor!: User
 }

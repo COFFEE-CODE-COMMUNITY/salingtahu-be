@@ -1,14 +1,11 @@
-import { Column, Entity, ManyToOne } from "typeorm"
+import { Column, Entity, ManyToOne, OneToOne } from "typeorm"
 import { BaseEntity } from "../../../base/base.entity"
-import { User } from "../../user/entities/user.entity"
 import { CourseLectureType } from "../enums/course-lecture-type.enum"
 import { CourseSection } from "./course-section.entity"
+import { LectureArticle } from "./lecture-article.entity"
 
 @Entity({ name: "lectures" })
 export class Lecture extends BaseEntity {
-  @ManyToOne(() => User, user => user.id, { onDelete: "CASCADE" })
-  public user!: User
-
   @ManyToOne(() => CourseSection, section => section.id, { onDelete: "CASCADE" })
   public section!: CourseSection
 
@@ -26,4 +23,7 @@ export class Lecture extends BaseEntity {
 
   @Column({ name: "display_order" })
   public displayOrder!: number
+
+  @OneToOne(() => LectureArticle, article => article.lecture)
+  public article?: LectureArticle
 }
