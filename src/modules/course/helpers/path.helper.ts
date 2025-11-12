@@ -3,7 +3,7 @@ import { UUID_V4_PATTERN } from "../../../constants/regex.constant"
 import { extensions } from "mime-types"
 import { IllegalArgumentException } from "../../../exceptions/illegal-argument.exception"
 
-export type AllowedResolution = "128" | "512" | "1024" | "original"
+export type AllowedResolution = "1080" | "720" | "540" | "144" | "original"
 
 export interface VideoThumbnailPathFormat {
   videoId: string
@@ -12,7 +12,7 @@ export interface VideoThumbnailPathFormat {
 }
 
 export class VideoThumbnailPath {
-  private readonly ALLOWED_RESOLUTIONS: AllowedResolution[] = ["128", "512", "1024", "original"]
+  private readonly ALLOWED_RESOLUTIONS: AllowedResolution[] = ["1080", "720", "540", "144", "original"]
   private readonly ALLOWED_EXTENSIONS = [...ALLOWED_IMAGE_MIMETYPES, "application/octet-stream"].flatMap(
     mime => extensions[mime] || []
   )

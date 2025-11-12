@@ -4,14 +4,14 @@ import {
   FileTypeValidator,
   SizeLimitingValidator,
   StreamValidation,
-  StreamValidationException,
+  StreamValidationException
 } from "../../../../io/stream-validation"
 import { ALLOWED_IMAGE_MIMETYPES } from "../../../../constants/mimetype.constant"
 import { VideoThumbnailPath } from "../../helpers/path.helper"
 import {
   IMAGE_PROCESSING_QUEUE,
   ImageProcessingData,
-  ImageProcessingType,
+  ImageProcessingType
 } from "../../../../queue/image-processing.consumer"
 import { PayloadTooLargeException, UnsupportedMediaTypeException } from "@nestjs/common"
 import { plainToInstance } from "class-transformer"
@@ -26,7 +26,7 @@ export class UploadThumbnailHandler implements ICommandHandler<UploadThumbnailCo
 
   public constructor(
     @InjectQueue(IMAGE_PROCESSING_QUEUE) private readonly thumbnailQueue: Queue<ImageProcessingData>,
-    private readonly fileStorage: FileStorage,
+    private readonly fileStorage: FileStorage
   ) {}
 
   public async execute(dto: UploadThumbnailCommand): Promise<void> {

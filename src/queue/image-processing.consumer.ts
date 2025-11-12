@@ -196,27 +196,56 @@ export class ImageProcessingConsumer extends WorkerHost {
       throw new Error("Failed to determine the original image file type or unsupported file type.")
     }
 
-    // Crop to square
-    const size = Math.min(imageMetadata.width, imageMetadata.height)
+    // Crop to 16:9 aspect ratio
+    const targetRatio = 16 / 9
+    const currentRatio = imageMetadata.width / imageMetadata.height
+
+    let cropWidth: number
+    let cropHeight: number
+    let left: number
+    let top: number
+
+    if (currentRatio > targetRatio) {
+      // Image is wider than 16:9, crop width
+      cropHeight = imageMetadata.height
+      cropWidth = Math.floor(cropHeight * targetRatio)
+      left = Math.floor((imageMetadata.width - cropWidth) / 2)
+      top = 0
+    } else {
+      // Image is taller than 16:9, crop height
+      cropWidth = imageMetadata.width
+      cropHeight = Math.floor(cropWidth / targetRatio)
+      left = 0
+      top = Math.floor((imageMetadata.height - cropHeight) / 2)
+    }
+
     const croppedImage = image.extract({
-      left: Math.floor((imageMetadata.width - size) / 2),
-      top: Math.floor((imageMetadata.height - size) / 2),
-      width: size,
-      height: size
+      left,
+      top,
+      width: cropWidth,
+      height: cropHeight
     })
+
+    // Define 16:9 resolutions
+    const resolutions = [
+      { width: 1920, height: 1080, name: "1080" },
+      { width: 1440, height: 720, name: "720" },
+      { width: 960, height: 540, name: "540" },
+      { width: 256, height: 144, name: "144" }
+    ] as const
 
     // Generate resized AVIF versions
     const resizedVersions = await Promise.all(
-      ([128, 512, 1024] as const).map(async resolution => {
+      resolutions.map(async ({ width, height, name }) => {
         const filePath = new VideoThumbnailPath({
           videoId,
-          resolution: resolution.toString() as VideoAllowedResolution,
+          resolution: name as VideoAllowedResolution,
           extension: "avif"
         }).toString()
 
         const avifImageBuffer = await croppedImage
           .clone()
-          .resize(resolution, resolution, { fit: "cover", position: "centre", withoutEnlargement: false })
+          .resize(width, height, { fit: "cover", position: "centre", withoutEnlargement: false })
           .avif({ quality: 80, effort: 2, chromaSubsampling: "4:4:4", lossless: false })
           .toBuffer()
 
@@ -226,8 +255,8 @@ export class ImageProcessingConsumer extends WorkerHost {
 
         return plainToInstance(ImageMetadata, {
           path: filePath,
-          width: resolution,
-          height: resolution
+          width,
+          height
         })
       })
     )
