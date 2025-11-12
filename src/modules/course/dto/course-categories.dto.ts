@@ -1,6 +1,6 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { PaginationDto } from "../../../dto/pagination.dto";
-import { CourseCategoryDto } from "./course-category.dto";
+import { ApiProperty } from "@nestjs/swagger"
+import { PaginationDto } from "../../../dto/pagination.dto"
+import { CourseCategoryDto } from "./course-category.dto"
 
 export class CourseCategoriesDto extends PaginationDto<CourseCategoryDto> {
   @ApiProperty({
