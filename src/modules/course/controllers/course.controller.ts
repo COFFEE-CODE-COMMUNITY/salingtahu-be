@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseEnumPipe, ParseIntPipe, Post, Query } from "@nestjs/common"
+import { Body, Controller, Get, Param, ParseEnumPipe, ParseIntPipe, Post, Put, Query, Req } from "@nestjs/common"
 import { CourseDto } from "../dto/course.dto"
 import { CommandBus, QueryBus } from "@nestjs/cqrs"
 import { CreateCourseCommand } from "../commands/create-course.command"
@@ -30,6 +30,8 @@ import { GetCourseCategoriesQuery } from "../queries/get-course-categories.query
 import { CourseCategoriesDto } from "../dto/course-categories.dto"
 import { CourseSectionDto } from "../dto/course-section.dto"
 import { CreateCourseSectionCommand } from "../commands/create-course-section.command"
+import { UploadThumbnailCommand } from "../commands/upload-thumbnail.command"
+import { Request } from "express"
 
 @ApiTags("Courses")
 @Controller("courses")
@@ -201,5 +203,14 @@ export class CourseController {
     @Query("search") search?: string
   ): Promise<PaginationDto<CourseCategoryDto>> {
     return this.queryBus.execute(new GetCourseCategoriesQuery(offset, limit, search))
+  }
+
+  @Put(":courseIdOrSlug/thumbnail")
+  @Authorized()
+  public async uploadCourseThumbnail(
+    @Param("courseIdOrSlug") courseIdOrSlug: string,
+    @Req() request: Request
+  ): Promise<CommonResponseDto | undefined> {
+    return await this.commandBus.execute(new UploadThumbnailCommand(courseIdOrSlug, request))
   }
 }

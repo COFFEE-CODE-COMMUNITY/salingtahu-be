@@ -29,7 +29,7 @@ export class UploadThumbnailHandler implements ICommandHandler<UploadThumbnailCo
     private readonly fileStorage: FileStorage
   ) {}
 
-  public async execute(dto: UploadThumbnailCommand): Promise<void> {
+  public async execute(dto: UploadThumbnailCommand): Promise<CommonResponseDto | undefined> {
     const abortController = new AbortController()
     const sizeValidator = new SizeLimitingValidator(this.THUMBNAIL_SIZE_LIMIT)
     const fileTypeValidator = new FileTypeValidator(ALLOWED_IMAGE_MIMETYPES as unknown as string[])
@@ -53,6 +53,10 @@ export class UploadThumbnailHandler implements ICommandHandler<UploadThumbnailCo
         abortController
       )
       await this.thumbnailQueue.add(ImageProcessingType.VIDEO_THUMBNAIL, { path: filePath.toString() })
+
+      return plainToInstance(CommonResponseDto, {
+        message: "Thumbnail upload successfully."
+      })
     } catch (error) {
       abortController.abort()
 
