@@ -18,6 +18,7 @@ import { LectureExternal } from "../modules/course/entities/lecture-external.ent
 import { LectureFile } from "../modules/course/entities/lecture-file.entity"
 import { LectureProgress } from "../modules/course/entities/lecture-progress.entity"
 import { LectureVideo } from "../modules/course/entities/lecture-video.entity"
+import { Transaction } from "../modules/transaction/entities/transaction.entity"
 
 @Global()
 @Module({
@@ -48,7 +49,8 @@ import { LectureVideo } from "../modules/course/entities/lecture-video.entity"
             LectureExternal,
             LectureFile,
             LectureProgress,
-            LectureVideo
+            LectureVideo,
+            Transaction,
           ]
         }
       },

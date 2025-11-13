@@ -27,6 +27,7 @@ import { CourseCategoryRepository } from "./repositories/course-category.reposit
 
     // Subscribers
     CourseSubscriber
-  ]
+  ],
+  exports: [CourseRepository]
 })
 export class CourseModule {}

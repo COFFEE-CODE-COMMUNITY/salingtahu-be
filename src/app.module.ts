@@ -26,6 +26,7 @@ import { CourseModule } from "./modules/course/course.module"
 import { MapperModule } from "./mappers/mapper.module"
 import { UtilModule } from "./utils/util.module"
 import { FactoryModule } from "./factories/factory.module"
+import { TransactionModule } from "./modules/transaction/transaction.module"
 
 @Global()
 @Module({
@@ -62,7 +63,8 @@ import { FactoryModule } from "./factories/factory.module"
     UserModule,
     UtilModule,
     ValidationModule,
-    WebhookModule
+    WebhookModule,
+    TransactionModule,
   ],
   controllers: [AppController],
   providers: [
