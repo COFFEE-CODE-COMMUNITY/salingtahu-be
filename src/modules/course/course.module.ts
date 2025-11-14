@@ -20,12 +20,14 @@ import { CreateCourseSectionHandler } from "./commands/handlers/create-course-se
 import { CourseSectionRepository } from "./repositories/course-section.repository"
 import { CreateLectureHandler } from "./commands/handlers/create-lecture.handler"
 import { UploadThumbnailHandler } from "./commands/handlers/upload-thumbnail.handler"
+import { IMAGE_PROCESSING_QUEUE } from "../../queue/image-processing.consumer"
 
 @Module({
   imports: [
-    BullModule.registerQueue({
-      name: VIDEO_PROCESSING_QUEUE
-    }),
+    BullModule.registerQueue(
+      { name: VIDEO_PROCESSING_QUEUE },
+      { name: IMAGE_PROCESSING_QUEUE }
+    ),
     UserModule
   ],
   controllers: [CourseController],

@@ -66,7 +66,7 @@ import { AdminModule } from "./modules/admin/admin.module"
     ValidationModule,
     WebhookModule,
     TransactionModule,
-    AdminModule,
+    AdminModule
   ],
   controllers: [AppController],
   providers: [

@@ -16,7 +16,7 @@ import { AdminRepository } from "./repositories/admin.repository"
     GetByStatusHandler,
 
     // Repositories
-    AdminRepository,
+    AdminRepository
   ]
 })
 export class AdminModule {}
