@@ -7,6 +7,6 @@ export class LectureExternal extends BaseEntity {
   @OneToOne(() => Lecture, lecture => lecture.id, { onDelete: "CASCADE" })
   public lecture!: Lecture
 
-  @Column({ name: "external_url" })
-  public externalUrl!: string
+  @Column({ name: "url" })
+  public url!: string
 }

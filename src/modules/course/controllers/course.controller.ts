@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseEnumPipe, ParseIntPipe, Post, Query } from "@nestjs/common"
+import { Body, Controller, Get, Param, ParseEnumPipe, ParseIntPipe, Post, Put, Query, Req } from "@nestjs/common"
 import { CourseDto } from "../dto/course.dto"
 import { CommandBus, QueryBus } from "@nestjs/cqrs"
 import { CreateCourseCommand } from "../commands/create-course.command"
@@ -15,6 +15,7 @@ import {
   ApiBadRequestResponse,
   ApiBearerAuth,
   ApiCreatedResponse,
+  ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
@@ -30,6 +31,10 @@ import { GetCourseCategoriesQuery } from "../queries/get-course-categories.query
 import { CourseCategoriesDto } from "../dto/course-categories.dto"
 import { CourseSectionDto } from "../dto/course-section.dto"
 import { CreateCourseSectionCommand } from "../commands/create-course-section.command"
+import { Request } from "express"
+import { PutLectureContentCommand } from "../commands/put-lecture-content.command"
+import { LectureDto } from "../dto/lecture.dto"
+import { CreateLectureCommand } from "../commands/create-lecture.command"
 
 @ApiTags("Courses")
 @Controller("courses")
@@ -152,6 +157,39 @@ export class CourseController {
   }
 
   @Post(":courseIdOrSlug/sections")
+  @ApiOperation({
+    summary: "Create a new course section",
+    description: "Creates a new section within a course. Requires instructor role and authentication."
+  })
+  @ApiParam({
+    name: "courseIdOrSlug",
+    type: String,
+    description: "Course unique identifier (UUID) or URL-friendly slug",
+    example: "introduction-to-web-development"
+  })
+  @ApiCreatedResponse({
+    description: "Course section successfully created",
+    type: CourseSectionDto
+  })
+  @ApiBadRequestResponse({
+    description: "Invalid section data provided",
+    type: CommonResponseDto
+  })
+  @ApiUnauthorizedResponse({
+    description: "Authentication token is missing or invalid",
+    type: CommonResponseDto
+  })
+  @ApiForbiddenResponse({
+    description: "User does not have instructor role or is not the course owner",
+    type: CommonResponseDto
+  })
+  @ApiNotFoundResponse({
+    description: "Course not found with the provided ID or slug",
+    type: CommonResponseDto
+  })
+  @ApiBearerAuth()
+  @Roles([UserRole.INSTRUCTOR])
+  @Authorized()
   public async createCourseSection(
     @Param("courseIdOrSlug") courseIdOrSlug: string,
     @Body() dto: CourseSectionDto
@@ -201,5 +239,24 @@ export class CourseController {
     @Query("search") search?: string
   ): Promise<PaginationDto<CourseCategoryDto>> {
     return this.queryBus.execute(new GetCourseCategoriesQuery(offset, limit, search))
+  }
+
+  @Post(":courseIdOrSlug/sections/:sectionId/lectures")
+  public async createLecture(
+    @Param("courseIdOrSlug") courseIdOrSlug: string,
+    @Param("sectionId") sectionId: string,
+    @Body() dto: LectureDto
+  ): Promise<LectureDto> {
+    return this.commandBus.execute(new CreateLectureCommand(courseIdOrSlug, sectionId, dto))
+  }
+
+  @Put(":courseIdOrSlug/lectures/:lectureId/content")
+  public async putLectureContent(
+    @Param("courseIdOrSlug") courseIdOrSlug: string,
+    @Param("lectureId") lectureId: string,
+    @Req() req: Request
+  ): Promise<CommonResponseDto> {
+    req.setTimeout(0) // Disable timeout for large file uploads
+    return this.commandBus.execute(new PutLectureContentCommand(courseIdOrSlug, lectureId, req))
   }
 }
