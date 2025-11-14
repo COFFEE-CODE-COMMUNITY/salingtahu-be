@@ -7,6 +7,14 @@ import { CommonResponseDto } from "./dto/common-response.dto"
 export class AppController {
   public constructor(private readonly fileStorage: FileStorage) {}
 
+  @Get("/health")
+  public health(): { status: string; timestamp: string } {
+    return {
+      status: "ok",
+      timestamp: new Date().toISOString()
+    }
+  }
+
   @Get("/files/*path")
   public async getFile(@Param("path") path: string): Promise<StreamableFile> {
     const filePath = path.split(",").join("/")
