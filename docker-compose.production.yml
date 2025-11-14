@@ -11,6 +11,8 @@ services:
       - "INFISICAL_CLIENT_SECRET=${INFISICAL_CLIENT_SECRET}"
       - "INFISICAL_PROJECT_ID=${INFISICAL_PROJECT_ID}"
       - "INFISICAL_URL=${INFISICAL_URL}"
+    env_file:
+      - .env
     depends_on:
       postgres:
         condition: service_healthy

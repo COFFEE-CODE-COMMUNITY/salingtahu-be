@@ -85,6 +85,15 @@ jobs:
           sshpass -p '${{ secrets.VM_PASSWORD }}' scp -o StrictHostKeyChecking=no \
             -r nginx ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}:~/salingtau-production/
 
+      - name: Create certbot directories on VM
+        run: |
+          sshpass -p '${{ secrets.VM_PASSWORD }}' ssh -o StrictHostKeyChecking=no \
+            ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'EOF'
+            cd ~/salingtau-production
+            mkdir -p certbot/conf certbot/www
+            echo "Certbot directories created"
+          EOF
+
       - name: Deploy application
         run: |
           sshpass -p '${{ secrets.VM_PASSWORD }}' ssh -o StrictHostKeyChecking=no \
