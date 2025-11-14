@@ -8,6 +8,7 @@ import { CourseCategory } from "./course-category.entity"
 import { CourseReview } from "./course-review.entity"
 import { ImageMetadata } from "../../../entities/image-metadata.entity"
 import { User } from "../../user/entities/user.entity"
+import { Transaction } from "../../transaction/entities/transaction.entity"
 
 @Entity({ name: "courses" })
 export class Course extends BaseEntity {
@@ -64,4 +65,7 @@ export class Course extends BaseEntity {
   @ManyToOne(() => User, user => user.courses)
   @AutoMap(() => User)
   public instructor!: User
+
+  @OneToMany(() => Transaction, transaction => transaction.course)
+  public transactions!: Transaction[]
 }

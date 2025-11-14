@@ -20,6 +20,10 @@ export abstract class BaseRepository<E extends BaseEntity> {
     return this.getRepository().count()
   }
 
+  public create(entityLike: DeepPartial<E>): E {
+    return this.getRepository().create(entityLike)
+  }
+
   public async delete(id: EntityId): Promise<void> {
     await this.getRepository().delete(id as any)
   }
