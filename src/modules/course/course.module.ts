@@ -23,13 +23,7 @@ import { UploadThumbnailHandler } from "./commands/handlers/upload-thumbnail.han
 import { IMAGE_PROCESSING_QUEUE } from "../../queue/image-processing.consumer"
 
 @Module({
-  imports: [
-    BullModule.registerQueue(
-      { name: VIDEO_PROCESSING_QUEUE },
-      { name: IMAGE_PROCESSING_QUEUE }
-    ),
-    UserModule
-  ],
+  imports: [BullModule.registerQueue({ name: VIDEO_PROCESSING_QUEUE }, { name: IMAGE_PROCESSING_QUEUE }), UserModule],
   controllers: [CourseController],
   providers: [
     // Handlers

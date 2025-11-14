@@ -1,5 +1,5 @@
-import { Command } from "@nestjs/cqrs";
-import { LectureDto } from "../dto/lecture.dto";
+import { Command } from "@nestjs/cqrs"
+import { LectureDto } from "../dto/lecture.dto"
 
 export class CreateLectureCommand extends Command<LectureDto> {
   public constructor(
