@@ -50,7 +50,7 @@ import { Transaction } from "../modules/transaction/entities/transaction.entity"
             LectureFile,
             LectureProgress,
             LectureVideo,
-            Transaction,
+            Transaction
           ]
         }
       },

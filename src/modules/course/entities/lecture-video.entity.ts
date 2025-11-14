@@ -7,9 +7,9 @@ export class LectureVideo extends BaseEntity {
   @OneToOne(() => Lecture, lecture => lecture.id, { onDelete: "CASCADE" })
   public lecture!: Lecture
 
-  @Column({ name: "duration_seconds", type: "bigint" })
+  @Column({ name: "duration_seconds", type: "bigint", default: 0 })
   public durationMiliSeconds!: number
 
-  @Column({ name: "thumbnail_url" })
+  @Column({ name: "thumbnail_url", nullable: true })
   public thumbnailUrl!: string
 }

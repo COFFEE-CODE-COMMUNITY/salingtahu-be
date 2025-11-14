@@ -27,6 +27,7 @@ import { MapperModule } from "./mappers/mapper.module"
 import { UtilModule } from "./utils/util.module"
 import { FactoryModule } from "./factories/factory.module"
 import { TransactionModule } from "./modules/transaction/transaction.module"
+import { AdminModule } from "./modules/admin/admin.module"
 
 @Global()
 @Module({
@@ -65,6 +66,7 @@ import { TransactionModule } from "./modules/transaction/transaction.module"
     ValidationModule,
     WebhookModule,
     TransactionModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [
