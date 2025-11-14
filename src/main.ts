@@ -10,6 +10,9 @@ import cors from "cors"
 import cookieParser from "cookie-parser"
 import { useContainer } from "class-validator"
 import { NodeEnv } from "./enums/node-env"
+import dotenv from "dotenv"
+
+dotenv.config()
 
 export class Main {
   private static readonly isMain = require.main === module
