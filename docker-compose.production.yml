@@ -72,7 +72,7 @@ services:
       - "6379"
     volumes:
       - salingtau_redis_production_data:/data
-    command: redis-server --appendonly yes --requirepass redis_password
+    command: redis-server --appendonly yes
     healthcheck:
       test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
       interval: 10s
