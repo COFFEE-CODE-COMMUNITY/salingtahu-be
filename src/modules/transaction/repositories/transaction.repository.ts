@@ -1,0 +1,35 @@
+import { Injectable } from "@nestjs/common"
+import { BaseRepository } from "../../../base/base.repository"
+import { Transaction } from "../entities/transaction.entity"
+import { DataSource, EntityManager } from "typeorm"
+import { TransactionContextService } from "../../../database/unit-of-work/transaction-context.service"
+
+@Injectable()
+export class TransactionRepository extends BaseRepository<Transaction> {
+  public constructor(dataSource: DataSource, transactionContextService: TransactionContextService<EntityManager>) {
+    super(dataSource, transactionContextService, Transaction)
+  }
+
+  public async findByTransactionId(transactionId: string): Promise<Transaction | null> {
+    return this.getRepository().findOne({
+      where: { transactionId },
+      relations: {
+        user: true,
+        course: true
+      }
+    })
+  }
+
+  public async findByUserId(userId: string): Promise<Transaction[]> {
+    return this.getRepository().find({
+      where: { user: { id: userId } },
+      relations: {
+        user: true,
+        course: true
+      },
+      order: {
+        createdAt: "DESC"
+      }
+    })
+  }
+}
