@@ -35,6 +35,7 @@ import { Request } from "express"
 import { PutLectureContentCommand } from "../commands/put-lecture-content.command"
 import { LectureDto } from "../dto/lecture.dto"
 import { CreateLectureCommand } from "../commands/create-lecture.command"
+import { UploadThumbnailCommand } from "../commands/upload-thumbnail.command"
 
 @ApiTags("Courses")
 @Controller("courses")
@@ -154,6 +155,15 @@ export class CourseController {
   @Authorized()
   public async createCourse(@Body() dto: CourseDto): Promise<CourseDto> {
     return this.commandBus.execute(new CreateCourseCommand(dto))
+  }
+
+  @Put(":courseIdOrSlug/thumbnail")
+  public async uploadCourseThumbnail(
+    @Param("courseIdOrSlug") courseIdOrSlug: string,
+    @Req() req: Request
+  ): Promise<CommonResponseDto> {
+    req.setTimeout(0) // Disable timeout for large file uploads
+    return this.commandBus.execute(new UploadThumbnailCommand(courseIdOrSlug, req))
   }
 
   @Post(":courseIdOrSlug/sections")

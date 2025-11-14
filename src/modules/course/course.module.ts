@@ -19,6 +19,7 @@ import { LectureVideoRepository } from "./repositories/lecture-video.repository"
 import { CreateCourseSectionHandler } from "./commands/handlers/create-course-section.handler"
 import { CourseSectionRepository } from "./repositories/course-section.repository"
 import { CreateLectureHandler } from "./commands/handlers/create-lecture.handler"
+import { UploadThumbnailHandler } from "./commands/handlers/upload-thumbnail.handler"
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { CreateLectureHandler } from "./commands/handlers/create-lecture.handler
     GetCourseHandler,
     GetCoursesHandler,
     PutLectureContentHandler,
+    UploadThumbnailHandler,
 
     // Mappers
     CourseMapper,
