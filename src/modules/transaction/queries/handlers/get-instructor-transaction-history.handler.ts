@@ -19,5 +19,5 @@ export class GetInstructorTransactionHistoryHandler implements IQueryHandler<Get
     }
 
     return await this.transactionRepository.findByInstructorId(query.userId)
-}
+  }
 }
