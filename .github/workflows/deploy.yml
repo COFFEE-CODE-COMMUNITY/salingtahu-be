@@ -156,12 +156,11 @@ jobs:
                 -d api.salingtau.cthree.it.com \
                 --email ${{ secrets.SSL_EMAIL }} \
                 --agree-tos \
-                --no-eff-email \
-                --force-renewal
+                --no-eff-email
 
               echo "Certificates obtained! Reloading nginx..."
               docker compose -f docker-compose.production.yml exec nginx nginx -s reload
-              echo "Done!"
+              echo "SSL setup complete!"
             else
               echo "SSL certificates already exist, skipping..."
             fi
