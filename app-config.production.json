@@ -2,7 +2,7 @@
   "app": {
     "port": 8080,
     "domain": "salingtau.com",
-    "cdnUrl": "https://cdn.salingtau.cthree.it.com"
+    "cdnUrl": "https://api.salingtau.cthree.it.com/api/v1/files"
   },
   "client": {
     "web": {

@@ -140,6 +140,33 @@ jobs:
             docker compose -f ${{ env.DOCKER_COMPOSE_FILE }} logs --tail=20 frontend
           EOF
 
+      - name: Obtain SSL certificates
+        run: |
+          sshpass -p '${{ secrets.VM_PASSWORD }}' ssh -o StrictHostKeyChecking=no \
+            ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'SSLEOF'
+            cd ~/salingtau-production
+
+            # Check if certificates already exist
+            if [ ! -f certbot/conf/live/salingtau.cthree.it.com/fullchain.pem ]; then
+              echo "Obtaining SSL certificates..."
+
+              docker compose -f docker-compose.production.yml run --rm certbot certonly --webroot \
+                -w /var/www/certbot \
+                -d salingtau.cthree.it.com \
+                -d api.salingtau.cthree.it.com \
+                --email ${{ secrets.SSL_EMAIL }} \
+                --agree-tos \
+                --no-eff-email \
+                --force-renewal
+
+              echo "Certificates obtained! Reloading nginx..."
+              docker compose -f docker-compose.production.yml exec nginx nginx -s reload
+              echo "Done!"
+            else
+              echo "SSL certificates already exist, skipping..."
+            fi
+          SSLEOF
+
       - name: Cleanup old images
         run: |
           sshpass -p '${{ secrets.VM_PASSWORD }}' ssh -o StrictHostKeyChecking=no \
