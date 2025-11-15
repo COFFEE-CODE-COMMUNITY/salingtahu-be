@@ -32,4 +32,23 @@ export class TransactionRepository extends BaseRepository<Transaction> {
       }
     })
   }
+
+  public async findByInstructorId(userId: string): Promise<Transaction[]> {
+    return this.getRepository().find({
+      where: {
+        course: {
+          instructor: { id: userId }
+        }
+      },
+      relations: {
+        user: true, // student / buyer
+        course: {
+          instructor: true // seller
+        }
+      },
+      order: {
+        createdAt: "DESC"
+      }
+    })
+  }
 }
