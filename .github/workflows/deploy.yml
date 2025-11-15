@@ -141,28 +141,38 @@ jobs:
           EOF
 
       - name: Obtain SSL certificates
+        continue-on-error: true
         run: |
           sshpass -p '${{ secrets.VM_PASSWORD }}' ssh -o StrictHostKeyChecking=no \
             ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'SSLEOF'
             cd ~/salingtau-production
 
-            # Check if certificates already exist
-            if [ ! -f certbot/conf/live/salingtau.cthree.it.com/fullchain.pem ]; then
-              echo "Obtaining SSL certificates..."
+            # Check if valid certificates already exist
+            if [ -f certbot/conf/live/salingtau.cthree.it.com/fullchain.pem ]; then
+              echo "Valid SSL certificates already exist, skipping..."
+              exit 0
+            fi
 
-              docker compose -f docker-compose.production.yml run --rm certbot certonly --webroot \
-                -w /var/www/certbot \
-                -d salingtau.cthree.it.com \
-                -d api.salingtau.cthree.it.com \
-                --email ${{ secrets.SSL_EMAIL }} \
-                --agree-tos \
-                --no-eff-email
+            echo "Obtaining SSL certificates..."
 
+            # Clean up any partial certificate attempts
+            rm -rf certbot/conf/live certbot/conf/archive certbot/conf/renewal
+
+            docker compose -f docker-compose.production.yml run --rm certbot certonly --webroot \
+              -w /var/www/certbot \
+              -d salingtau.cthree.it.com \
+              -d api.salingtau.cthree.it.com \
+              --email ${{ secrets.SSL_EMAIL }} \
+              --agree-tos \
+              --no-eff-email
+
+            if [ -f certbot/conf/live/salingtau.cthree.it.com/fullchain.pem ]; then
               echo "Certificates obtained! Reloading nginx..."
               docker compose -f docker-compose.production.yml exec nginx nginx -s reload
               echo "SSL setup complete!"
             else
-              echo "SSL certificates already exist, skipping..."
+              echo "Failed to obtain certificates. Check if domains are correctly pointed to this server."
+              echo "HTTPS will not be available until certificates are obtained."
             fi
           SSLEOF
 
